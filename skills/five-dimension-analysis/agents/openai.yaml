@@ -1,0 +1,4 @@
+interface:
+  display_name: "五维分析"
+  short_description: "用时间、利益、权力、博弈、本质五个维度拆解复杂局面，产出可证伪判断"
+  default_prompt: "Use $five-dimension-analysis to 拆解这个局面的五个维度，给出可证伪的判断与不超过三条的具体动作。"
