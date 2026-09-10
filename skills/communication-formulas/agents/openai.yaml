@@ -1,0 +1,4 @@
+interface:
+  display_name: "沟通公式"
+  short_description: "按目的选用 SCQA、FAB、BACC、3W、PREP 五套表达顺序"
+  default_prompt: "Use $communication-formulas to 按沟通目的选择表达公式，把想说的意思改成可直接开口的成稿。"
