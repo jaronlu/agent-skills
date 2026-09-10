@@ -39,10 +39,17 @@
 | [git-commit](skills/git-commit/SKILL.md) | 生成符合仓库规则的 Conventional Commit 信息，或提交已暂存的变更。 |
 | [hermes-context-review](skills/hermes-context-review/SKILL.md) | 审查 Hermes 上下文中的冲突、过期、不安全或冗余指令。 |
 | [llm-wiki](skills/llm-wiki/SKILL.md) | 在显式调用时搜索、验证和维护本地 Markdown Wiki。 |
+| [five-dimension-analysis](skills/five-dimension-analysis/SKILL.md) | 把复杂局面拆成时间、利益、权力、博弈、本质五个维度，产出可证伪的判断与可执行动作。 |
+| [communication-formulas](skills/communication-formulas/SKILL.md) | 按沟通目的选用 SCQA / FAB / BACC / 3W / PREP 五套表达顺序，装配成可直接开口的话术。 |
 
 用户指南是可选的，位于运行时包之外的 `docs/skills/`。该目录是指向 llm-wiki workshop 的软链接，
 不受本仓库版本控制。目前只有 [design-convergence-review](docs/skills/design-convergence-review.md)
 提供了用户指南。
+
+### 流程图
+
+- [communication-formulas：如何选择公式](assets/communication-formulas-routing.svg)
+- [five-dimension-analysis：六步执行流程](assets/five-dimension-analysis-flow.svg)
 
 ## 验证
 
