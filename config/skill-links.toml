@@ -42,3 +42,10 @@ skills = [
   "git-commit",
   "hermes-context-review",
 ]
+
+[targets.workbuddy]
+path = "~/.workbuddy/skills"
+skills = [
+  "five-dimension-analysis",
+  "communication-formulas",
+]
