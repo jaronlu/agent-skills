@@ -28,9 +28,12 @@ class SkillLinkManagerTests(unittest.TestCase):
         skill.mkdir(parents=True, exist_ok=True)
         (skill / "SKILL.md").write_text(f"---\nname: {name}\ndescription: test\n---\n", encoding="utf-8")
 
-    def write_config(self, skills: list[str], *, source: Path | None = None) -> None:
+    def write_config(
+        self, skills: list[str], *, source: Path | None = None, mode: str | None = None
+    ) -> None:
         source = source or self.source
         quoted = ", ".join(json.dumps(skill) for skill in skills)
+        mode_line = [f"mode = {json.dumps(mode)}"] if mode else []
         self.config_path.write_text(
             "\n".join(
                 [
@@ -42,6 +45,7 @@ class SkillLinkManagerTests(unittest.TestCase):
                     "[targets.test]",
                     f"path = {json.dumps(str(self.target))}",
                     f"skills = [{quoted}]",
+                    *mode_line,
                     "",
                 ]
             ),
@@ -142,6 +146,64 @@ class SkillLinkManagerTests(unittest.TestCase):
         args = ["check", "--config", str(self.config_path)]
         self.assertEqual(main(args), 0)
         self.assertTrue((self.target / "alpha").is_symlink())
+
+    def test_copy_mode_publishes_a_real_directory_and_is_idempotent(self) -> None:
+        self.write_config(["alpha"], mode="copy")
+        self.sync()
+
+        published = self.target / "alpha"
+        self.assertFalse(published.is_symlink())
+        self.assertTrue((published / "SKILL.md").is_file())
+
+        plan = build_plan(load_config(self.config_path))
+        self.assertFalse(plan.changes)
+        self.assertEqual([op.action for op in plan.operations], ["keep"])
+
+    def test_copy_mode_replaces_an_outdated_copy(self) -> None:
+        self.write_config(["alpha"], mode="copy")
+        self.sync()
+        published = self.target / "alpha" / "SKILL.md"
+        published.write_text("stale\n", encoding="utf-8")
+
+        config = load_config(self.config_path)
+        plan = build_plan(config)
+        self.assertEqual([op.action for op in plan.changes], ["replace"])
+        self.assertEqual(plan.changes[0].detail, "outdated copy")
+
+        apply_plan(plan)
+        verify(config)
+        self.assertTrue(published.read_text(encoding="utf-8").startswith("---"))
+
+    def test_copy_mode_converts_a_legacy_symlink_into_a_copy(self) -> None:
+        self.sync()
+        self.assertTrue((self.target / "alpha").is_symlink())
+
+        self.write_config(["alpha"], mode="copy")
+        config = load_config(self.config_path)
+        plan = build_plan(config)
+        self.assertEqual([op.action for op in plan.changes], ["replace"])
+        self.assertEqual(plan.changes[0].detail, "non-directory entry")
+
+        apply_plan(plan)
+        verify(config)
+        self.assertFalse((self.target / "alpha").is_symlink())
+        self.assertTrue((self.target / "alpha" / "SKILL.md").is_file())
+
+    def test_unlink_removes_only_a_managed_copy(self) -> None:
+        self.write_config(["alpha"], mode="copy")
+        self.sync()
+        external = self.target / "external"
+        external.mkdir()
+
+        config = load_config(self.config_path)
+        apply_plan(build_plan(config, unlink_all=True))
+        self.assertFalse(os.path.lexists(self.target / "alpha"))
+        self.assertTrue(external.is_dir())
+
+    def test_rejects_unknown_sync_mode(self) -> None:
+        self.write_config(["alpha"], mode="binary")
+        with self.assertRaisesRegex(ConfigError, "mode must be"):
+            load_config(self.config_path)
 
 
 if __name__ == "__main__":

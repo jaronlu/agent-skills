@@ -1,6 +1,8 @@
 # Agent Skills
 
-One repository for the agent skills you maintain, shared with Codex, Claude, Hermes, and Zcode through symbolic links.
+One repository for the agent skills you maintain. Skills are published to the CC Switch library
+at `~/.agents/skills`, and CC Switch distributes them to Claude Code, Codex, Gemini CLI, Hermes,
+Zcode, WorkBuddy, and other compatible tools.
 
 [简体中文](README_zh-CN.md)
 
@@ -10,12 +12,14 @@ One repository for the agent skills you maintain, shared with Codex, Claude, Her
 
 ## Why
 
-Maintain a skill once and make the same version available to every configured agent. The link manager keeps distribution predictable and protects files it does not manage.
+Maintain a skill once and publish it to one library. CC Switch owns every agent-facing
+distribution step, so this repository never tracks individual tool directories and never has to be
+re-linked when a tool changes where it looks for skills.
 
 ## How
 
 1. Add or update a skill in `skills/`.
-2. Select the target agents and skills in `config/skill-links.toml`.
+2. Register it in `config/skill-links.toml` under `[targets.cc-switch]`.
 3. Review the proposed changes:
 
    ```bash
@@ -28,7 +32,9 @@ Maintain a skill once and make the same version available to every configured ag
    python3 scripts/manage_skill_links.py sync
    ```
 
-Use `status` to see current links and `check` to validate the configuration. `sync` changes only configured destinations and refuses to overwrite unmanaged files.
+`sync` copies each configured skill into the CC Switch library. Use `status` to see the configured
+destinations and `check` to verify the library matches this repository; `check` exits non-zero when
+the library is behind. Entries the manager does not own are never overwritten.
 
 ## Skills
 

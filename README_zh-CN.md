@@ -1,6 +1,7 @@
 # Agent Skills
 
-自研 Agent Skill 的统一仓库。通过软链接分发到 Codex、Claude、Hermes 和 Zcode。
+自研 Agent Skill 的统一仓库。技能发布到 CC Switch 库（`~/.agents/skills`），再由 CC Switch
+分发给 Claude Code、Codex、Gemini CLI、Hermes、Zcode、WorkBuddy 等兼容工具。
 
 [English](README.md)
 
@@ -10,12 +11,13 @@
 
 ## 为什么
 
-维护一次，即可让所有已配置的 Agent 使用同一版本。链接管理器让分发结果可预期，并保护它不管理的文件。
+维护一次，发布到一个库。库到各工具的分发由 CC Switch 负责，本仓库因此不需要跟踪各个工具的
+技能目录，也不会因为工具更换查找位置而重新建链。
 
 ## 怎么做
 
 1. 在 `skills/` 中新增或更新 Skill。
-2. 在 `config/skill-links.toml` 中选择目标 Agent 和要分发的 Skill。
+2. 在 `config/skill-links.toml` 的 `[targets.cc-switch]` 中登记该 Skill。
 3. 先预览变更：
 
    ```bash
@@ -28,7 +30,8 @@
    python3 scripts/manage_skill_links.py sync
    ```
 
-用 `status` 查看当前链接，用 `check` 校验配置。`sync` 只处理配置中的目标位置，遇到未受管理的文件会拒绝覆盖。
+`sync` 会把配置中的每个 Skill 复制进 CC Switch 库。用 `status` 查看配置的目标位置，用 `check`
+校验库与仓库是否一致（落后时返回非零）。管理器不管理的条目永远不会被覆盖。
 
 ## Skills
 

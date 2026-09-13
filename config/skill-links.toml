@@ -1,51 +1,24 @@
 version = 1
 
+# Skills are authored in this repository; publishing stops at the CC Switch
+# library. CC Switch owns every agent-facing distribution step from there
+# (Claude Code, Codex, Gemini CLI, Hermes, Zcode, WorkBuddy and others), so this
+# file must not list per-tool targets again.
+#
+# `source` is omitted on purpose: it defaults to this repository, so moving the
+# checkout can no longer leave a stale path behind.
+
 [distribution]
-source = "~/Desktop/00-projects/agent-skills"
 
-[targets.codex]
-path = "~/.codex/skills"
+[targets.cc-switch]
+path = "~/.agents/skills"
+mode = "copy"
 skills = [
-  "design-convergence-review",
-  "first-principles",
-  "llm-wiki",
-  "git-commit",
-  "hermes-context-review",
-]
-
-[targets.claude]
-path = "~/.claude/skills"
-skills = [
-  "design-convergence-review",
-  "first-principles",
-  "llm-wiki",
-  "git-commit",
-  "hermes-context-review",
-]
-
-[targets.hermes]
-path = "~/.hermes/skills"
-skills = [
-  "design-convergence-review",
-  "first-principles",
-  "llm-wiki",
-  "git-commit",
-  "hermes-context-review",
-]
-
-[targets.zcode]
-path = "~/.zcode/skills"
-skills = [
-  "design-convergence-review",
-  "first-principles",
-  "llm-wiki",
-  "git-commit",
-  "hermes-context-review",
-]
-
-[targets.workbuddy]
-path = "~/.workbuddy/skills"
-skills = [
-  "five-dimension-analysis",
   "communication-formulas",
+  "design-convergence-review",
+  "first-principles",
+  "five-dimension-analysis",
+  "git-commit",
+  "hermes-context-review",
+  "llm-wiki",
 ]

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import os
 import shutil
 import sys
@@ -24,6 +25,7 @@ class Target:
     name: str
     path: Path
     skills: tuple[str, ...]
+    mode: str = "symlink"
 
 
 @dataclass(frozen=True)
@@ -40,6 +42,7 @@ class Operation:
     link: Path
     source: Path | None = None
     detail: str = ""
+    mode: str = "symlink"
 
     def render(self) -> str:
         suffix = f" -> {self.source}" if self.source is not None else ""
@@ -80,10 +83,13 @@ def load_config(path: Path) -> Config:
     if not isinstance(distribution, dict):
         raise ConfigError("missing [distribution] table")
     source_raw = distribution.get("source")
-    if not isinstance(source_raw, str) or not source_raw:
+    if source_raw is None:
+        source = REPO_ROOT
+    elif isinstance(source_raw, str) and source_raw:
+        source = expand_path(source_raw)
+    else:
         raise ConfigError("distribution.source must be a non-empty path")
 
-    source = expand_path(source_raw)
     if not source.is_absolute():
         raise ConfigError("distribution.source must resolve to an absolute path")
     skills_root = source / "skills"
@@ -107,6 +113,9 @@ def load_config(path: Path) -> Config:
             raise ConfigError(f"targets.{name}.skills must be a list of names")
         if len(skills_raw) != len(set(skills_raw)):
             raise ConfigError(f"targets.{name}.skills contains duplicates")
+        mode_raw = raw.get("mode", "symlink")
+        if mode_raw not in {"symlink", "copy"}:
+            raise ConfigError(f"targets.{name}.mode must be 'symlink' or 'copy'")
 
         target_path = expand_path(path_raw)
         try:
@@ -120,7 +129,9 @@ def load_config(path: Path) -> Config:
             skill_dir = skills_root / skill
             if not skill_dir.is_dir() or not (skill_dir / "SKILL.md").is_file():
                 raise ConfigError(f"unknown or invalid skill for {name}: {skill}")
-        targets.append(Target(name=name, path=target_path, skills=tuple(skills_raw)))
+        targets.append(
+            Target(name=name, path=target_path, skills=tuple(skills_raw), mode=mode_raw)
+        )
 
     return Config(source=source, targets=tuple(targets))
 
@@ -139,8 +150,32 @@ def same_path(left: Path, right: Path) -> bool:
     return os.path.normpath(str(left)) == os.path.normpath(str(right))
 
 
-def desired_links(config: Config) -> dict[str, tuple[str, str, Path, Path]]:
-    desired: dict[str, tuple[str, str, Path, Path]] = {}
+IGNORED_TREE_NAMES = {".DS_Store", "__pycache__"}
+
+
+def tree_signature(root: Path) -> dict[str, str]:
+    """Content signature of a directory tree, ignoring macOS and bytecode noise."""
+    signature: dict[str, str] = {}
+    for path in sorted(root.rglob("*")):
+        name = str(path.relative_to(root))
+        if path.is_symlink():
+            signature[name] = f"link:{os.readlink(path)}"
+        elif path.is_file():
+            if path.name in IGNORED_TREE_NAMES or path.suffix == ".pyc":
+                continue
+            signature[name] = hashlib.sha256(path.read_bytes()).hexdigest()
+    return signature
+
+
+def is_managed_copy(entry: Path, source: Path) -> bool:
+    """True when `entry` is already a faithful real-directory copy of `source`."""
+    if entry.is_symlink() or not entry.is_dir():
+        return False
+    return tree_signature(entry) == tree_signature(source)
+
+
+def desired_links(config: Config) -> dict[str, tuple[str, str, Path, Path, str]]:
+    desired: dict[str, tuple[str, str, Path, Path, str]] = {}
     for target in config.targets:
         for skill in target.skills:
             link = target.path / skill
@@ -148,50 +183,71 @@ def desired_links(config: Config) -> dict[str, tuple[str, str, Path, Path]]:
             key = str(link)
             if key in desired:
                 raise ConfigError(f"duplicate destination across targets: {link}")
-            desired[key] = (target.name, skill, link, source)
+            desired[key] = (target.name, skill, link, source, target.mode)
     return desired
+
+
+def removal_operation(
+    target_name: str, skill: str, link: Path, source: Path, mode: str
+) -> Operation:
+    """Classify removing one destination, refusing entries the manager does not own."""
+    actual = link_target(link)
+    points_at_source = actual is not None and same_path(actual, source)
+    owned = points_at_source
+    if mode == "copy" and is_managed_copy(link, source):
+        owned = True
+    if owned:
+        return Operation("remove", target_name, skill, link, source, mode=mode)
+    detail = (
+        "current entry is not a managed copy"
+        if mode == "copy"
+        else "current entry does not point to configured source"
+    )
+    return Operation("conflict", target_name, skill, link, source, detail, mode=mode)
+
+
+def sync_operation(
+    target_name: str, skill: str, link: Path, source: Path, mode: str
+) -> Operation:
+    """Classify one destination for a sync."""
+    if not os.path.lexists(link):
+        return Operation("create", target_name, skill, link, source, mode=mode)
+
+    if mode == "copy":
+        if is_managed_copy(link, source):
+            return Operation("keep", target_name, skill, link, source, mode=mode)
+        detail = "non-directory entry" if link.is_symlink() or not link.is_dir() else "outdated copy"
+        return Operation("replace", target_name, skill, link, source, detail, mode=mode)
+
+    if not link.is_symlink():
+        if link.is_dir():
+            return Operation(
+                "replace", target_name, skill, link, source, "existing directory", mode=mode
+            )
+        return Operation(
+            "conflict", target_name, skill, link, detail="real file exists", mode=mode
+        )
+
+    actual = link_target(link)
+    if actual is not None and same_path(actual, source):
+        return Operation("keep", target_name, skill, link, source, mode=mode)
+    return Operation(
+        "replace", target_name, skill, link, source, "existing symbolic link", mode=mode
+    )
 
 
 def build_plan(config: Config, *, unlink_all: bool = False) -> Plan:
     desired = desired_links(config)
     operations: list[Operation] = []
 
-    for _key, (target_name, skill, link, source) in desired.items():
+    for _key, (target_name, skill, link, source, mode) in desired.items():
         if unlink_all:
             if not os.path.lexists(link):
                 continue
-            actual = link_target(link)
-            if actual is not None and same_path(actual, source):
-                operations.append(Operation("remove", target_name, skill, link, source))
-            else:
-                operations.append(
-                    Operation(
-                        "conflict",
-                        target_name,
-                        skill,
-                        link,
-                        source,
-                        "current entry does not point to configured source",
-                    )
-                )
+            operations.append(removal_operation(target_name, skill, link, source, mode))
             continue
 
-        if not os.path.lexists(link):
-            operations.append(Operation("create", target_name, skill, link, source))
-            continue
-        if not link.is_symlink():
-            if link.is_dir():
-                operations.append(Operation("replace", target_name, skill, link, source, "existing directory"))
-            else:
-                operations.append(Operation("conflict", target_name, skill, link, detail="real file exists"))
-            continue
-
-        actual = link_target(link)
-        if actual is not None and same_path(actual, source):
-            operations.append(Operation("keep", target_name, skill, link, source))
-            continue
-
-        operations.append(Operation("replace", target_name, skill, link, source, "existing symbolic link"))
+        operations.append(sync_operation(target_name, skill, link, source, mode))
 
     for target in config.targets:
         if not target.path.is_dir():
@@ -247,6 +303,21 @@ def _require_source(operation: Operation) -> Path:
     return operation.source
 
 
+def _remove_entry(entry: Path) -> None:
+    if entry.is_symlink() or not entry.is_dir():
+        entry.unlink()
+    else:
+        shutil.rmtree(entry)
+
+
+def _create_entry(entry: Path, source: Path, mode: str) -> None:
+    entry.parent.mkdir(parents=True, exist_ok=True)
+    if mode == "copy":
+        shutil.copytree(source, entry)
+    else:
+        entry.symlink_to(source, target_is_directory=True)
+
+
 def apply_plan(plan: Plan) -> None:
     if plan.conflicts:
         raise ConfigError("refusing to mutate while conflicts exist")
@@ -255,18 +326,13 @@ def apply_plan(plan: Plan) -> None:
     try:
         for operation in plan.operations:
             if operation.action == "remove":
-                operation.link.unlink()
+                _remove_entry(operation.link)
             elif operation.action == "replace":
                 source = _require_source(operation)
-                if operation.link.is_symlink():
-                    operation.link.unlink()
-                else:
-                    shutil.rmtree(operation.link)
-                operation.link.symlink_to(source, target_is_directory=True)
+                _remove_entry(operation.link)
+                _create_entry(operation.link, source, operation.mode)
             elif operation.action == "create":
-                source = _require_source(operation)
-                operation.link.parent.mkdir(parents=True, exist_ok=True)
-                operation.link.symlink_to(source, target_is_directory=True)
+                _create_entry(operation.link, _require_source(operation), operation.mode)
             else:
                 continue
             completed.append(operation)
