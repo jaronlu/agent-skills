@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / "skills" / "git-commit" / "SKILL.md"
 DEFAULTS = ROOT / "skills" / "git-commit" / "references" / "default-rules.md"
 EXECUTION = ROOT / "skills" / "git-commit" / "references" / "commit-execution.md"
+WORKFLOW = ROOT / "skills" / "git-commit" / "references" / "workflow.md"
 
 
 class GitCommitSkillContractTests(unittest.TestCase):
@@ -25,6 +26,7 @@ class GitCommitSkillContractTests(unittest.TestCase):
         cls.skill = SKILL.read_text(encoding="utf-8")
         cls.defaults = DEFAULTS.read_text(encoding="utf-8")
         cls.execution = EXECUTION.read_text(encoding="utf-8")
+        cls.workflow = WORKFLOW.read_text(encoding="utf-8")
 
     def assert_contract(self, text: str, pattern: str, label: str) -> None:
         self.assertRegex(text, pattern, f"missing contract: {label}")
@@ -56,6 +58,10 @@ class GitCommitSkillContractTests(unittest.TestCase):
             self.skill, r"leave unstaged and untracked changes out",
             "unstaged and untracked changes stay out of the message",
         )
+        self.assert_contract(
+            self.workflow, r"`MM file` — both staged and unstaged",
+            "ambiguous porcelain columns have worked examples",
+        )
 
     def test_porcelain_status_columns_determine_the_commit_scope(self) -> None:
         """Guard the XY-column rule: `X` is staged, `Y` is unstaged, `??` is untracked."""
@@ -75,6 +81,24 @@ class GitCommitSkillContractTests(unittest.TestCase):
 
     def test_incompatible_repository_rules_and_split_intents_stop(self) -> None:
         self.assert_contract(
+            self.skill,
+            r"Scope is required and must name a module, package, or area that already exists",
+            "scopes must name an existing area",
+        )
+        self.assert_contract(self.skill, r"never invent one", "scopes are never invented")
+        self.assertIn("feat(common&share&tool)", self.skill)
+        self.assertIn("feat(common&share&tool)", self.defaults)
+        self.assert_contract(
+            self.skill,
+            r"split them into separate commits",
+            "a joined scope never merges unrelated intents",
+        )
+        self.assert_contract(
+            self.execution,
+            r"Quote every `-m` argument",
+            "shell metacharacters in a scope stay quoted",
+        )
+        self.assert_contract(
             self.skill, r"incompatible message format, stop and report the conflict",
             "incompatible repository rules stop the run",
         )
@@ -86,6 +110,36 @@ class GitCommitSkillContractTests(unittest.TestCase):
             self.skill, r"Never include unrelated user changes",
             "unrelated user changes are never absorbed",
         )
+
+    def test_one_language_per_run(self) -> None:
+        self.assert_contract(
+            self.skill,
+            r"Use one language for every message in a run",
+            "one language per run",
+        )
+        self.assert_contract(
+            self.skill,
+            r"never mix languages inside a subject, inside a body, or between the commits",
+            "no language mixing inside a message or across commits",
+        )
+        self.assert_contract(
+            self.skill,
+            r"Leave identifiers, file names, API names, and type names untranslated",
+            "identifiers stay untranslated",
+        )
+
+    def test_every_reference_is_routed_from_the_skill(self) -> None:
+        """SKILL.md must link each reference it defers to, with no nested chain."""
+        references = sorted(
+            path.name for path in (SKILL.parent / "references").glob("*.md")
+        )
+        self.assertTrue(references, "the skill must keep its references")
+        for name in references:
+            self.assertIn(
+                f"references/{name}",
+                self.skill,
+                f"{name} is not routed from SKILL.md",
+            )
 
     def test_sensitive_and_high_risk_git_operations_require_explicit_request(
         self,

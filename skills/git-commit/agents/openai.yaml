@@ -1,4 +1,4 @@
 interface:
   display_name: "Git Commit"
-  short_description: "Draft messages or commit staged Git changes"
+  short_description: "Draft messages or create atomic Git commits"
   default_prompt: "Use $git-commit to draft a repository-aware commit message or commit the staged changes and verify the result."

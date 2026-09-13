@@ -1,16 +1,6 @@
 # Default Commit Rules
 
-Read only the sections needed when repository rules and explicit user instructions leave a decision open.
-
-## Message Shape
-
-- Use `type(scope): subject` or `type: subject`; this format is mandatory.
-- Omit scope when it would be guessed, unstable, or cross-cutting.
-- Use English unless the user clearly requests another language.
-- Keep the subject specific, imperative, and without a trailing period.
-- Keep the subject within 50 characters when practical.
-- Add a body only when the why, impact, migration, trade-off, or caveat matters; wrap it at about 72 characters.
-- Do not include implementation trivia unless it is the system-relevant change.
+Read only for decisions the message contract, compatible repository rules, and explicit user instructions leave open. The mandatory subject shape and the language rules stay in `SKILL.md`; this file does not restate them.
 
 ## Type Selection
 
@@ -31,16 +21,24 @@ If no intent dominates, recommend splitting the commit.
 
 1. In a multi-module repository, prefer the affected app, package, or module.
 2. In a single-module repository, use a stable feature area.
-3. Omit scope for repository-wide or unrelated multi-area changes.
-4. Do not invent a scope merely to satisfy the default shape.
+3. When one intent spans several modules, join those real scopes with `&`.
+4. Use the scope-less form only when the change is repository-wide and no module owns it.
+5. Do not invent a scope merely to satisfy the default shape, and do not join scopes to avoid splitting: joined scopes describe one intent, while independent intents become separate commits.
+
+## Wording Defaults
+
+- Keep the subject specific. Do not report implementation trivia unless it is the system-relevant change.
+- Use the body for why, impact, migration, or trade-off, not for a line-by-line account of the diff.
+- Prefer the same vocabulary the repository already uses for its modules.
 
 ## Edge Cases
 
-- Breaking change: mark every confirmed break with `!` before `:` or a `BREAKING CHANGE:` footer. Prefer `!` for a visible subject signal; add the footer when migration impact needs explanation. `BREAKING-CHANGE:` is a valid synonym, but default to `BREAKING CHANGE:`.
-- Binary-only diff: describe the asset or artifact changed.
+- Breaking change: prefer `!` for a visible subject signal, and add the footer when the migration impact needs explanation. `BREAKING-CHANGE:` is a valid synonym, but default to `BREAKING CHANGE:`.
+- Binary-only diff: describe the asset or artifact that changed.
 - Generated files: focus on the visible source change; otherwise use `chore`.
-- Pure move or rename: use `refactor` when structure changed, otherwise `chore`.
-- Formatting mixed with logic: ignore formatting noise and classify the logic change.
+- Pure move or rename: use `refactor` when the structure changed, otherwise `chore`.
+- Formatting mixed with logic: ignore the formatting noise and classify the logic change.
+- Language drift: when the user and the repository work in another language, stay in that language for the whole run instead of switching per commit.
 
 ## Examples
 
@@ -56,4 +54,14 @@ feat(api): remove legacy authentication
 BREAKING CHANGE: clients must migrate to the session API
 ```
 
-Avoid vague subjects, mixed intents, past tense, trailing periods, and claims not supported by the diff.
+One intent across three modules — joined scope, one body line per scope:
+
+```text
+feat(common&share&tool): add shared retry policy
+
+- common: add the retry helper
+- share: route share calls through it
+- tool: drop the local retry loop
+```
+
+Avoid vague subjects, mixed intents, past tense, trailing periods, invented scopes, mixed languages, and claims not supported by the diff.

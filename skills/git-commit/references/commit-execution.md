@@ -8,7 +8,7 @@ Before changing the index:
 
 1. Use the scope selected by the main skill. Determine it from Git's porcelain `XY` status columns, not from an edit summary: `X` means staged/index, `Y` means unstaged/worktree, a space means no change in that column, and `??` means untracked rather than staged. **A** means staged-only; **B** means staged, unstaged, and untracked changes; an empty index with other changes means all changes.
 2. Record the baseline with `git status --short`, `git diff --cached --name-status`, `git diff --name-status`, and the untracked path list.
-3. Partition the selected diff into logical groups. Keep one logical change together across files, and use separate commits for unrelated intents. This rule applies to every selected scope, including staged-only A and all-change B.
+3. Partition the selected diff into logical groups. Keep one logical change together across files, and use separate commits for unrelated intents. A joined scope such as `feat(common&share&tool): ...` is a single group only when the intent behind it is single; when the per-scope lines describe independent changes, they are separate groups. This rule applies to every selected scope, including staged-only A and all-change B.
 4. For each group, stage only that group's paths or hunks. Use path- or hunk-level staging when a file contains multiple groups; never use a blanket staging command that pulls in out-of-scope changes.
 5. If the index already contains more than the next group, use index-only operations such as `git reset -p` or `git reset -- <path>` to unstage the other selected groups before staging the next one. Do not use commands that discard working-tree content.
 
@@ -25,6 +25,7 @@ Before changing the index:
 - Use a non-interactive `git commit` command for each atomic group.
 - Pass a single-line message with `git commit -m <subject>`.
 - For a body, pass the subject and body as separate `-m` arguments.
+- Quote every `-m` argument. A joined scope contains `&` and a breaking-change subject contains `!`; both are shell metacharacters, and an unquoted `&` backgrounds the command instead of committing the message.
 - Do not amend, bypass hooks, disable signing, or use `--no-verify` unless the user explicitly requests it.
 - If hooks modify files or reject the commit, inspect the new status and report the exact result. Do not retry blindly.
 
