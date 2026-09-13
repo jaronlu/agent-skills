@@ -23,7 +23,7 @@ If no intent dominates, recommend splitting the commit.
 2. In a single-module repository, use a stable feature area.
 3. When one intent spans several modules, join those real scopes with `&`.
 4. Use the scope-less form only when the change is repository-wide and no module owns it.
-5. Do not invent a scope merely to satisfy the default shape, and do not join scopes to avoid splitting: joined scopes describe one intent, while independent intents become separate commits.
+5. Do not invent a scope merely to satisfy the default shape.
 
 ## Wording Defaults
 
@@ -38,7 +38,6 @@ If no intent dominates, recommend splitting the commit.
 - Generated files: focus on the visible source change; otherwise use `chore`.
 - Pure move or rename: use `refactor` when the structure changed, otherwise `chore`.
 - Formatting mixed with logic: ignore the formatting noise and classify the logic change.
-- Language drift: when the user and the repository work in another language, stay in that language for the whole run instead of switching per commit.
 
 ## Examples
 
@@ -49,7 +48,7 @@ refactor(db): migrate queries to async API
 docs: update authentication guide
 chore(deps): update axios security patch
 test(auth): cover login regression
-feat(api): remove legacy authentication
+feat(api)!: remove legacy authentication
 
 BREAKING CHANGE: clients must migrate to the session API
 ```

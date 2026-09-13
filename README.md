@@ -42,7 +42,7 @@ the library is behind. Entries the manager does not own are never overwritten.
 | --- | --- |
 | [design-convergence-review](skills/design-convergence-review/SKILL.md) | Checks whether a design is ready for implementation and identifies unresolved blockers. |
 | [first-principles](skills/first-principles/SKILL.md) | Rebuilds a decision or diagnosis from evidence, constraints, and testable assumptions. |
-| [git-commit](skills/git-commit/SKILL.md) | Drafts repository-aware Conventional Commit messages or commits staged changes. |
+| [git-commit](skills/git-commit/SKILL.md) | Drafts repository-aware Conventional Commit messages, or turns the selected changes into atomic commits. |
 | [hermes-context-review](skills/hermes-context-review/SKILL.md) | Audits Hermes context for conflicting, stale, unsafe, or wasteful instructions. |
 | [llm-wiki](skills/llm-wiki/SKILL.md) | Searches, verifies, and maintains a local Markdown wiki when explicitly invoked. |
 | [five-dimension-analysis](skills/five-dimension-analysis/SKILL.md) | Splits a messy situation across time, interests, power, bargaining, and essence, then outputs falsifiable judgments and actionable moves. |

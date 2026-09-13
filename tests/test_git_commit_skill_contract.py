@@ -141,6 +141,58 @@ class GitCommitSkillContractTests(unittest.TestCase):
                 f"{name} is not routed from SKILL.md",
             )
 
+    def test_repository_rule_discovery_reaches_message_mode(self) -> None:
+        """Regression: discovery used to sit behind a commit-mode-only route."""
+        self.assert_contract(
+            self.skill,
+            r"Discover enforceable commit rules before writing any message, in both modes",
+            "discovery is mandatory in both modes",
+        )
+        self.assert_contract(
+            self.skill,
+            r"Commit mode, or any message mode that inspects the diff",
+            "the workflow route reaches message mode",
+        )
+        self.assert_contract(
+            self.workflow,
+            r"Also check paths that `git status --short` reports as untracked",
+            "discovery also covers rule files that are not tracked yet",
+        )
+
+    def test_staging_boundary_conditions_are_pinned(self) -> None:
+        self.assert_contract(
+            self.skill,
+            r"Ask exactly one A/B question only when at least one path has an actual staged/index status",
+            "the A/B question condition is stated",
+        )
+        self.assert_contract(
+            self.skill,
+            r"do not ask A/B for multiple unstaged files",
+            "an empty index does not trigger the A/B question",
+        )
+        self.assert_contract(
+            self.workflow,
+            r"`A  file` — staged new file",
+            "staged new files appear among the porcelain examples",
+        )
+        self.assert_contract(
+            self.workflow,
+            r"`AM file` — staged new file, edited again afterwards",
+            "staged-then-edited files appear among the porcelain examples",
+        )
+
+    def test_execution_guards_the_index_and_the_operation_state(self) -> None:
+        self.assert_contract(
+            self.execution,
+            r"`MERGE_HEAD`, `REBASE_HEAD`, `CHERRY_PICK_HEAD`",
+            "an in-progress merge, rebase, or cherry-pick stops the run",
+        )
+        self.assert_contract(
+            self.execution,
+            r"git apply --cached",
+            "hunk staging has a non-interactive path",
+        )
+
     def test_sensitive_and_high_risk_git_operations_require_explicit_request(
         self,
     ) -> None:

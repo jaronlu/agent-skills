@@ -1,6 +1,6 @@
 # Commit Workflow
 
-Read in commit mode, and in message mode when the staged diff is empty. The contract, evidence rule, scope decision, safety boundary, question policy, and output contract stay in `SKILL.md`; this file only sequences the work.
+Read whenever a message must be written from a diff, in either mode, and always in commit mode. The contract, evidence rule, scope decision, safety boundary, question policy, and output contract stay in `SKILL.md`; this file only sequences the work.
 
 ## 1. Gather evidence
 
@@ -13,20 +13,29 @@ Read in commit mode, and in message mode when the staged diff is empty. The cont
 4. In commit mode this empty-index branch applies only when the selected scope is staged-only; when the scope includes unstaged or untracked changes, continue with them instead of stopping.
 5. Stop when no relevant changes exist.
 
-Ambiguous porcelain columns:
+Porcelain columns, including the shapes that are easiest to misread:
 
 - ` M file` — unstaged only
 - `M  file` — staged only
 - `MM file` — both staged and unstaged
+- `A  file` — staged new file
+- `AM file` — staged new file, edited again afterwards
+- ` D file` — deleted in the worktree, not staged
+- `D  file` — deletion staged
+- `R  old -> new` — rename staged
 - `?? file` — untracked only
+
+Read the two columns literally before reaching for any of these; they are illustrations, not a closed list.
 
 ## 2. Discover repository rules
 
 Use low-output discovery before writing any message:
 
 - Find dedicated rule sources with `git ls-files`: commitlint config, hooks, `lefthook`, `.gitmessage`, and explicit commit or release configuration.
+- Also check paths that `git status --short` reports as untracked, so a rule file that has not been added yet is not missed.
 - Search broad tracked candidates such as `package.json`, `.github/**`, contribution guides, `AGENTS.md`, and development guides for commit-related keywords before treating them as candidates.
 - Check `.git/hooks/commit-msg` separately when it exists.
+- When the working directory sits inside a larger repository, check the parent directories for the same rule sources.
 - Read [repository-rules.md](repository-rules.md) only when a dedicated source exists or a broad candidate contains a commit-related match.
 
 ## 3. Screen the selected changes
@@ -35,7 +44,7 @@ Check for conflict markers, sensitive data, generated noise, binary-only changes
 
 ## 4. Partition and draft
 
-1. Partition the selected changes by primary intent before writing messages. Each atomic group must be independently understandable and must not mix unrelated fixes, features, documentation, tests, or housekeeping. A single logical change may span multiple files, and when that one intent spans several modules it becomes one commit with joined scopes; do not split such a change merely by file.
+1. Partition the selected changes by primary intent before writing messages. Each atomic group must be independently understandable and must not mix unrelated fixes, features, documentation, tests, or housekeeping. A single logical change may span multiple files; do not split such a change merely by file.
 2. Derive one message per atomic group from that group's diff. Do not invent changes or scopes, and do not reuse a scope from the repository's history when no path in the group touches that module.
 3. Apply the message contract, then compatible repository rules and explicit user instructions. Read [default-rules.md](default-rules.md) for type, scope, subject, or body decisions left open.
 4. If the selected changes cannot be partitioned into coherent atomic groups, ask how to handle the conflicting groups instead of producing a mixed fallback message. When a group boundary is clear, create separate atomic commits; ask only when the correct treatment is materially uncertain.

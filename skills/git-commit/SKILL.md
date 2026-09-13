@@ -14,11 +14,11 @@ Generate an accurate Conventional Commits message from the actual diff. Create t
 - Scope is required and must name a module, package, or area that already exists in the repository; never invent one.
   - One intent across several modules: join the real scopes with `&`, e.g. `feat(common&share&tool): add shared retry policy`.
   - A repository-wide change owned by no module is the only exemption: fall back to `type: subject`.
-- Subject: English imperative, no trailing period, ≤50 characters when practical.
+- Subject: imperative, no trailing period, ≤50 characters when practical.
 - Body: add one only when the why, impact, migration, or caveat matters, wrapped at about 72 characters. For a joined scope, give one line per scope.
 - Mark every confirmed breaking change with `!` before `:` or a `BREAKING CHANGE:` footer; either form is valid, and both may be used.
 - One commit carries one intent. Tests and docs for that intent belong in the same commit; never mix in unrelated fixes, features, or housekeeping. A joined scope is not a permit to combine intents: if the per-scope lines describe independent changes, split them into separate commits.
-- Use one language for every message in a run, and never mix languages inside a subject, inside a body, or between the commits of one run. Leave identifiers, file names, API names, and type names untranslated.
+- Default to English unless the user or the repository clearly works in another language, and then stay in that language. Use one language for every message in a run, and never mix languages inside a subject, inside a body, or between the commits of one run. Leave identifiers, file names, API names, and type names untranslated.
 - Do not add `Co-Authored-By:`, `Signed-off-by:`, or AI attribution unless the user or repository requires it. If a tool appends one, remove it before committing.
 - Let enforceable repository rules refine allowed types, scopes, ticket identifiers, length, casing, and trailers.
 - If an enforceable repository rule requires an incompatible message format, stop and report the conflict. Do not silently fall back to a non-Conventional subject.
@@ -55,13 +55,17 @@ Start from `git status --short` and interpret its two porcelain columns literall
 
 Do not use repository history to choose the message format.
 
+## Repository Rules
+
+Discover enforceable commit rules before writing any message, in both modes. [references/workflow.md](references/workflow.md) lists the sources to check.
+
 ## References
 
-Read each one only when its trigger applies; each stands alone, and none of them restates this contract.
+Read each one only when its trigger applies; each stands alone.
 
 | Read | When |
 | --- | --- |
-| [references/workflow.md](references/workflow.md) | Commit mode, or message mode whose staged diff is empty |
+| [references/workflow.md](references/workflow.md) | Commit mode, or any message mode that inspects the diff |
 | [references/default-rules.md](references/default-rules.md) | The contract leaves a type, scope, subject, or body decision open |
 | [references/repository-rules.md](references/repository-rules.md) | Repository rule discovery found a commitlint config, hook, or commit-related policy |
 | [references/commit-execution.md](references/commit-execution.md) | Commit mode, before staging or creating any commit |

@@ -50,6 +50,18 @@
 - 更新理念以强调 AI 下的 10 倍生产力
 - 通过 AI 优先方法增强价值主张
 
+### 修复
+
+- `git-commit` 修复规则发现在 message mode 失效的回归：`references/workflow.md` 的路由改为
+  "commit mode，或任何需要读取 diff 的 message mode"，并在 `SKILL.md` 增加常驻的 Repository Rules
+  章节；同时补齐未跟踪规则文件与 monorepo 上层目录这两类漏检来源
+- `git-commit` 消除语言规则冲突：`SKILL.md` 的 "English imperative" 与 `default-rules.md` 的
+  "沿用用户语言"合并为一条规则（默认英文，用户或仓库明显使用其他语言时整轮沿用）
+- `git-commit` 的 `commit-execution.md` 增加进行中 merge / rebase / cherry-pick 的前置检查，
+  并给出基于补丁的非交互 hunk 暂存路径，取代会让非交互运行挂起的 `git add -p` / `git reset -p`
+- `git-commit` 补齐流程图缺失的"无相关改动 → 停止"出口与 porcelain 示例（`A `、`AM`、`D `、`R `），
+  并把 `openai.yaml` 与两份 README 的对外文案从"只提交已暂存"改为"选定改动拆成原子提交"
+
 ### 移除
 
 - 移除了低价值、过于通用或已过时的技能：`a-share-value-investing`、`thinking-toolkit`、`github-actions`、`governance-layer-review`、`indie-hacker-methodology` 和 `zshrc-secrets`

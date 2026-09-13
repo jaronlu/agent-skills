@@ -6,19 +6,20 @@ Read this file only in commit mode.
 
 Before changing the index:
 
-1. Use the scope selected by the main skill. Determine it from Git's porcelain `XY` status columns, not from an edit summary: `X` means staged/index, `Y` means unstaged/worktree, a space means no change in that column, and `??` means untracked rather than staged. **A** means staged-only; **B** means staged, unstaged, and untracked changes; an empty index with other changes means all changes.
+1. Use the scope selected by the main skill, read from Git's porcelain `XY` columns as `SKILL.md` defines them and never from an edit summary. **A** means staged-only; **B** means staged, unstaged, and untracked changes; an empty index with other changes means all changes.
 2. Record the baseline with `git status --short`, `git diff --cached --name-status`, `git diff --name-status`, and the untracked path list.
-3. Partition the selected diff into logical groups. Keep one logical change together across files, and use separate commits for unrelated intents. A joined scope such as `feat(common&share&tool): ...` is a single group only when the intent behind it is single; when the per-scope lines describe independent changes, they are separate groups. This rule applies to every selected scope, including staged-only A and all-change B.
-4. For each group, stage only that group's paths or hunks. Use path- or hunk-level staging when a file contains multiple groups; never use a blanket staging command that pulls in out-of-scope changes.
-5. If the index already contains more than the next group, use index-only operations such as `git reset -p` or `git reset -- <path>` to unstage the other selected groups before staging the next one. Do not use commands that discard working-tree content.
+3. Partition the selected diff into logical groups. Keep one logical change together across files and use separate commits for unrelated intents; the contract in `SKILL.md` decides when a joined scope counts as a single group. Atomicity applies to every selected scope, including staged-only A and all-change B.
+4. For each group, stage only that group's paths or hunks; never use a blanket staging command that pulls in out-of-scope changes. Path-level staging covers most groups.
+5. When a file holds more than one group, or the index already holds more than the next group, use patch-based index operations instead of an interactive picker: `git diff -- <path> | git apply --cached` stages one group, and `git apply --cached --reverse` on the same patch unstages it. `git add -p` and `git reset -p` block a non-interactive run and are not a substitute. `git reset -- <path>` unstages a whole path when the group boundary is the file itself. Do not use commands that discard working-tree content.
 
 ## Preconditions
 
-1. Confirm that the current index contains exactly the next atomic group.
-2. Record that group's staged path set with `git diff --cached --name-only` and confirm it matches the selected scope and group.
-3. If a selected change has unresolved conflicts or is otherwise clearly unsuitable for committing, pause and ask the user whether to exclude it, handle it separately, or stop. For suspected secrets, ask only whether to exclude them, remediate and re-inspect them, or stop; never commit suspected secret content, even in a separate commit. Do not reveal secret values, silently omit the group, or commit it before the user decides.
-4. Preserve all out-of-scope changes and all in-scope groups not yet being committed.
-5. Run relevant pre-commit verification when the repository or user requires it. If verification cannot run, report that before committing when the risk is material.
+1. Confirm the working directory is inside a Git repository, and that no other Git operation is in progress: no `MERGE_HEAD`, `REBASE_HEAD`, `CHERRY_PICK_HEAD`, `REVERT_HEAD`, or `BISECT_LOG`. A commit during a merge, rebase, or cherry-pick ends an operation the user did not ask to finish, so stop and report instead. An unborn `HEAD` is valid; the first commit simply has no parent to compare against.
+2. Confirm that the current index contains exactly the next atomic group.
+3. Record that group's staged path set with `git diff --cached --name-only` and confirm it matches the selected scope and group.
+4. If a selected change is unresolved or otherwise unsuitable, stop and ask. The safety boundary in `SKILL.md` governs, including what may happen to suspected secrets.
+5. Preserve all out-of-scope changes and all in-scope groups not yet being committed.
+6. Run relevant pre-commit verification when the repository or user requires it. If verification cannot run, report that before committing when the risk is material.
 
 ## Commit
 
