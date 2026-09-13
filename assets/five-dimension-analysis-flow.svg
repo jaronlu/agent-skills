@@ -38,7 +38,7 @@
 
 <rect x="521" y="182" width="107" height="46" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
 <text x="574" y="198" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#0C447C">哲 · 本质层</text>
-<text x="574" y="215" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#185FA5">须转成可观察预测</text>
+<text x="574" y="215" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#185FA5">转成可观察预测</text>
 
 <path d="M340 240 L340 256" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 

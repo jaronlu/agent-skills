@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import re
 import sys
+import xml.etree.ElementTree as ElementTree
 from pathlib import Path
 
 
@@ -19,6 +20,13 @@ NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 FIELD_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_-]*):(?:\s*(.*))?$")
 QUOTED_FIELD_RE = re.compile(r'^\s{2}([a-z_]+):\s+"(.*)"\s*$')
 MARKDOWN_LINK_RE = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
+
+SVG_NS = "{http://www.w3.org/2000/svg}"
+DIAGRAM_WIDTH = 680
+DIAGRAM_INNER_MARGIN = 8
+TEXT_DESCENT_EM = 0.4
+ASCII_EM = 0.55
+CJK_START = 0x2E80
 
 
 def parse_frontmatter(path: Path) -> tuple[dict[str, str], list[str]]:
@@ -188,6 +196,100 @@ def validate_markdown_links() -> list[str]:
     return errors
 
 
+def estimate_text_width(text: str, font_size: float) -> float:
+    """Estimate rendered width: CJK is a full em, ASCII about 0.55 em.
+
+    This mirrors the RULES.md text-safety boundary, which exists because SVG does
+    not wrap text and silently clips anything that leaves its box.
+    """
+    return sum(
+        (1.0 if ord(char) > CJK_START else ASCII_EM) * font_size for char in text
+    )
+
+
+def attributed_box(
+    boxes: list[tuple[float, float, float, float]],
+    start: float,
+    end: float,
+    baseline: float,
+) -> tuple[float, float, float, float] | None:
+    """Pick the tightest box a text line belongs to.
+
+    Attribution needs overlap rather than containment: text that is wider than
+    its box must still be charged against that box instead of escaping the check.
+    """
+    candidates = []
+    for box in boxes:
+        left, top, width, height = box
+        if not top <= baseline <= top + height:
+            continue
+        if end < left or start > left + width:
+            continue
+        candidates.append(box)
+    if not candidates:
+        return None
+    return min(candidates, key=lambda box: box[2] * box[3])
+
+
+def validate_diagram(path: Path) -> list[str]:
+    """Check that no diagram text leaves its own box or the canvas."""
+    relative = path.relative_to(ROOT)
+    try:
+        root = ElementTree.parse(path).getroot()
+    except ElementTree.ParseError as exc:
+        return [f"{relative}: malformed SVG: {exc}"]
+
+    height = float(root.get("height", 0))
+    boxes: list[tuple[float, float, float, float]] = []
+    for element in root.iter(SVG_NS + "rect"):
+        x = float(element.get("x", 0))
+        y = float(element.get("y", 0))
+        width = float(element.get("width", 0))
+        box_height = float(element.get("height", 0))
+        if x == 0 and y == 0 and width >= DIAGRAM_WIDTH:
+            continue  # background plate, not a content box
+        boxes.append((x, y, width, box_height))
+
+    errors: list[str] = []
+    for element in root.iter(SVG_NS + "text"):
+        baseline = float(element.get("y", 0))
+        font_size = float(element.get("font-size", 12))
+        anchor = element.get("text-anchor", "start")
+        content = "".join(element.itertext())
+        width = estimate_text_width(content, font_size)
+        x = float(element.get("x", 0))
+        if anchor == "middle":
+            start = x - width / 2
+        elif anchor == "end":
+            start = x - width
+        else:
+            start = x
+        end = start + width
+        label = content[:40]
+
+        box = attributed_box(boxes, start, end, baseline)
+        if box is None:
+            if end > DIAGRAM_WIDTH - 40 or baseline + TEXT_DESCENT_EM * font_size > height:
+                errors.append(f"{relative}: text leaves the canvas: {label!r}")
+            continue
+
+        bottom_overflow = (baseline + TEXT_DESCENT_EM * font_size) - (box[1] + box[3])
+        right_overflow = end - (box[0] + box[2] - DIAGRAM_INNER_MARGIN)
+        if bottom_overflow > 0 or right_overflow > 0:
+            errors.append(
+                f"{relative}: text overflows its box by "
+                f"{max(bottom_overflow, right_overflow):.1f}px: {label!r}"
+            )
+    return errors
+
+
+def validate_diagrams() -> list[str]:
+    errors: list[str] = []
+    for path in sorted((ROOT / "assets").glob("*.svg")):
+        errors.extend(validate_diagram(path))
+    return errors
+
+
 def main() -> int:
     errors: list[str] = []
     if not SKILLS_DIR.is_dir():
@@ -207,6 +309,7 @@ def main() -> int:
 
     errors.extend(validate_catalog(names))
     errors.extend(validate_markdown_links())
+    errors.extend(validate_diagrams())
 
     if errors:
         print(f"Skill validation failed with {len(errors)} error(s):")

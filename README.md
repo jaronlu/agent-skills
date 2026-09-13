@@ -52,10 +52,53 @@ User guides are optional and live outside the runtime packages, in `docs/skills/
 a symlink into the llm-wiki workshop, so it is not version-controlled here. Only
 [design-convergence-review](docs/skills/design-convergence-review.md) ships a guide today.
 
-### Diagrams
+## Diagrams
 
-- [communication-formulas: choosing a formula](assets/communication-formulas-routing.svg)
-- [five-dimension-analysis: six-step workflow](assets/five-dimension-analysis-flow.svg)
+Every skill ships one SVG flow diagram, all kept in `assets/`; [RULES.md](RULES.md) defines the
+required content and styling. Each diagram below follows the order of the skill table above, and
+links to its raw SVG.
+
+### design-convergence-review
+
+Six-dimension convergence review.
+
+[![design-convergence-review: six-dimension convergence review](assets/design-convergence-review-flow.svg)](assets/design-convergence-review-flow.svg)
+
+### first-principles
+
+Five-step reasoning and closure.
+
+[![first-principles: five-step reasoning and closure](assets/first-principles-flow.svg)](assets/first-principles-flow.svg)
+
+### git-commit
+
+From mode selection to atomic commits.
+
+[![git-commit: from mode selection to atomic commits](assets/git-commit-flow.svg)](assets/git-commit-flow.svg)
+
+### hermes-context-review
+
+Context audit and severity.
+
+[![hermes-context-review: context audit and severity](assets/hermes-context-review-flow.svg)](assets/hermes-context-review-flow.svg)
+
+### llm-wiki
+
+Intent routing and script-first retrieval.
+
+[![llm-wiki: intent routing and script-first retrieval](assets/llm-wiki-flow.svg)](assets/llm-wiki-flow.svg)
+
+### five-dimension-analysis
+
+Six-step workflow.
+
+[![five-dimension-analysis: six-step workflow](assets/five-dimension-analysis-flow.svg)](assets/five-dimension-analysis-flow.svg)
+
+### communication-formulas
+
+Choosing a formula.
+
+[![communication-formulas: choosing a formula](assets/communication-formulas-routing.svg)](assets/communication-formulas-routing.svg)
 
 ## Verify
 

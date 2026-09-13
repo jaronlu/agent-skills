@@ -9,6 +9,9 @@
 
 ### 新增
 
+- 仓库规则文件 `RULES.md`：规定每个技能必须配一张 SVG 流程图，并明确存放位置、命名、配色与文本安全边界
+- 剩余五个技能的流程图：`git-commit`、`design-convergence-review`、`first-principles`、`hermes-context-review`、`llm-wiki`
+- `git-commit` 加入 WorkBuddy 分发目标
 - 可配置的增量符号链接分发，支持 Codex、Claude 和 Hermes
 - 文件系统测试：路径重定位、去重、冲突、修剪与幂等性
 - 设计一致性评审技能，支持单文档和多文档设计文件夹
@@ -23,6 +26,15 @@
 
 ### 变更
 
+- 修复六张流程图的文字溢出：`first-principles`、`git-commit`、`hermes-context-review`、`llm-wiki` 中框高不足的方框按实际行数补足高度并把后续元素整体下移；`five-dimension-analysis`、`design-convergence-review` 的超宽文本改为收窄措辞或加宽所属框。`validate_skills.py` 新增几何校验（文字必须落在所属框内、无框文本不得越出画布），把 RULES.md 的文本安全边界从人工自检变成可执行检查，并补充 6 个回归测试
+- README 的流程图改为直接嵌入 SVG（原来是文字链接），顺序与技能表对齐，点击可打开原图，
+  并补上每张图的一句话说明
+- 分发收敛到 CC Switch：`config/skill-links.toml` 只保留 `[targets.cc-switch]`（`~/.agents/skills`），
+  删除 codex / claude / hermes / zcode / workbuddy 五个 per-tool 目标；链接管理器新增 `mode = "copy"`
+  发布模式（库中保存真实目录，按内容比对实现幂等与"落后检测"），`distribution.source` 改为可省略并
+  默认取仓库根目录，避免仓库移动后残留失效路径
+- git-commit 将 SKILL.md 收敛为常驻契约（消息契约、提交范围 A/B 判定、安全边界、输出与引用路由），取证与切分步骤移入 `references/workflow.md`，`default-rules.md` 只保留契约留白的默认决策，并新增"每个引用都必须由 SKILL.md 直接链接"的契约测试
+- git-commit 合并 Message Contract 的精简方案：scope 改为必填且必须指向真实模块，单一意图跨模块用 `&` 连接（`feat(common&share&tool): ...`）并在正文按模块分行，一次运行内所有消息强制同语种且不翻译标识符；其中保留 diff 取证、仓库规则发现、原子切分与提交后验证的工作流主线
 - git-commit 契约测试改为断言稳定契约片段而非整句散文，并补充 porcelain `XY` 列规则的回归测试
 - llm-wiki 修正默认 layout 在三处文档中的不一致：真值收敛到 `scripts/_wiki_common.py`，`SKILL.md` 与检索参考不再复述默认 glob，并补充文档与脚本常量的一致性测试
 - llm-wiki 在 `SKILL.md` 中指向 `assets/examples.llm-wiki.json`，并补充 `SKILL_DIR` 解析失败时的定位方式

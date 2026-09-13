@@ -2,6 +2,9 @@
 
 本仓库遵循当前 Codex 技能包模型。保持运行时包小巧、可预测，且不包含重复的用户文档。
 
+仓库级强制规则（每个技能必须配 SVG 流程图、分发目标必须显式登记）见 [RULES.md](RULES.md)。
+本文件描述技能包契约，两者冲突时以 `RULES.md` 为准。
+
 ## 仓库契约
 
 每个技能位于 `skills/<skill-name>/` 下。
@@ -105,9 +108,12 @@ docs/skills/<skill-name>.md
 2. 替换 `SKILL.md` 中的每个占位符。
 3. 仅创建技能实际需要的资源目录。
 4. 在 `docs/skills/` 下（而非技能内部）添加可选的用户指南。
-5. 将技能添加到两个根目录目录文件中。
-6. 在 `CHANGELOG.md` → `Unreleased` 下添加条目。
-7. 运行验证。
+5. 绘制流程图 `assets/<skill-name>-flow.svg`，规范见 [RULES.md](RULES.md)。
+6. 将技能添加到两个根目录目录文件的技能表和流程图清单中。
+7. 在 `config/skill-links.toml` 的 `[targets.cc-switch]` 中登记该技能，并执行 `sync`
+   发布到 CC Switch 库；库到各工具的分发由 CC Switch 负责。
+8. 在 `CHANGELOG.md` → `Unreleased` 下添加条目。
+9. 运行验证。
 
 ## 验证
 

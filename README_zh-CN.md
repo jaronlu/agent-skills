@@ -49,10 +49,52 @@
 不受本仓库版本控制。目前只有 [design-convergence-review](docs/skills/design-convergence-review.md)
 提供了用户指南。
 
-### 流程图
+## 流程图
 
-- [communication-formulas：如何选择公式](assets/communication-formulas-routing.svg)
-- [five-dimension-analysis：六步执行流程](assets/five-dimension-analysis-flow.svg)
+每个 Skill 都有一张 SVG 流程图，统一放在 `assets/`；内容与配色约定见 [RULES.md](RULES.md)。
+下图的顺序与上方技能表一致，点击可打开原始 SVG。
+
+### design-convergence-review
+
+六维收敛评审。
+
+[![design-convergence-review：六维收敛评审](assets/design-convergence-review-flow.svg)](assets/design-convergence-review-flow.svg)
+
+### first-principles
+
+五步推理与闭环。
+
+[![first-principles：五步推理与闭环](assets/first-principles-flow.svg)](assets/first-principles-flow.svg)
+
+### git-commit
+
+从模式判定到原子提交。
+
+[![git-commit：从模式判定到原子提交](assets/git-commit-flow.svg)](assets/git-commit-flow.svg)
+
+### hermes-context-review
+
+上下文审查与分级。
+
+[![hermes-context-review：上下文审查与分级](assets/hermes-context-review-flow.svg)](assets/hermes-context-review-flow.svg)
+
+### llm-wiki
+
+意图路由与脚本优先。
+
+[![llm-wiki：意图路由与脚本优先](assets/llm-wiki-flow.svg)](assets/llm-wiki-flow.svg)
+
+### five-dimension-analysis
+
+六步执行流程。
+
+[![five-dimension-analysis：六步执行流程](assets/five-dimension-analysis-flow.svg)](assets/five-dimension-analysis-flow.svg)
+
+### communication-formulas
+
+如何选择公式。
+
+[![communication-formulas：如何选择公式](assets/communication-formulas-routing.svg)](assets/communication-formulas-routing.svg)
 
 ## 验证
 
