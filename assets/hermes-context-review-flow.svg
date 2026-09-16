@@ -1,6 +1,6 @@
 <svg viewBox="0 0 680 920" width="680" height="920" xmlns="http://www.w3.org/2000/svg" role="img" font-family="system-ui, -apple-system, sans-serif">
 <title>hermes-context-review 的上下文审查流程</title>
-<desc>先解析审查目标，再依次检查归属层级、内容一致性、记忆格式契约与上下文效率，按 P0/P1/P2 分级，最后输出唯一一行 VERDICT。</desc>
+<desc>解析目标并按 references 路由取证，核对加载与分发链路、归属、记忆格式和容量，区分静态推导与会话证据；无目标停止，否则分级输出 VERDICT。</desc>
 <defs>
 <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
 <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -15,7 +15,7 @@
 <rect x="40" y="82" width="600" height="72" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
 <text x="60" y="100" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">① 解析目标：显式 home → $HERMES_HOME → ~/.hermes</text>
 <text x="60" y="120" dominant-baseline="central" font-size="12" fill="#5F5E5A">Home：SOUL.md / AGENTS.md / memories/*.md / references/*.md / config.yaml（不暴露密钥）</text>
-<text x="60" y="140" dominant-baseline="central" font-size="12" fill="#5F5E5A">项目：AGENTS.md、AGENTS.override.md、.hermes.md、CLAUDE.md、.cursorrules；以 index 为准</text>
+<text x="60" y="140" dominant-baseline="central" font-size="12" fill="#5F5E5A">项目按 CWD 与优先级检查；暂存审查以 index 为准 → references/review-workflow.md</text>
 <path d="M340 154 L340 170" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 
 <rect x="40" y="172" width="600" height="40" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
@@ -23,12 +23,12 @@
 <path d="M340 212 L340 228" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 
 <rect x="40" y="230" width="600" height="52" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
-<text x="60" y="248" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">② 完整读取每个目标，并解析其中的路径、章节引用、技能名与配置声明</text>
-<text x="60" y="268" dominant-baseline="central" font-size="12" fill="#5F5E5A">只读不改：不编辑文件、不暂存提交、不改配置、不建定时任务</text>
+<text x="60" y="248" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">② 核验版本、home、CWD、加载开关与分发 → runtime-checks.md</text>
+<text x="60" y="268" dominant-baseline="central" font-size="12" fill="#5F5E5A">完整取证，区分磁盘 / 静态推导 / 会话证据；只读，不改配置、不分发、不刷新缓存</text>
 <path d="M340 282 L340 298" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 
 <rect x="40" y="300" width="600" height="100" rx="12" fill="none" stroke="#B4B2A9" stroke-width="0.5" stroke-dasharray="4 3"/>
-<text x="60" y="318" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">③ 归属检查：规则放错层本身就是发现项</text>
+<text x="60" y="318" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">③ 归属检查 → hermes-conventions.md；以目标安装版本为准</text>
 <rect x="53" y="332" width="136" height="52" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
 <text x="121" y="350" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#0C447C">SOUL.md</text>
 <text x="121" y="368" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#185FA5">全局人格与常驻行为</text>
@@ -46,19 +46,19 @@
 <rect x="40" y="418" width="600" height="72" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
 <text x="60" y="436" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">④ 内容检查：重复 · 冲突 · 过期 · 不可验证 · 过宽 · 不安全</text>
 <text x="60" y="456" dominant-baseline="central" font-size="12" fill="#5F5E5A">优先保留唯一权威规则；config.yaml 的声明要与实际文件交叉核对</text>
-<text x="60" y="476" dominant-baseline="central" font-size="12" fill="#5F5E5A">home 级 AGENTS.md 不会被自动加载 → 标出「假装在全局生效」的规则</text>
+<text x="60" y="476" dominant-baseline="central" font-size="12" fill="#5F5E5A">home AGENTS.md 无全局加载特权；可能通过项目发现加载，不能一概判为无效</text>
 <path d="M340 490 L340 506" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 
 <rect x="40" y="508" width="600" height="72" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
-<text x="60" y="526" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">⑤ 记忆格式契约：一条一个 § 分隔行</text>
-<text x="60" y="546" dominant-baseline="central" font-size="12" fill="#5F5E5A">分隔符破损、存储达到或超出字符上限、与 SOUL.md 或项目上下文重复的条目 → 全部记为发现</text>
-<text x="60" y="566" dominant-baseline="central" font-size="12" fill="#5F5E5A">查不到就以「未验证」标注，不猜</text>
+<text x="60" y="526" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">⑤ 记忆格式与容量 → memory-checks.md</text>
+<text x="60" y="546" dominant-baseline="central" font-size="12" fill="#5F5E5A">边界为独立行 §；按运行时口径计数，缺省键用已验证默认值，无效值单列</text>
+<text x="60" y="566" dominant-baseline="central" font-size="12" fill="#5F5E5A">满额或超额 P1；90% 未满 P2；报告实际 / 限额 / 超额，未验证不猜</text>
 <path d="M340 580 L340 596" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 
 <rect x="40" y="598" width="600" height="72" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
 <text x="60" y="616" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">⑥ 上下文效率：低频细节移出常驻区</text>
 <text x="60" y="636" dominant-baseline="central" font-size="12" fill="#5F5E5A">移入 references/、按需技能或 session_search；合并无独立行为效果的重复表述</text>
-<text x="60" y="656" dominant-baseline="central" font-size="12" fill="#5F5E5A">SOUL.md / AGENTS.md 过长会被静默截断 → 标出有掉出风险的章节，但不删有意义约束</text>
+<text x="60" y="656" dominant-baseline="central" font-size="12" fill="#5F5E5A">核对截断上限；区分常驻 SOUL / 记忆与按需 skill 正文，保留约束和引用入口</text>
 <path d="M340 670 L340 686" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 
 <rect x="40" y="688" width="600" height="118" rx="12" fill="none" stroke="#B4B2A9" stroke-width="0.5" stroke-dasharray="4 3"/>
@@ -69,8 +69,8 @@
 <text x="145" y="774" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#A32D2D">引用失效 / 格式违规</text>
 <rect x="249" y="720" width="184" height="72" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
 <text x="341" y="738" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#633806">P1</text>
-<text x="341" y="758" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#854F0B">冲突 / 过期 / 重复</text>
-<text x="341" y="774" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#854F0B">/ 放错层（有维护成本）</text>
+<text x="341" y="758" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#854F0B">冲突 / 过期 / 重复 / 放错层</text>
+<text x="341" y="774" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#854F0B">加载缺口 / 容量问题</text>
 <rect x="445" y="720" width="184" height="72" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
 <text x="537" y="738" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">P2</text>
 <text x="537" y="758" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#5F5E5A">不改变行为的</text>
@@ -79,6 +79,6 @@
 
 <rect x="40" y="824" width="600" height="72" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
 <text x="60" y="842" dominant-baseline="central" font-size="14" font-weight="500" fill="#173404">输出：先给整体结论，再按严重度列发现；无发现的维度显式写「已检查，无发现」</text>
-<text x="60" y="862" dominant-baseline="central" font-size="12" fill="#3B6D11">结尾只有一行：VERDICT: BLOCK（有 P0） / WARN（有 P1） / PASS</text>
+<text x="60" y="862" dominant-baseline="central" font-size="12" fill="#3B6D11">末行：VERDICT: BLOCK（P0） / WARN（P1 或关键验证缺口） / PASS（其余）</text>
 <text x="60" y="882" dominant-baseline="central" font-size="12" fill="#3B6D11">用请求所用语言撰写；措辞偏好不算发现</text>
 </svg>

@@ -26,6 +26,7 @@
 
 ### 变更
 
+- hermes-context-review 精简入口，将取证、运行时加载与分发、记忆计数细节下沉至 references；修正缺省配置误报、固定限额与 home AGENTS 加载表述，明确证据缺口及 verdict，并同步流程图与契约测试
 - 修复六张流程图的文字溢出：`first-principles`、`git-commit`、`hermes-context-review`、`llm-wiki` 中框高不足的方框按实际行数补足高度并把后续元素整体下移；`five-dimension-analysis`、`design-convergence-review` 的超宽文本改为收窄措辞或加宽所属框。`validate_skills.py` 新增几何校验（文字必须落在所属框内、无框文本不得越出画布），把 RULES.md 的文本安全边界从人工自检变成可执行检查，并补充 6 个回归测试
 - README 的流程图改为直接嵌入 SVG（原来是文字链接），顺序与技能表对齐，点击可打开原图，
   并补上每张图的一句话说明
