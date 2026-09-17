@@ -69,12 +69,12 @@
 <text x="60" y="756" dominant-baseline="central" font-size="12" fill="#5F5E5A">一次运行内所有 Message 同语种；破坏性变更用 ! 或 BREAKING CHANGE: 脚注</text>
 <path d="M340 772 L340 788" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 
-<rect x="40" y="790" width="290" height="60" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
+<rect x="40" y="790" width="290" height="76" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
 <text x="60" y="810" dominant-baseline="central" font-size="14" font-weight="500" fill="#173404">Message mode</text>
 <text x="60" y="828" dominant-baseline="central" font-size="12" fill="#3B6D11">直接返回最佳消息；多组时逐组标注</text>
 <text x="60" y="844" dominant-baseline="central" font-size="12" fill="#3B6D11">仅在 why / 影响 / 迁移值得说时才加正文</text>
 
-<rect x="350" y="790" width="290" height="60" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<rect x="350" y="790" width="290" height="76" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
 <text x="370" y="810" dominant-baseline="central" font-size="14" font-weight="500" fill="#0C447C">Commit mode</text>
 <text x="370" y="828" dominant-baseline="central" font-size="12" fill="#185FA5">创建原子提交并逐个验证</text>
 <text x="370" y="844" dominant-baseline="central" font-size="12" fill="#185FA5">报告 hash + subject + 保留的改动</text>
