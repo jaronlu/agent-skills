@@ -21,8 +21,9 @@ Turn a paper into reusable notes, then answer the user's question from the evide
    limitations. If unavailable or only partly accessible, state the gap rather
    than inventing content.
 3. Create or update notes using [the template](references/paper-template.md).
-   Follow the shape in [the filled example](references/example-notes.md); do not
-   copy its paper-specific claims. Lead with conclusions, explain technical
+   Follow the shape in the filled examples — [argument-style paper](references/example-notes.md)
+   and [experimental paper](references/example-notes-experimental.md); do not
+   copy their paper-specific claims. Lead with conclusions, explain technical
    terms on first use, distinguish paper claims from your inferences, and attach
    source locations to key claims and numbers (section, page, table, or figure).
    Keep notes understandable on their own.

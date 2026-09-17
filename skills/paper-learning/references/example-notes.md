@@ -1,7 +1,7 @@
 # The Last AI Built by Humans: Toward Genuine Recursive Self-Improvement — distilled notes
 
-Source: arXiv:2609.11873; version/date: unknown (record abs `vN` and date when fetched).
-Coverage: distilled from accessible text; page-level locations not recorded.
+Source: arXiv:2609.11873; version/date: v2, 2026-09-15 (v1 2026-09-10).
+Coverage: full text (HTML v2); key numbers verified against §2.1.
 
 ## Problem and contribution
 Survey plus position paper on recursive self-improvement (RSI): systems that
@@ -19,9 +19,10 @@ autonomy-centered ruler, not a new model. (Paper claim.)
   in-task only (B0) to rewriting the improver itself (L5).
 
 ## Evidence and results
-Paper's 2026 finding (as stated): bounded tasks near-closed (grad science
-~85.8, math ~86.4); interactive tasks lag (software engineering 52.6,
-terminal/search 56.8, tool agents 39.9). Argument paper: no new ablation table.
+Paper's 2026 finding (as stated, §2.1 Obs. 1–2): bounded tasks near-closed
+(grad science ~85.8, math ~86.4); interactive tasks lag (software engineering
+52.6, terminal/search 56.8, tool agents 39.9). Argument paper: no new ablation
+table.
 
 ## Limitations and open questions
 Author-stated: higher autonomy is not a better improvement process; L2+ hazards
