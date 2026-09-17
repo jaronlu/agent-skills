@@ -1,0 +1,4 @@
+interface:
+  display_name: "Paper Learning"
+  short_description: "Distill, explain, and demo research papers"
+  default_prompt: "Use $paper-learning to distill a paper into reusable notes and explain it with a runnable demo when helpful."

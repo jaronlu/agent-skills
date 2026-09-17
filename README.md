@@ -45,6 +45,7 @@ the library is behind. Entries the manager does not own are never overwritten.
 | [git-commit](skills/git-commit/SKILL.md) | Drafts repository-aware Conventional Commit messages, or turns the selected changes into atomic commits. |
 | [hermes-context-review](skills/hermes-context-review/SKILL.md) | Audits Hermes context for conflicting, stale, unsafe, or wasteful instructions. |
 | [llm-wiki](skills/llm-wiki/SKILL.md) | Searches, verifies, and maintains a local Markdown wiki when explicitly invoked. |
+| [paper-learning](skills/paper-learning/SKILL.md) | Distills any research paper into reusable notes in the user's papers directory, with an optional language-agnostic demo. |
 | [five-dimension-analysis](skills/five-dimension-analysis/SKILL.md) | Splits a messy situation across time, interests, power, bargaining, and essence, then outputs falsifiable judgments and actionable moves. |
 | [communication-formulas](skills/communication-formulas/SKILL.md) | Picks one of five speaking formulas (SCQA, FAB, BACC, 3W, PREP) by communication goal and assembles ready-to-say wording. |
 
@@ -87,6 +88,12 @@ Context audit and severity.
 Intent routing and script-first retrieval.
 
 [![llm-wiki: intent routing and script-first retrieval](assets/llm-wiki-flow.svg)](assets/llm-wiki-flow.svg)
+
+### paper-learning
+
+From paper intake to distilled notes and routed answers.
+
+[![paper-learning: from paper intake to distilled notes and routed answers](assets/paper-learning-flow.svg)](assets/paper-learning-flow.svg)
 
 ### five-dimension-analysis
 

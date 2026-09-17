@@ -42,6 +42,7 @@
 | [git-commit](skills/git-commit/SKILL.md) | 生成符合仓库规则的 Conventional Commit 信息，或把选定的改动拆成原子提交。 |
 | [hermes-context-review](skills/hermes-context-review/SKILL.md) | 审查 Hermes 上下文中的冲突、过期、不安全或冗余指令。 |
 | [llm-wiki](skills/llm-wiki/SKILL.md) | 在显式调用时搜索、验证和维护本地 Markdown Wiki。 |
+| [paper-learning](skills/paper-learning/SKILL.md) | 通用论文学习：把论文蒸馏成可复用笔记（存到工作区 papers/ 目录），demo 可选、语言随论文。 |
 | [five-dimension-analysis](skills/five-dimension-analysis/SKILL.md) | 把复杂局面拆成时间、利益、权力、博弈、本质五个维度，产出可证伪的判断与可执行动作。 |
 | [communication-formulas](skills/communication-formulas/SKILL.md) | 按沟通目的选用 SCQA / FAB / BACC / 3W / PREP 五套表达顺序，装配成可直接开口的话术。 |
 
@@ -83,6 +84,12 @@
 意图路由与脚本优先。
 
 [![llm-wiki：意图路由与脚本优先](assets/llm-wiki-flow.svg)](assets/llm-wiki-flow.svg)
+
+### paper-learning
+
+从论文入口到蒸馏笔记与回答路由的通用流程。
+
+[![paper-learning：从论文入口到蒸馏笔记与回答路由](assets/paper-learning-flow.svg)](assets/paper-learning-flow.svg)
 
 ### five-dimension-analysis
 

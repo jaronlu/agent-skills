@@ -9,6 +9,7 @@
 
 ### 新增
 
+- `paper-learning` 技能（由 `rsi-paper` 重构更名）：通用论文学习流程——识别论文、抓取通读、按 `references/paper-template.md` 蒸馏为工作区 `papers/<slug>.md`（笔记是产出物，不放技能包内）、按问题类型路由回答；demo 可选且语言随论文生态，无意义的论文明确记 "no demo"。首篇产出 `papers/rsi-2609-11873.md` + `papers/rsi-2609-11873_demo.py`（原 RSI 论文内容，arXiv:2609.11873），附通用流程图并登记 CC Switch 分发
 - 仓库规则文件 `RULES.md`：规定每个技能必须配一张 SVG 流程图，并明确存放位置、命名、配色与文本安全边界
 - 剩余五个技能的流程图：`git-commit`、`design-convergence-review`、`first-principles`、`hermes-context-review`、`llm-wiki`
 - `git-commit` 加入 WorkBuddy 分发目标
@@ -26,6 +27,7 @@
 
 ### 变更
 
+- `paper-learning` 精简重复质量规则与逐篇回答路由，合并笔记模板；按问题覆盖度和论文版本复用笔记（arXiv 按 id + `vN`/日期与笔记 Source 核对），补充来源定位与证据缺口，已请求的资料核验无需重复确认；明确 demo 不等于结果复现并同步流程图；局限段增加新颖性/证据力度/可复现性提示，并加入填好的示例笔记；工作区 RSI 笔记改对齐新模板、修正 demo 路径
 - hermes-context-review 精简入口，将取证、运行时加载与分发、记忆计数细节下沉至 references；修正缺省配置误报、固定限额与 home AGENTS 加载表述，明确证据缺口及 verdict，并同步流程图与契约测试
 - 修复六张流程图的文字溢出：`first-principles`、`git-commit`、`hermes-context-review`、`llm-wiki` 中框高不足的方框按实际行数补足高度并把后续元素整体下移；`five-dimension-analysis`、`design-convergence-review` 的超宽文本改为收窄措辞或加宽所属框。`validate_skills.py` 新增几何校验（文字必须落在所属框内、无框文本不得越出画布），把 RULES.md 的文本安全边界从人工自检变成可执行检查，并补充 6 个回归测试
 - README 的流程图改为直接嵌入 SVG（原来是文字链接），顺序与技能表对齐，点击可打开原图，
