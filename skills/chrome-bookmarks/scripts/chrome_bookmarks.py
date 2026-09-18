@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Inspect Chrome bookmark files and copy a prepared JSON only when Chrome is quit."""
+"""Inspect, diff, and copy Chrome bookmark files; never write while Chrome runs."""
 
 from __future__ import annotations
 
@@ -37,7 +37,12 @@ def _pgrep_verdict(result: subprocess.CompletedProcess[str]) -> bool | None:
 def _ps_verdict(result: subprocess.CompletedProcess[str]) -> bool | None:
     if result.returncode != 0:
         return None
-    return any("chrome" in line.lower() for line in result.stdout.splitlines())
+    # Only the browser itself and its helpers count: other Electron apps ship a
+    # chrome_crashpad_handler too and must not block a writeback.
+    return any(
+        "google chrome" in line.lower() or "chromium" in line.lower()
+        for line in result.stdout.splitlines()
+    )
 
 
 def _tasklist_verdict(result: subprocess.CompletedProcess[str]) -> bool | None:
@@ -153,6 +158,8 @@ def cmd_inspect(args: argparse.Namespace) -> int:
         total += count
         print(f"root {key} ({ROOT_LABELS[key]}): urls={count}")
     print(f"urls_total={total}")
+    bar = roots.get("bookmark_bar")
+    print("top_level_folders=" + (", ".join(top_level_folders(bar if isinstance(bar, dict) else {})) or "(none)"))
     print("folders:")
     printed = False
     for key in ROOT_ORDER:
@@ -236,6 +243,57 @@ def cmd_write(args: argparse.Namespace) -> int:
     return 0
 
 
+def collect_leaves(node: dict, path: list[str], found: list[tuple[str, str, str]]) -> None:
+    for child in node.get("children") or []:
+        if child.get("type") == "folder":
+            collect_leaves(child, path + [str(child.get("name", ""))], found)
+        else:
+            found.append(("/".join(path), str(child.get("name", "")), str(child.get("url", ""))))
+
+
+def cmd_diff(args: argparse.Namespace) -> int:
+    old_path = Path(args.old).expanduser()
+    new_path = Path(args.new).expanduser()
+    for path in (old_path, new_path):
+        if not path.is_file():
+            print(f"missing file: {path}", file=sys.stderr)
+            return 1
+    old_bar = root_nodes(load_bookmarks(old_path)).get("bookmark_bar") or {}
+    new_bar = root_nodes(load_bookmarks(new_path)).get("bookmark_bar") or {}
+    old_leaves: list[tuple[str, str, str]] = []
+    new_leaves: list[tuple[str, str, str]] = []
+    collect_leaves(old_bar, [], old_leaves)
+    collect_leaves(new_bar, [], new_leaves)
+    old_by_url = {url: (path, name) for path, name, url in old_leaves}
+    new_by_url = {url: (path, name) for path, name, url in new_leaves}
+    added = sorted(set(new_by_url) - set(old_by_url))
+    removed = sorted(set(old_by_url) - set(new_by_url))
+    moved = renamed = 0
+    for url, (path, name) in new_by_url.items():
+        if url in old_by_url:
+            old_place, old_name = old_by_url[url]
+            moved += int(path != old_place)
+            renamed += int(name != old_name)
+    print(f"old_urls={len(old_leaves)} new_urls={len(new_leaves)}")
+    print(
+        f"kept={len(new_leaves) - len(added)} added={len(added)} removed={len(removed)} "
+        f"moved={moved} renamed={renamed}"
+    )
+    old_top = top_level_folders(old_bar)
+    new_top = top_level_folders(new_bar)
+    print("old_top_level_folders=" + (", ".join(old_top) or "(none)"))
+    print("new_top_level_folders=" + (", ".join(new_top) or "(none)"))
+    print(f"top_level_change={'changed' if set(old_top) != set(new_top) else 'same'}")
+    for url in removed:
+        print(f"  removed  {url}")
+    for url in added:
+        print(f"  added    {url}")
+    for url in sorted(new_by_url):
+        if url in old_by_url and old_by_url[url][0] != new_by_url[url][0]:
+            print(f"  moved    {url}: {old_by_url[url][0]} -> {new_by_url[url][0]}")
+    return 0
+
+
 def add_common_args(parser: argparse.ArgumentParser, *, subcommand: bool = False) -> None:
     # A subparser default would overwrite the value parsed before the subcommand,
     # so subcommand-level copies only record an explicitly passed flag.
@@ -267,6 +325,12 @@ def main() -> int:
     inspect = sub.add_parser("inspect", help="Print profile, running state, and folder counts.")
     add_common_args(inspect, subcommand=True)
     inspect.set_defaults(func=cmd_inspect)
+
+    diff = sub.add_parser("diff", help="Compare a live Bookmarks file with a prepared tree.")
+    diff.add_argument("--old", required=True, help="Current Bookmarks JSON (live or a backup).")
+    diff.add_argument("--new", required=True, help="Prepared Bookmarks JSON.")
+    add_common_args(diff, subcommand=True)
+    diff.set_defaults(func=cmd_diff)
 
     write = sub.add_parser("write", help="Copy prepared JSON onto the live profile.")
     write.add_argument("--src", required=True, help="Prepared Bookmarks JSON path.")

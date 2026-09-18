@@ -4,9 +4,10 @@ Chrome files: `<user-data>/<Profile>/Bookmarks` and `Bookmarks.bak`. The script 
 
 ## Preconditions
 
-1. No Chrome process is alive. The script probes `pgrep`/`ps` on POSIX and `tasklist` on Windows; a leftover Helper/crashpad process still counts as running. When every probe is unavailable it refuses to write, and `--assume-quit` only unblocks that case after the user confirms Chrome is quit.
+1. No Chrome process is alive. The script probes `pgrep`/`ps` on POSIX and `tasklist` on Windows; a leftover Helper or crashpad process belongs to Chrome and still counts as running. When every probe is unavailable it refuses to write, and `--assume-quit` only unblocks that case after the user confirms Chrome is quit.
+   The `ps` fallback matches the browser by name only. Other Electron apps ship their own `chrome_crashpad_handler`, and that must not block a writeback: when a verdict looks like a false positive, re-check with `pgrep -fl "Google Chrome"`, report the finding to the user, and never edit the guard to make the write pass.
    A sandboxed run often cannot list processes; re-run the check with the permissions it needs instead of treating "cannot tell" as "quit".
-2. The prepared JSON exists, was shown to the user (counts + top-level folders), and is a complete Chrome Bookmarks document: keep `version`, `checksum`, `sync_metadata` and all three `roots`, and replace only the contents of `roots.bookmark_bar`. The script refuses a file without `roots.bookmark_bar`.
+2. The prepared JSON exists, was shown to the user (counts + top-level folders), and is a complete Chrome Bookmarks document: keep `other`, `synced`, and every top-level key the original had, and replace only the contents of `roots.bookmark_bar`. Do not assume a fixed key list — Chrome adds `sync_metadata` when sync metadata exists and drops it again on its own. The script refuses a file without `roots.bookmark_bar`.
 3. The user asked to write, or said Chrome has quit after an organize step.
 
 If any precondition fails, stop. Do not write.
@@ -25,6 +26,12 @@ python3 scripts/chrome_bookmarks.py write --src <prepared.json> --user-data "$HO
 - prints `warning:` lines for a root that would drop to 0 bookmarks, loose URLs on the bookmark bar, or an existing file it could not compare against.
 
 Stop and ask the user when a warning says 其他书签 or 移动设备书签 drops to 0: that write deletes bookmarks the plan may not have covered. The archive copy from the organize step is the second rollback source.
+
+## Rollback
+
+- Two sources survive a writeback: `Bookmarks.bak` (the tree that was live before it) and the prepared tree in the archive directory.
+- Restore: quit Chrome fully → copy the chosen file over `Bookmarks` (mode `600`) → start Chrome and confirm the bar. Do not hand-merge two trees; pick one.
+- `Bookmarks.bak` and the live file stop matching the prepared copy byte for byte once Chrome saves again: it rewrites `id`s and `checksum`. Compare structure and counts, not hashes.
 
 ## Sync
 

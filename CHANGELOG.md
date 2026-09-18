@@ -25,9 +25,19 @@
 - 五维分析技能（史/经/政/军/哲），产出可证伪判断与可执行动作
 - 沟通公式技能，按沟通目的选用 SCQA、FAB、BACC、3W、PREP 五套表达顺序
 - WorkBuddy 分发目标，并随仓库附带两张技能流程图
+- `chrome-bookmarks` 的 `references/schema.md`：Bookmarks 文档结构（节点字段、`id`/`guid` 规则、1601 起微秒时间戳、
+  写后校验方式），作为改动 Bookmarks 文件前的单一参考
+- `chrome-bookmarks` 脚本新增 `diff` 子命令：`--old` / `--new` 输出 kept / added / removed / moved / renamed 与顶层变化，
+  与 `inspect` 新增的 `top_level_folders=` 一起支撑写回前的交叉核对
 
 ### 变更
 
+- `chrome-bookmarks` 增加"顶层未变"闸门与可复用方案记录：归类前对比目标顶层与现有顶层，两者一致时报告首行必须标注
+  「顶层未变，仅内部调整」并单独确认，交付报告改为顶层 新增 / 删除 / 未变 三态；归档目录固定为 `<date>_<profile>`，
+  同目录写 `manifest.json`（方案名、顶层列表、保留/移动/删除计数、产物哈希），下一轮直接复用已确认方案而不是重新推断
+- `chrome-bookmarks` 分类规则补齐三处歧义：兜底桶（`归档`/`Misc`）用户已有则永不为空删除、没有则不新造；
+  `company·slug` 只用于产品/站点/仓库叶子，个人文档、政务页与内网系统保留原名；三层深度给出
+  `AI / Agent / 官方文档 / leaf` 的合法示例
 - `chrome-bookmarks` 采用通用分类与清理规则：用户自带的分类树、同站上限与仓库质量门槛永远优先，也不为没有的分类建空文件夹；默认模式为
   `work / study / ai（agent、relay）/ dev / tools / chore / misc` 并给出判定顺序 `work → study → ai → dev → tools → chore → misc`，
   文件夹最深三层，书签 leaf 统一命名为 `<company>·<slug>`，域名仅在保有 4 条以上时单独建层；清理以原则表述
@@ -80,6 +90,13 @@
   并给出基于补丁的非交互 hunk 暂存路径，取代会让非交互运行挂起的 `git add -p` / `git reset -p`
 - `git-commit` 补齐流程图缺失的"无相关改动 → 停止"出口与 porcelain 示例（`A `、`AM`、`D `、`R `），
   并把 `openai.yaml` 与两份 README 的对外文案从"只提交已暂存"改为"选定改动拆成原子提交"
+- `chrome-bookmarks` 修复进程探测误判：`ps` 回退分支此前把任何含 `chrome` 的进程都算作 Chrome，VS Code 等
+  Electron 应用自带的 `chrome_crashpad_handler` 会让写回被无理由拒绝；现只匹配 `Google Chrome` / `Chromium`
+  本体与其 Helper，并在 `SKILL.md`、`references/writeback.md` 明确"探测可疑时用 `pgrep -fl` 复核并报告，
+  禁止改守护逻辑放行"
+- `chrome-bookmarks` 写回前置条件不再假定 `sync_metadata` 必存（Chrome 会自行增删该键），改为"保留原文档全部顶层键
+  与 `other` / `synced`，只替换 `roots.bookmark_bar`"；`references/writeback.md` 补充回滚章节，说明 Chrome 保存后会
+  重写 `id` / `checksum`，应按结构与计数核对而非比对哈希
 
 ### 移除
 

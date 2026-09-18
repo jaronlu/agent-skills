@@ -9,11 +9,11 @@ Otherwise use the pattern below as a starting point and adapt it to what the boo
 - The bookmark bar holds folders, not loose URLs, and no wrapper folder repeats the bar's own name.
 - Top-level folders stay few (3–7), named in the user's language and vocabulary.
 - Group by purpose first, then by platform, vendor, or topic inside a group.
-- Folders nest at most three levels deep (top-level folder → subfolder → sub-subfolder). Promote anything deeper instead of adding a fourth level.
+- Folders nest at most three levels deep (top-level folder → subfolder → sub-subfolder); leaves sit inside the deepest folder and do not count as a level, so `AI / Agent / 官方文档 / leaf` is legal while a fourth folder level is not. Promote anything deeper instead of adding a fourth level.
 - Each item lives in exactly one folder.
 - A second level is normally a category, not a domain. Open a domain folder only when that one domain keeps four or more bookmarks; leaves inside it drop the `company` prefix.
-- Keep a fallback folder for everything that does not fit; cleanup rules delete inside it first. Name it whatever the user's tree calls it (`归档`, `Archive`, `Misc`, …).
-- Delete empty folders except the top-level ones the user wants to keep.
+- When the tree the user has already contains a fallback bucket (`归档`, `Archive`, `Misc`, …), keep it for everything that does not fit and never delete it for being empty; cleanup rules delete inside it first. When the tree has none, do not invent one — place every item by purpose and say where the old bucket's items went. Either way, moving items out of a content folder such as `归档/工作` needs the user's word.
+- Delete empty folders except the top-level ones the user wants to keep and the fallback bucket above.
 
 ## Default pattern
 
@@ -58,6 +58,8 @@ Take the first folder that matches, so the same bookmark always lands in the sam
 Name every saved URL `<company>·<slug>`: the site, vendor, or organization, a middle dot, then a short slug for the product or page (lowercase, hyphens instead of spaces).
 
 Examples: `OpenAI·api`, `Anthropic·claude-code`, `Vercel·docs`, `Reuters·markets`. When a page belongs to no company, use the site or the organization as `company` (a personal blog uses the author's handle, a government page uses the agency).
+
+The pattern targets product, site, and repository leaves. Personal documents, government pages, internal systems, and anything the user named keep their own title — a labour-claim document stays recognisable as `劳动维权·赔偿估算` rather than being flattened into `Google·document`.
 
 - The same `company·slug` appears once per folder: replace the older URL instead of keeping a second one, and prefer the official documentation URL or the repository root over pricing, tag, dashboard, and session URLs.
 - A renamed leaf keeps the pattern even when the user's own folder names are in another language; leave identifiers and product names untranslated.

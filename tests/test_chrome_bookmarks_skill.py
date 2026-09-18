@@ -18,6 +18,7 @@ SCRIPT = PACKAGE / "scripts" / "chrome_bookmarks.py"
 SKILL = PACKAGE / "SKILL.md"
 WRITEBACK = PACKAGE / "references" / "writeback.md"
 TAXONOMY = PACKAGE / "references" / "taxonomy.md"
+SCHEMA = PACKAGE / "references" / "schema.md"
 
 
 def load_script():
@@ -161,6 +162,54 @@ class ChromeBookmarksSkillTests(unittest.TestCase):
         self.assertIn("root synced (移动设备书签): urls=1", result.stdout)
         self.assertIn("urls_total=4", result.stdout)
 
+    def test_inspect_lists_top_level_folders(self) -> None:
+        self.write_doc(self.live, bookmarks_doc([folder("Agent"), folder("归档")]))
+        result = self.run_cli("inspect", "--user-data", str(self.user_data))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("top_level_folders=Agent, 归档", result.stdout)
+
+    def test_diff_reports_added_removed_moved_and_renamed(self) -> None:
+        old = self.write_doc(
+            Path(self.temp.name) / "old.json",
+            bookmarks_doc([folder("旧", [url("a"), url("b")])]),
+        )
+        new = self.write_doc(
+            Path(self.temp.name) / "new.json",
+            bookmarks_doc(
+                [
+                    folder(
+                        "Agent",
+                        [
+                            {"type": "url", "name": "a-renamed", "url": "https://a.example"},
+                            url("c"),
+                        ],
+                    )
+                ]
+            ),
+        )
+        result = self.run_cli("diff", "--old", str(old), "--new", str(new))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("old_urls=2 new_urls=2", result.stdout)
+        self.assertIn("kept=1 added=1 removed=1 moved=1 renamed=1", result.stdout)
+        self.assertIn("top_level_change=changed", result.stdout)
+        self.assertIn("  removed  https://b.example", result.stdout)
+        self.assertIn("  added    https://c.example", result.stdout)
+
+    def test_process_probe_counts_only_the_browser(self) -> None:
+        def verdict(stdout: str) -> bool | None:
+            result = subprocess.CompletedProcess(args=["ps"], returncode=0, stdout=stdout)
+            return self.module._ps_verdict(result)
+
+        self.assertFalse(
+            verdict(
+                "/Applications/Visual Studio Code.app/Contents/Frameworks/"
+                "Electron Framework.framework/Helpers/chrome_crashpad_handler\n"
+            )
+        )
+        self.assertTrue(verdict("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\n"))
+        self.assertTrue(verdict("Google Chrome Helper (Renderer)\n"))
+        self.assertTrue(verdict("/Applications/Chromium.app/Contents/MacOS/Chromium\n"))
+
     def test_write_keeps_the_previous_tree_as_a_rollback_copy(self) -> None:
         self.write_doc(self.live, bookmarks_doc([folder("旧")], other=[url("m1")]))
         prepared = self.write_doc(
@@ -215,6 +264,7 @@ class ChromeBookmarksSkillTests(unittest.TestCase):
         skill = SKILL.read_text(encoding="utf-8")
         writeback = WRITEBACK.read_text(encoding="utf-8")
         taxonomy = TAXONOMY.read_text(encoding="utf-8")
+        schema = SCHEMA.read_text(encoding="utf-8")
         self.assertIn("`bookmark_bar`, `other`, `synced`", skill)
         self.assertIn("roots.bookmark_bar", skill)
         self.assertRegex(skill, r"outside this skill package")
@@ -237,6 +287,16 @@ class ChromeBookmarksSkillTests(unittest.TestCase):
             (PACKAGE / "references" / "cleanup-rules.md").read_text(encoding="utf-8"),
             r"overrides them",
         )
+        self.assertIn("references/schema.md", skill)
+        self.assertRegex(skill, r"top-level unchanged")
+        self.assertRegex(skill, r"never loosen the guard")
+        self.assertRegex(writeback, r"(?m)^## Rollback")
+        self.assertIn("pgrep -fl", writeback)
+        self.assertRegex(writeback, r"never edit the guard")
+        self.assertRegex(taxonomy, r"never delete it for being empty")
+        self.assertRegex(taxonomy, r"keep their own title")
+        self.assertIn("1601", schema)
+        self.assertIn("roots.bookmark_bar", schema)
 
     def test_package_has_no_private_identifiers(self) -> None:
         offenders: list[str] = []
