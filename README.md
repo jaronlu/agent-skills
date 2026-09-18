@@ -40,6 +40,7 @@ the library is behind. Entries the manager does not own are never overwritten.
 
 | Skill | What it does |
 | --- | --- |
+| [chrome-bookmarks](skills/chrome-bookmarks/SKILL.md) | Classifies Chrome bookmarks, removes duplicates and low-value items, and writes back only after Chrome quits. |
 | [design-convergence-review](skills/design-convergence-review/SKILL.md) | Checks whether a design is ready for implementation and identifies unresolved blockers. |
 | [first-principles](skills/first-principles/SKILL.md) | Rebuilds a decision or diagnosis from evidence, constraints, and testable assumptions. |
 | [git-commit](skills/git-commit/SKILL.md) | Drafts repository-aware Conventional Commit messages, or turns the selected changes into atomic commits. |
@@ -58,6 +59,12 @@ a symlink into the llm-wiki workshop, so it is not version-controlled here. Only
 Every skill ships one SVG flow diagram, all kept in `assets/`; [RULES.md](RULES.md) defines the
 required content and styling. Each diagram below follows the order of the skill table above, and
 links to its raw SVG.
+
+### chrome-bookmarks
+
+Classify, dedupe, and write Chrome bookmarks after a full quit.
+
+[![chrome-bookmarks: classify, dedupe, write back](assets/chrome-bookmarks-flow.svg)](assets/chrome-bookmarks-flow.svg)
 
 ### design-convergence-review
 

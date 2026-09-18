@@ -121,6 +121,7 @@ python3 scripts/validate_skills.py
 
 | 技能 | 流程图 |
 | --- | --- |
+| chrome-bookmarks | `assets/chrome-bookmarks-flow.svg` |
 | communication-formulas | `assets/communication-formulas-routing.svg` |
 | five-dimension-analysis | `assets/five-dimension-analysis-flow.svg` |
 | git-commit | `assets/git-commit-flow.svg` |

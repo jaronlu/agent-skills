@@ -1,0 +1,4 @@
+interface:
+  display_name: "Chrome 书签整理"
+  short_description: "整理 Chrome 书签：分类、去冗余、退出后写回"
+  default_prompt: "Use $chrome-bookmarks to classify and dedupe my Chrome bookmarks, then report the folder plan and counts."

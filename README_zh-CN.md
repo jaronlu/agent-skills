@@ -37,6 +37,7 @@
 
 | Skill | 用途 |
 | --- | --- |
+| [chrome-bookmarks](skills/chrome-bookmarks/SKILL.md) | 分类整理 Chrome 书签、去掉冗余和低价值项，并在浏览器完全退出后写回。 |
 | [design-convergence-review](skills/design-convergence-review/SKILL.md) | 检查设计是否可以进入开发，并指出未收敛的阻塞问题。 |
 | [first-principles](skills/first-principles/SKILL.md) | 从证据、约束和可验证假设出发，重新推导决策或诊断。 |
 | [git-commit](skills/git-commit/SKILL.md) | 生成符合仓库规则的 Conventional Commit 信息，或把选定的改动拆成原子提交。 |
@@ -54,6 +55,12 @@
 
 每个 Skill 都有一张 SVG 流程图，统一放在 `assets/`；内容与配色约定见 [RULES.md](RULES.md)。
 下图的顺序与上方技能表一致，点击可打开原始 SVG。
+
+### chrome-bookmarks
+
+分类、去冗余，并在完全退出后写回。
+
+[![chrome-bookmarks：分类去冗余并写回](assets/chrome-bookmarks-flow.svg)](assets/chrome-bookmarks-flow.svg)
 
 ### design-convergence-review
 

@@ -9,6 +9,7 @@
 
 ### 新增
 
+- `chrome-bookmarks` 技能：通用 Chrome 书签整理（分类、去冗余、归档精简），用户自带的分类树优先，仅在浏览器完全退出后写回；附流程图并登记 CC Switch 分发
 - `paper-learning` 技能（由 `rsi-paper` 重构更名）：通用论文学习流程——识别论文、抓取通读、按 `references/paper-template.md` 蒸馏为工作区 `papers/<slug>.md`（笔记是产出物，不放技能包内）、按问题类型路由回答；demo 可选且语言随论文生态，无意义的论文明确记 "no demo"。首篇产出 `papers/rsi-2609-11873.md` + `papers/rsi-2609-11873_demo.py`（原 RSI 论文内容，arXiv:2609.11873），附通用流程图并登记 CC Switch 分发
 - 仓库规则文件 `RULES.md`：规定每个技能必须配一张 SVG 流程图，并明确存放位置、命名、配色与文本安全边界
 - 剩余五个技能的流程图：`git-commit`、`design-convergence-review`、`first-principles`、`hermes-context-review`、`llm-wiki`
@@ -27,6 +28,10 @@
 
 ### 变更
 
+- `chrome-bookmarks` 采用通用分类与清理规则：用户自带的分类树、同站上限与仓库质量门槛永远优先，也不为没有的分类建空文件夹；默认模式为
+  `work / study / ai（agent、relay）/ dev / tools / chore / misc` 并给出判定顺序 `work → study → ai → dev → tools → chore → misc`，
+  文件夹最深三层，书签 leaf 统一命名为 `<company>·<slug>`，域名仅在保有 4 条以上时单独建层；清理以原则表述
+  （同站去重、官方源与仓库根优先、控制台与会话链接丢弃），不假定任何站点清单或数量阈值；同步更新流程图与契约测试
 - `paper-learning` 精简重复质量规则与逐篇回答路由，合并笔记模板；按问题覆盖度和论文版本复用笔记（arXiv 按 id + `vN`/日期与笔记 Source 核对），补充来源定位与证据缺口，已请求的资料核验无需重复确认；明确 demo 不等于结果复现并同步流程图；局限段增加新颖性/证据力度/可复现性提示，示例笔记扩为两篇（论证型 + 实验型，关键数字逐一对照对应 arXiv 版本核实），并加入填好的示例笔记；工作区 RSI 笔记改对齐新模板、修正 demo 路径
 - hermes-context-review 精简入口，将取证、运行时加载与分发、记忆计数细节下沉至 references；修正缺省配置误报、固定限额与 home AGENTS 加载表述，明确证据缺口及 verdict，并同步流程图与契约测试
 - 修复六张流程图的文字溢出：`first-principles`、`git-commit`、`hermes-context-review`、`llm-wiki` 中框高不足的方框按实际行数补足高度并把后续元素整体下移；`five-dimension-analysis`、`design-convergence-review` 的超宽文本改为收窄措辞或加宽所属框。`validate_skills.py` 新增几何校验（文字必须落在所属框内、无框文本不得越出画布），把 RULES.md 的文本安全边界从人工自检变成可执行检查，并补充 6 个回归测试
@@ -55,6 +60,17 @@
 
 ### 修复
 
+- `chrome-bookmarks` 修复写回链路：`--user-data` / `--profile` 现在放在子命令前后都能解析（此前 `references/writeback.md`
+  里的命令会直接报 `unrecognized arguments`）；写回前校验 prepared 是否为完整 Chrome Bookmarks 文档（缺 `roots.bookmark_bar`
+  直接拒绝）、用临时文件 + `os.replace` 原子替换 `Bookmarks`、把旧文件留在 `Bookmarks.bak` 作回滚副本，写后回读并输出
+  顶层文件夹与 `warning:` 行（其他书签/移动设备书签归零、书签栏存在散落 URL、旧文件无法比对）
+- `chrome-bookmarks` 的 `inspect` 覆盖 `bookmark_bar` / `other` / `synced` 三个 root，不再漏报其他书签与移动设备书签；
+  `SKILL.md` 相应要求归类时展开全部 root，并在 `other` / `synced` 非空时先请用户确认清空
+- `chrome-bookmarks` 明确数据边界：分类与清理默认值全部可被用户覆盖，并禁止把书签数据、归档目录与 prepared 树写进
+  技能包或仓库
+- `chrome-bookmarks` 解除 macOS 绑定：默认 user-data 目录按 darwin / win32 / linux 解析（Chromium 等其它安装用
+  `--user-data` 指定），进程检测改为 POSIX 上探测 `pgrep`/`ps`、Windows 上探测 `tasklist`；所有探测都不可用时
+  默认拒绝写回（fail closed），只有用户确认后才可用 `--assume-quit` 放行
 - `git-commit` 修复规则发现在 message mode 失效的回归：`references/workflow.md` 的路由改为
   "commit mode，或任何需要读取 diff 的 message mode"，并在 `SKILL.md` 增加常驻的 Repository Rules
   章节；同时补齐未跟踪规则文件与 monorepo 上层目录这两类漏检来源
