@@ -559,7 +559,11 @@ def cmd_emit(args: argparse.Namespace) -> int:
             name = str((originals.get(url) or {}).get("name") or url)
         folder_path = parse_folder_path(item.get("path"))
         if len(folder_path) > 3:
-            warnings.append(f"path deeper than 3 levels: {'/'.join(folder_path)}")
+            print(
+                f"refuse emit: path deeper than 3 levels: {'/'.join(folder_path)}",
+                file=sys.stderr,
+            )
+            return 1
         parent = new_children
         walked: list[str] = []
         for folder_name in folder_path:

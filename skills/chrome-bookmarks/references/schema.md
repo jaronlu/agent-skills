@@ -19,7 +19,7 @@ The agent writes only this file. `emit` builds the Bookmarks document: it copies
 ```
 
 - `items` are the URLs to keep on the bookmark bar. Omit dropped URLs.
-- `path` is the folder path under the bar (`/`-separated, at most three levels). An empty path is a loose URL; `emit` warns.
+- `path` is the folder path under the bar (`/`-separated, at most three levels). `emit` refuses a deeper path. An empty path is a loose URL; `emit` warns.
 - `top_level` orders bar folders and may include an empty fallback folder. Omit it to derive order from `items`.
 - `empty_other` / `empty_synced` default false. Set true only after the user confirms that root may go to 0; writeback still refuses unless `--allow-empty-roots` is passed.
 - Duplicate `url` values are rejected.

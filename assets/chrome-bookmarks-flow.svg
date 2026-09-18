@@ -48,7 +48,7 @@
 
 <rect x="40" y="398" width="600" height="70" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
 <text x="60" y="416" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">④ 按分类树归类</text>
-<text x="60" y="436" dominant-baseline="central" font-size="12" fill="#5F5E5A">用户方案优先，没有就套 taxonomy.md 的模式</text>
+<text x="60" y="436" dominant-baseline="central" font-size="12" fill="#5F5E5A">用户方案管文件夹；叶子仍按 area·slug 命名</text>
 <text x="60" y="456" dominant-baseline="central" font-size="12" fill="#5F5E5A">other/synced 非空只列，未经确认不得写空</text>
 
 <rect x="40" y="486" width="600" height="70" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>

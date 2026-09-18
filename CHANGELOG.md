@@ -32,6 +32,7 @@
 
 ### 变更
 
+- `chrome-bookmarks` 用户方案只覆盖文件夹名和树形；每次 Organize 仍用 `<area>·<slug>`（company / platform / topic，子集优先），除非用户另给命名规则。域名与 `dev` 平台建层统一为 4 条；`emit` 拒绝超过三层的 path；同步契约测试与流程图
 - `chrome-bookmarks` 默认顶层文件夹保持英文（`work` / `study` / …），不因用户使用中文就翻译成 `工作` / `学习`；用户自定方案仍优先
 - `chrome-bookmarks` 将 SKILL.md 收敛为模式、常驻契约、安全边界与输出；定位配置、归档、Inspect / Organize / Writeback / Restore 步骤下沉到 `references/workflow.md`
 - `chrome-bookmarks` 整理改为代理写 plan、脚本 `emit` 装配 Bookmarks 文档（分配 `id`/`guid`/时间戳、保留原顶层键与 `other`/`synced`、写出 `manifest.json`）；默认归档根为 `~/ChromeBookmarksArchive/<YYYY-MM-DD>_<profile>/`；Organize 在 Chrome 仍运行时也可进行，默认停在写回确认之前；Restore 优先 `Bookmarks.raw`，`Bookmarks.bak` 仅在 Chrome 尚未再次保存时可用

@@ -429,6 +429,32 @@ class ChromeBookmarksSkillTests(unittest.TestCase):
         self.assertIn("duplicate url", result.stderr)
         self.assertFalse(out.exists())
 
+    def test_emit_refuses_path_deeper_than_three_levels(self) -> None:
+        src = self.write_doc(
+            Path(self.temp.name) / "Bookmarks.raw",
+            bookmarks_doc([folder("旧", [url("a")])]),
+        )
+        plan_path = Path(self.temp.name) / "plan.json"
+        plan_path.write_text(
+            json.dumps(
+                {
+                    "items": [
+                        {
+                            "path": "dev/python/docs/howto",
+                            "name": "python·howto",
+                            "url": "https://a.example",
+                        }
+                    ]
+                }
+            ),
+            encoding="utf-8",
+        )
+        out = Path(self.temp.name) / "prepared.json"
+        result = self.run_cli("emit", "--src", str(src), "--plan", str(plan_path), "--out", str(out))
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("path deeper than 3 levels", result.stderr)
+        self.assertFalse(out.exists())
+
     def test_emit_empties_other_only_when_the_plan_asks(self) -> None:
         src = self.write_doc(
             Path(self.temp.name) / "Bookmarks.raw",
@@ -470,12 +496,17 @@ class ChromeBookmarksSkillTests(unittest.TestCase):
         self.assertRegex(skill, r"write back")
         self.assertRegex(skill, r"sync overwrite")
         self.assertRegex(skill, r"pass `--profile`")
-        self.assertRegex(skill, r"read taxonomy only when organizing without one")
+        self.assertRegex(
+            skill, r"read the default folder pattern in taxonomy only when organizing without one"
+        )
+        self.assertRegex(skill, r"Always apply taxonomy leaf names")
+        self.assertRegex(skill, r"folders or bookmarks should be named")
         self.assertRegex(skill, r"Always apply cleanup")
         self.assertIn("ChromeBookmarksArchive", workflow)
         self.assertRegex(workflow, r"never overwrite")
         self.assertRegex(workflow, r"pass `--profile`")
         self.assertRegex(workflow, r"Always apply")
+        self.assertRegex(workflow, r"even when the user supplied a folder scheme")
         self.assertIn("Bookmarks.raw", workflow)
         self.assertIn("`emit`", workflow)
         self.assertIn("`diff`", workflow)
@@ -487,7 +518,13 @@ class ChromeBookmarksSkillTests(unittest.TestCase):
         self.assertIn("Default pattern", taxonomy)
         self.assertRegex(taxonomy, r"Rename, merge, or drop")
         self.assertRegex(taxonomy, r"at most three levels")
-        self.assertIn("`<company>·<slug>`", taxonomy)
+        self.assertIn("`<area>·<slug>`", taxonomy)
+        self.assertRegex(taxonomy, r"on every Organize")
+        self.assertRegex(taxonomy, r"prefer the subset")
+        self.assertIn("`OpenAI·api`", taxonomy)
+        self.assertIn("`python·asyncio`", taxonomy)
+        self.assertIn("`ios·uikit`", taxonomy)
+        self.assertIn("`algo·dp`", taxonomy)
         self.assertRegex(taxonomy, r"work → study → ai → dev → tools → chore → misc")
         for folder in ("work/", "study/", "dev/", "ai/", "tools/", "chore/", "misc/"):
             self.assertRegex(taxonomy, rf"(?m)^{re.escape(folder)}")
@@ -510,6 +547,7 @@ class ChromeBookmarksSkillTests(unittest.TestCase):
         self.assertIn("roots.bookmark_bar", schema)
         self.assertIn("empty_other", schema)
         self.assertIn("`emit` assign both", schema)
+        self.assertRegex(schema, r"refuses a deeper path")
 
     def test_package_has_no_private_identifiers(self) -> None:
         offenders: list[str] = []
