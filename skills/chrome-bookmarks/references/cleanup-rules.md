@@ -8,7 +8,7 @@ Apply after classification. These are principles with tunable defaults; anything
 - The same repository (`org/repo`) or the same product host when an equivalent entry is already kept outside the fallback folder: extra marketing, pricing, download, tag, or docs-subtree pages.
 - `chrome://`, `chrome-extension://`, `about:`.
 - Session and account-state URLs: chat threads (`/c/`, `/chat/<id>`, `/app/<id>`, `threadId=`), shared documents carrying tokens, and login or checkout steps.
-- Console, billing, API-key, signup, and trial pages, unless the product itself is a service the user keeps.
+- Console, billing, API-key, signup, and trial pages when the same product's home or docs page is already kept. A console URL is not low-value merely because it is a console; keep it in `tools` (or the user's equivalent) only when that product has no better keep.
 - Content farms and course dumps (aggregators, reposted tutorials, interview dumps, video-course mirrors) when the official source exists.
 - Unofficial mirrors of a tool whose official repository is already kept.
 

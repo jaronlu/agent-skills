@@ -58,7 +58,7 @@
 
 ### chrome-bookmarks
 
-分类、去冗余，并在完全退出后写回。
+Chrome 开着也可整理；完全退出后才写回。
 
 [![chrome-bookmarks：分类去冗余并写回](assets/chrome-bookmarks-flow.svg)](assets/chrome-bookmarks-flow.svg)
 

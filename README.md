@@ -62,7 +62,7 @@ links to its raw SVG.
 
 ### chrome-bookmarks
 
-Classify, dedupe, and write Chrome bookmarks after a full quit.
+Classify and emit while Chrome may stay open; write back only after a full quit.
 
 [![chrome-bookmarks: classify, dedupe, write back](assets/chrome-bookmarks-flow.svg)](assets/chrome-bookmarks-flow.svg)
 

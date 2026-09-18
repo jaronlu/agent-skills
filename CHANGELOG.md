@@ -32,6 +32,9 @@
 
 ### 变更
 
+- `chrome-bookmarks` 默认顶层文件夹保持英文（`work` / `study` / …），不因用户使用中文就翻译成 `工作` / `学习`；用户自定方案仍优先
+- `chrome-bookmarks` 将 SKILL.md 收敛为模式、常驻契约、安全边界与输出；定位配置、归档、Inspect / Organize / Writeback / Restore 步骤下沉到 `references/workflow.md`
+- `chrome-bookmarks` 整理改为代理写 plan、脚本 `emit` 装配 Bookmarks 文档（分配 `id`/`guid`/时间戳、保留原顶层键与 `other`/`synced`、写出 `manifest.json`）；默认归档根为 `~/ChromeBookmarksArchive/<YYYY-MM-DD>_<profile>/`；Organize 在 Chrome 仍运行时也可进行，默认停在写回确认之前；Restore 优先 `Bookmarks.raw`，`Bookmarks.bak` 仅在 Chrome 尚未再次保存时可用
 - `chrome-bookmarks` 增加"顶层未变"闸门与可复用方案记录：归类前对比目标顶层与现有顶层，两者一致时报告首行必须标注
   「顶层未变，仅内部调整」并单独确认，交付报告改为顶层 新增 / 删除 / 未变 三态；归档目录固定为 `<date>_<profile>`，
   同目录写 `manifest.json`（方案名、顶层列表、保留/移动/删除计数、产物哈希），下一轮直接复用已确认方案而不是重新推断
@@ -70,6 +73,8 @@
 
 ### 修复
 
+- `chrome-bookmarks` 统一 `other`/`synced` 契约：写回不再默认清空；`emit` 默认原样保留；将归零时 `write` 在写盘前拒绝，需用户确认后才可 `--allow-empty-roots`
+- `chrome-bookmarks` Linux 进程探测补上 `chrome` / `google-chrome` 精确进程名，继续排除其它 Electron 的 `chrome_crashpad_handler`；同步流程图（Inspect 出口、Organize 可开着跑、默认停在 emit、Restore 走写回闸门）
 - `chrome-bookmarks` 修复写回链路：`--user-data` / `--profile` 现在放在子命令前后都能解析（此前 `references/writeback.md`
   里的命令会直接报 `unrecognized arguments`）；写回前校验 prepared 是否为完整 Chrome Bookmarks 文档（缺 `roots.bookmark_bar`
   直接拒绝）、用临时文件 + `os.replace` 原子替换 `Bookmarks`、把旧文件留在 `Bookmarks.bak` 作回滚副本，写后回读并输出

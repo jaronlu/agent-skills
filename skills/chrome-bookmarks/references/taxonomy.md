@@ -7,7 +7,7 @@ Otherwise use the pattern below as a starting point and adapt it to what the boo
 ## Invariants
 
 - The bookmark bar holds folders, not loose URLs, and no wrapper folder repeats the bar's own name.
-- Top-level folders stay few (3–7), named in the user's language and vocabulary.
+- Top-level folders stay few (3–7). English names from the default pattern are allowed; do not translate them just because the user writes in another language.
 - Group by purpose first, then by platform, vendor, or topic inside a group.
 - Folders nest at most three levels deep (top-level folder → subfolder → sub-subfolder); leaves sit inside the deepest folder and do not count as a level, so `AI / Agent / 官方文档 / leaf` is legal while a fourth folder level is not. Promote anything deeper instead of adding a fourth level.
 - Each item lives in exactly one folder.
@@ -29,7 +29,7 @@ chore/    life administration: government, bills, health, housing, shopping
 misc/     fallback; cleanup rules delete here first
 ```
 
-Rename, merge, or drop any of these to match the user's own scheme: a user who works in Chinese keeps `工作/`, `学习/`, … instead. Top-level folders stay lowercase and few; the third level is the deepest and holds leaves, or a domain folder when a domain qualifies.
+Rename, merge, or drop any of these to match the user's own scheme. Keep the English top-level names unless the user names a different set. Top-level folders stay lowercase and few; the third level is the deepest and holds leaves, or a domain folder when a domain qualifies.
 
 ## Decision order
 
@@ -49,7 +49,7 @@ Take the first folder that matches, so the same bookmark always lands in the sam
 - **dev**: one subfolder per platform or stack the user actually uses, added only when several bookmarks justify it. Official docs and repository roots belong here.
 - **ai/agent**: model labs, agent frameworks, coding agents, MCP, and the repositories behind them, one leaf per `company·slug`.
 - **ai/relay**: third-party API relays, coding-plan aggregators, shared-account services, kept separate from `ai/agent`. Prefer one leaf per relay platform.
-- **tools**: occasional online tools, consoles, dashboards, paid services. Prefer the product's home page or docs over dashboard and console URLs.
+- **tools**: occasional online tools, dashboards, paid services, and a console only when that product has no home or docs URL to keep. Prefer the product's home page or docs over dashboard and console URLs.
 - **chore**: banks, government, health, housing, shopping, transport. Keep the current page per service and drop superseded ones.
 - **misc**: the fallback, split by topic only when a topic earns a folder.
 

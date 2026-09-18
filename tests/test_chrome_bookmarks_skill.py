@@ -17,6 +17,7 @@ PACKAGE = ROOT / "skills" / "chrome-bookmarks"
 SCRIPT = PACKAGE / "scripts" / "chrome_bookmarks.py"
 SKILL = PACKAGE / "SKILL.md"
 WRITEBACK = PACKAGE / "references" / "writeback.md"
+WORKFLOW = PACKAGE / "references" / "workflow.md"
 TAXONOMY = PACKAGE / "references" / "taxonomy.md"
 SCHEMA = PACKAGE / "references" / "schema.md"
 
@@ -209,12 +210,22 @@ class ChromeBookmarksSkillTests(unittest.TestCase):
         self.assertTrue(verdict("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\n"))
         self.assertTrue(verdict("Google Chrome Helper (Renderer)\n"))
         self.assertTrue(verdict("/Applications/Chromium.app/Contents/MacOS/Chromium\n"))
+        self.assertTrue(verdict("chrome\n"))
+        self.assertTrue(verdict("google-chrome\n"))
+        self.assertTrue(verdict("google-chrome-stable\n"))
+        self.assertFalse(verdict("chrome_crashpad_handler\n"))
+        self.assertTrue(
+            self.module._is_browser_comm(
+                "/Applications/Google Chrome.app/Contents/Frameworks/"
+                "chrome_crashpad_handler"
+            )
+        )
 
     def test_write_keeps_the_previous_tree_as_a_rollback_copy(self) -> None:
         self.write_doc(self.live, bookmarks_doc([folder("旧")], other=[url("m1")]))
         prepared = self.write_doc(
             Path(self.temp.name) / "prepared.json",
-            bookmarks_doc([folder("Agent"), folder("归档")]),
+            bookmarks_doc([folder("Agent"), folder("归档")], other=[url("m1")]),
         )
         code, output = self.run_write(prepared)
         self.assertEqual(code, 0, output)
@@ -229,15 +240,30 @@ class ChromeBookmarksSkillTests(unittest.TestCase):
         self.assertEqual(list(self.profile_dir.glob("*.tmp")), [])
         self.assertIn("top_level_folders=Agent, 归档", output)
 
-    def test_write_warns_when_a_root_would_be_emptied(self) -> None:
+    def test_write_refuses_before_emptying_a_root(self) -> None:
         self.write_doc(self.live, bookmarks_doc([folder("旧")], other=[url("m1"), url("m2")]))
+        before = self.live.read_text()
         prepared = self.write_doc(
             Path(self.temp.name) / "prepared.json", bookmarks_doc([folder("Agent")])
         )
         code, output = self.run_write(prepared)
+        self.assertEqual(code, 3, output)
+        self.assertIn("refuse write:", output)
+        self.assertIn("其他书签", output)
+        self.assertIn("--allow-empty-roots", output)
+        self.assertEqual(self.live.read_text(), before)
+        self.assertFalse((self.profile_dir / "Bookmarks.bak").exists())
+
+    def test_allow_empty_roots_writes_with_a_warning(self) -> None:
+        self.write_doc(self.live, bookmarks_doc([folder("旧")], other=[url("m1"), url("m2")]))
+        prepared = self.write_doc(
+            Path(self.temp.name) / "prepared.json", bookmarks_doc([folder("Agent")])
+        )
+        code, output = self.run_write(prepared, extra=("--allow-empty-roots",))
         self.assertEqual(code, 0, output)
         self.assertIn("warning:", output)
         self.assertIn("其他书签", output)
+        self.assertIn("--allow-empty-roots", output)
 
     def test_write_refuses_a_non_bookmarks_document(self) -> None:
         self.write_doc(self.live, bookmarks_doc([folder("旧")]))
@@ -260,16 +286,138 @@ class ChromeBookmarksSkillTests(unittest.TestCase):
         self.assertEqual(self.live.read_text(), before)
         self.assertFalse((self.profile_dir / "Bookmarks.bak").exists())
 
+    def test_inspect_prints_default_archive(self) -> None:
+        self.write_doc(self.live, bookmarks_doc([folder("Agent")]))
+        result = self.run_cli("inspect", "--user-data", str(self.user_data))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("archive_default=", result.stdout)
+        self.assertIn("ChromeBookmarksArchive", result.stdout)
+        self.assertIn("Profile 5", result.stdout)
+
+    def test_emit_builds_bar_keeps_other_roots_and_writes_manifest(self) -> None:
+        source = {
+            "type": "url",
+            "name": "a",
+            "url": "https://a.example",
+            "id": "5",
+            "guid": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "date_added": "111",
+        }
+        src = self.write_doc(
+            Path(self.temp.name) / "Bookmarks.raw",
+            bookmarks_doc(
+                [folder("旧", [source])],
+                other=[url("m1")],
+                synced=[url("m3")],
+            ),
+        )
+        plan_path = Path(self.temp.name) / "plan.json"
+        plan_path.write_text(
+            json.dumps(
+                {
+                    "scheme": "test",
+                    "top_level": ["Agent", "归档"],
+                    "items": [
+                        {
+                            "path": "Agent",
+                            "name": "a-renamed",
+                            "url": "https://a.example",
+                        }
+                    ],
+                }
+            ),
+            encoding="utf-8",
+        )
+        out = Path(self.temp.name) / "archive" / "prepared.json"
+        result = self.run_cli("emit", "--src", str(src), "--plan", str(plan_path), "--out", str(out))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("manifest=", result.stdout)
+        prepared = json.loads(out.read_text(encoding="utf-8"))
+        bar = prepared["roots"]["bookmark_bar"]["children"]
+        self.assertEqual([child["name"] for child in bar], ["Agent", "归档"])
+        leaf = bar[0]["children"][0]
+        self.assertEqual(leaf["name"], "a-renamed")
+        self.assertEqual(leaf["id"], "5")
+        self.assertEqual(leaf["guid"], "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+        self.assertEqual(leaf["date_added"], "111")
+        self.assertTrue(bar[0]["id"])
+        self.assertEqual(len(bar[0]["guid"]), 32)
+        self.assertEqual(len(prepared["roots"]["other"]["children"]), 1)
+        self.assertEqual(len(prepared["roots"]["synced"]["children"]), 1)
+        self.assertIn("sync_metadata", prepared)
+        manifest = json.loads((out.parent / "manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["scheme"], "test")
+        self.assertEqual(manifest["top_level"], ["Agent", "归档"])
+        self.assertEqual(manifest["kept"], 1)
+        self.assertEqual(manifest["removed"], 0)
+        self.assertEqual(len(manifest["prepared_sha256"]), 64)
+
+    def test_emit_refuses_duplicate_urls(self) -> None:
+        src = self.write_doc(
+            Path(self.temp.name) / "Bookmarks.raw",
+            bookmarks_doc([folder("旧", [url("a")])]),
+        )
+        plan_path = Path(self.temp.name) / "plan.json"
+        plan_path.write_text(
+            json.dumps(
+                {
+                    "items": [
+                        {"path": "A", "name": "one", "url": "https://a.example"},
+                        {"path": "B", "name": "two", "url": "https://a.example"},
+                    ]
+                }
+            ),
+            encoding="utf-8",
+        )
+        out = Path(self.temp.name) / "prepared.json"
+        result = self.run_cli("emit", "--src", str(src), "--plan", str(plan_path), "--out", str(out))
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("duplicate url", result.stderr)
+        self.assertFalse(out.exists())
+
+    def test_emit_empties_other_only_when_the_plan_asks(self) -> None:
+        src = self.write_doc(
+            Path(self.temp.name) / "Bookmarks.raw",
+            bookmarks_doc([folder("旧", [url("a")])], other=[url("m1")]),
+        )
+        plan_path = Path(self.temp.name) / "plan.json"
+        plan_path.write_text(
+            json.dumps(
+                {
+                    "empty_other": True,
+                    "items": [{"path": "Agent", "name": "a", "url": "https://a.example"}],
+                }
+            ),
+            encoding="utf-8",
+        )
+        out = Path(self.temp.name) / "prepared.json"
+        result = self.run_cli("emit", "--src", str(src), "--plan", str(plan_path), "--out", str(out))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        prepared = json.loads(out.read_text(encoding="utf-8"))
+        self.assertEqual(prepared["roots"]["other"]["children"], [])
+
     def test_contracts_survive_rewordings(self) -> None:
         skill = SKILL.read_text(encoding="utf-8")
         writeback = WRITEBACK.read_text(encoding="utf-8")
+        workflow = WORKFLOW.read_text(encoding="utf-8")
         taxonomy = TAXONOMY.read_text(encoding="utf-8")
         schema = SCHEMA.read_text(encoding="utf-8")
         self.assertIn("`bookmark_bar`, `other`, `synced`", skill)
         self.assertIn("roots.bookmark_bar", skill)
         self.assertRegex(skill, r"outside this skill package")
+        self.assertIn("`emit`", skill)
+        self.assertIn("`diff`", skill)
+        self.assertIn("Bookmarks.raw", skill)
+        self.assertIn("--allow-empty-roots", skill)
+        self.assertIn("references/workflow.md", skill)
+        self.assertIn("ChromeBookmarksArchive", workflow)
+        self.assertIn("Bookmarks.raw", workflow)
+        self.assertIn("`emit`", workflow)
+        self.assertIn("`diff`", workflow)
         self.assertIn("Bookmarks.bak", writeback)
+        self.assertIn("Bookmarks.raw", writeback)
         self.assertIn("roots.bookmark_bar", writeback)
+        self.assertIn("--allow-empty-roots", writeback)
         self.assertRegex(taxonomy, r"always wins")
         self.assertIn("Default pattern", taxonomy)
         self.assertRegex(taxonomy, r"Rename, merge, or drop")
@@ -281,8 +429,6 @@ class ChromeBookmarksSkillTests(unittest.TestCase):
         for folder in ("agent/", "relay/"):
             self.assertRegex(taxonomy, rf"(?m)^  {re.escape(folder)}")
         self.assertRegex(taxonomy, r"only when that one domain keeps four or more bookmarks")
-        self.assertIn("`<company>·<slug>`", skill)
-        self.assertRegex(skill, r"three levels")
         self.assertRegex(
             (PACKAGE / "references" / "cleanup-rules.md").read_text(encoding="utf-8"),
             r"overrides them",
@@ -297,6 +443,8 @@ class ChromeBookmarksSkillTests(unittest.TestCase):
         self.assertRegex(taxonomy, r"keep their own title")
         self.assertIn("1601", schema)
         self.assertIn("roots.bookmark_bar", schema)
+        self.assertIn("empty_other", schema)
+        self.assertIn("`emit` assign both", schema)
 
     def test_package_has_no_private_identifiers(self) -> None:
         offenders: list[str] = []
