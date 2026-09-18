@@ -73,6 +73,7 @@
 
 ### 修复
 
+- `chrome-bookmarks` 对齐 Organize 契约：用户方案只覆盖分类树，无方案才读 taxonomy，cleanup 每次整理都应用；`description` 补上写回与同步覆盖恢复；`last_used` 缺失时拒绝并要求 `--profile`，不再静默回退 `Default`；`Bookmarks.raw` 只在缺失时拷贝、禁止覆盖，整理始终读 live；`diff`/`manifest` 报告 `other`/`synced` 计数；`--assume-quit` 不能覆盖「正在运行」；流程图为 Writeback 增加旁路
 - `chrome-bookmarks` 统一 `other`/`synced` 契约：写回不再默认清空；`emit` 默认原样保留；将归零时 `write` 在写盘前拒绝，需用户确认后才可 `--allow-empty-roots`
 - `chrome-bookmarks` Linux 进程探测补上 `chrome` / `google-chrome` 精确进程名，继续排除其它 Electron 的 `chrome_crashpad_handler`；同步流程图（Inspect 出口、Organize 可开着跑、默认停在 emit、Restore 走写回闸门）
 - `chrome-bookmarks` 修复写回链路：`--user-data` / `--profile` 现在放在子命令前后都能解析（此前 `references/writeback.md`

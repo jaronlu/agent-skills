@@ -1,6 +1,6 @@
 <svg viewBox="0 0 680 950" width="680" height="950" xmlns="http://www.w3.org/2000/svg" role="img" font-family="system-ui, -apple-system, sans-serif">
 <title>chrome-bookmarks 整理与写回流程</title>
-<desc>先定位配置并选择模式。Inspect 只报告后停止。Organize 在 Chrome 仍运行时也可备份、归类、emit，默认停在写回确认之前。Writeback 与 Restore 都要求浏览器完全退出；other/synced 将归零则写前拒绝。恢复优先用归档里的 Bookmarks.raw。</desc>
+<desc>先定位配置并选择模式。Inspect 只报告后停止。Organize 在 Chrome 仍运行时也可备份、归类、emit，默认停在写回确认之前。Writeback 与 Restore 从模式判定旁路到写回闸门，均要求浏览器完全退出；other/synced 将归零则写前拒绝。恢复优先用归档里的 Bookmarks.raw，且不得覆盖已有 raw。</desc>
 <defs>
 <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
 <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -14,32 +14,37 @@
 
 <rect x="40" y="82" width="600" height="52" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
 <text x="60" y="100" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">① 定位配置</text>
-<text x="60" y="120" dominant-baseline="central" font-size="12" fill="#5F5E5A">读 Local State 的 last_used，不要默认当成 Default</text>
+<text x="60" y="120" dominant-baseline="central" font-size="12" fill="#5F5E5A">读 last_used；缺失则停，不要猜 Default</text>
 <path d="M340 134 L340 150" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 
 <rect x="40" y="152" width="600" height="52" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
 <text x="60" y="170" dominant-baseline="central" font-size="14" font-weight="500" fill="#633806">② 判定模式</text>
-<text x="60" y="190" dominant-baseline="central" font-size="12" fill="#854F0B">Inspect 只读 · Organize 默认可开着 · Restore 回滚</text>
+<text x="60" y="190" dominant-baseline="central" font-size="12" fill="#854F0B">Inspect 只读 · Organize 可开着 · Writeback/Restore 须退出</text>
 
-<rect x="40" y="222" width="184" height="70" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
-<text x="132" y="244" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#173404">Inspect 停止</text>
-<text x="132" y="264" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#3B6D11">只报告计数</text>
-<text x="132" y="282" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#3B6D11">不写盘</text>
+<rect x="40" y="222" width="141" height="70" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
+<text x="110.5" y="244" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#173404">Inspect 停止</text>
+<text x="110.5" y="264" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#3B6D11">只报告计数</text>
+<text x="110.5" y="282" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#3B6D11">不写盘</text>
 
-<rect x="248" y="222" width="184" height="70" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
-<text x="340" y="244" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#0C447C">Organize</text>
-<text x="340" y="264" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#185FA5">Chrome 开着也可</text>
-<text x="340" y="282" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#185FA5">产出计划后停</text>
+<rect x="193" y="222" width="141" height="70" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text x="263.5" y="244" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#0C447C">Organize</text>
+<text x="263.5" y="264" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#185FA5">Chrome 开着也可</text>
+<text x="263.5" y="282" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#185FA5">产出计划后停</text>
 
-<rect x="456" y="222" width="184" height="70" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
-<text x="548" y="244" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#633806">Restore</text>
-<text x="548" y="264" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#854F0B">raw 归档优先</text>
-<text x="548" y="282" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#854F0B">.bak 仅未再保存</text>
+<rect x="346" y="222" width="141" height="70" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+<text x="416.5" y="244" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#633806">Writeback</text>
+<text x="416.5" y="264" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#854F0B">已有 prepared</text>
+<text x="416.5" y="282" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#854F0B">跳过归类</text>
+
+<rect x="499" y="222" width="141" height="70" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+<text x="569.5" y="244" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#633806">Restore</text>
+<text x="569.5" y="264" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#854F0B">raw 归档优先</text>
+<text x="569.5" y="282" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#854F0B">.bak 仅未再保存</text>
 
 <rect x="40" y="310" width="600" height="70" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
 <text x="60" y="328" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">③ 备份到归档</text>
 <text x="60" y="348" dominant-baseline="central" font-size="12" fill="#5F5E5A">默认 ~/ChromeBookmarksArchive/日期_profile</text>
-<text x="60" y="366" dominant-baseline="central" font-size="12" fill="#5F5E5A">已有备份则复用 raw，不要另造一份</text>
+<text x="60" y="366" dominant-baseline="central" font-size="12" fill="#5F5E5A">raw 已存在则不覆盖；整理读 live</text>
 
 <rect x="40" y="398" width="600" height="70" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
 <text x="60" y="416" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">④ 按分类树归类</text>
@@ -58,7 +63,7 @@
 <rect x="40" y="644" width="600" height="88" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
 <text x="60" y="662" dominant-baseline="central" font-size="14" font-weight="500" fill="#173404">⑦ emit + diff，默认停止</text>
 <text x="60" y="682" dominant-baseline="central" font-size="12" fill="#3B6D11">脚本装配 id/guid，写出 prepared 与 manifest</text>
-<text x="60" y="700" dominant-baseline="central" font-size="12" fill="#3B6D11">用 diff 核对 kept / moved / removed</text>
+<text x="60" y="700" dominant-baseline="central" font-size="12" fill="#3B6D11">用 diff 核对栏与 other/synced 计数</text>
 <text x="60" y="718" dominant-baseline="central" font-size="12" fill="#3B6D11">未获写回确认不要继续</text>
 
 <rect x="40" y="750" width="600" height="88" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
@@ -77,10 +82,11 @@
 <text x="500" y="898" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#3B6D11">原子写回，按结构核对</text>
 <text x="500" y="916" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#3B6D11">旧分类再现 = 云端未空</text>
 
-<path d="M340 204 L340 212 L132 212 L132 220" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
-<path d="M340 212 L340 220" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
-<path d="M340 212 L548 212 L548 220" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
-<path d="M340 292 L340 308" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M340 204 L340 212 L110.5 212 L110.5 220" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M340 212 L263.5 212 L263.5 220" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M340 212 L416.5 212 L416.5 220" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M340 212 L569.5 212 L569.5 220" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M263.5 292 L263.5 300 L340 300 L340 308" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 <path d="M340 380 L340 396" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 <path d="M340 468 L340 484" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 <path d="M340 556 L340 572" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
@@ -88,5 +94,6 @@
 <path d="M340 732 L340 748" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 <path d="M340 838 L340 846 L180 846 L180 854" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 <path d="M340 846 L500 846 L500 854" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
-<path d="M548 292 L660 292 L660 794 L640 794" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M416.5 292 L660 292 L660 794 L640 794" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M569.5 292 L660 292" fill="none" stroke="#888780" stroke-width="1.5"/>
 </svg>

@@ -195,6 +195,28 @@ class ChromeBookmarksSkillTests(unittest.TestCase):
         self.assertIn("top_level_change=changed", result.stdout)
         self.assertIn("  removed  https://b.example", result.stdout)
         self.assertIn("  added    https://c.example", result.stdout)
+        self.assertIn("root other: old_urls=0 new_urls=0", result.stdout)
+        self.assertIn("root synced: old_urls=0 new_urls=0", result.stdout)
+
+    def test_diff_reports_other_and_synced_counts(self) -> None:
+        old = self.write_doc(
+            Path(self.temp.name) / "old.json",
+            bookmarks_doc(
+                [folder("旧", [url("a")])],
+                other=[url("m1")],
+                synced=[url("m3")],
+            ),
+        )
+        new = self.write_doc(
+            Path(self.temp.name) / "new.json",
+            bookmarks_doc([folder("Agent", [url("a")])]),
+        )
+        result = self.run_cli("diff", "--old", str(old), "--new", str(new))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("root other: old_urls=1 new_urls=0", result.stdout)
+        self.assertIn("root synced: old_urls=1 new_urls=0", result.stdout)
+        self.assertIn("  other removed  https://m1.example", result.stdout)
+        self.assertIn("  synced removed  https://m3.example", result.stdout)
 
     def test_process_probe_counts_only_the_browser(self) -> None:
         def verdict(stdout: str) -> bool | None:
@@ -286,6 +308,32 @@ class ChromeBookmarksSkillTests(unittest.TestCase):
         self.assertEqual(self.live.read_text(), before)
         self.assertFalse((self.profile_dir / "Bookmarks.bak").exists())
 
+    def test_assume_quit_does_not_override_a_running_browser(self) -> None:
+        self.write_doc(self.live, bookmarks_doc([folder("旧")]))
+        before = self.live.read_text()
+        prepared = self.write_doc(
+            Path(self.temp.name) / "prepared.json", bookmarks_doc([folder("Agent")])
+        )
+        code, output = self.run_write(
+            prepared, chrome_running=True, extra=("--assume-quit",)
+        )
+        self.assertEqual(code, 2, output)
+        self.assertIn("still running", output)
+        self.assertEqual(self.live.read_text(), before)
+        self.assertFalse((self.profile_dir / "Bookmarks.bak").exists())
+
+    def test_last_used_missing_refuses_without_guessing_default(self) -> None:
+        (self.user_data / "Local State").write_text(
+            json.dumps({"profile": {}}), encoding="utf-8"
+        )
+        with self.assertRaises(SystemExit) as ctx:
+            self.module.last_used_profile(self.user_data)
+        self.assertIn("--profile", str(ctx.exception))
+        self.assertNotIn("Default", str(ctx.exception))
+        result = self.run_cli("inspect", "--user-data", str(self.user_data))
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("--profile", result.stderr)
+
     def test_inspect_prints_default_archive(self) -> None:
         self.write_doc(self.live, bookmarks_doc([folder("Agent")]))
         result = self.run_cli("inspect", "--user-data", str(self.user_data))
@@ -350,7 +398,13 @@ class ChromeBookmarksSkillTests(unittest.TestCase):
         self.assertEqual(manifest["top_level"], ["Agent", "归档"])
         self.assertEqual(manifest["kept"], 1)
         self.assertEqual(manifest["removed"], 0)
+        self.assertEqual(manifest["other"]["old_urls"], 1)
+        self.assertEqual(manifest["other"]["new_urls"], 1)
+        self.assertEqual(manifest["other"]["removed"], 0)
+        self.assertEqual(manifest["synced"]["old_urls"], 1)
+        self.assertEqual(manifest["synced"]["new_urls"], 1)
         self.assertEqual(len(manifest["prepared_sha256"]), 64)
+        self.assertIn("root other: old_urls=1 new_urls=1", result.stdout)
 
     def test_emit_refuses_duplicate_urls(self) -> None:
         src = self.write_doc(
@@ -395,6 +449,9 @@ class ChromeBookmarksSkillTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         prepared = json.loads(out.read_text(encoding="utf-8"))
         self.assertEqual(prepared["roots"]["other"]["children"], [])
+        self.assertIn("root other: old_urls=1 new_urls=0", result.stdout)
+        manifest = json.loads((out.parent / "manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["other"]["removed"], 1)
 
     def test_contracts_survive_rewordings(self) -> None:
         skill = SKILL.read_text(encoding="utf-8")
@@ -410,7 +467,15 @@ class ChromeBookmarksSkillTests(unittest.TestCase):
         self.assertIn("Bookmarks.raw", skill)
         self.assertIn("--allow-empty-roots", skill)
         self.assertIn("references/workflow.md", skill)
+        self.assertRegex(skill, r"write back")
+        self.assertRegex(skill, r"sync overwrite")
+        self.assertRegex(skill, r"pass `--profile`")
+        self.assertRegex(skill, r"read taxonomy only when organizing without one")
+        self.assertRegex(skill, r"Always apply cleanup")
         self.assertIn("ChromeBookmarksArchive", workflow)
+        self.assertRegex(workflow, r"never overwrite")
+        self.assertRegex(workflow, r"pass `--profile`")
+        self.assertRegex(workflow, r"Always apply")
         self.assertIn("Bookmarks.raw", workflow)
         self.assertIn("`emit`", workflow)
         self.assertIn("`diff`", workflow)

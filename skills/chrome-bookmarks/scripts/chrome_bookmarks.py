@@ -120,7 +120,9 @@ def last_used_profile(user_data: Path) -> str:
     if not local_state.is_file():
         raise SystemExit(f"Local State not found: {local_state}")
     data = json.loads(local_state.read_text(encoding="utf-8"))
-    name = data.get("profile", {}).get("last_used") or "Default"
+    name = data.get("profile", {}).get("last_used")
+    if not str(name or "").strip():
+        raise SystemExit(f"profile.last_used missing in {local_state}; pass --profile")
     return str(name)
 
 
@@ -299,6 +301,18 @@ def collect_leaves(node: dict, path: list[str], found: list[tuple[str, str, str]
             found.append(("/".join(path), str(child.get("name", "")), str(child.get("url", ""))))
 
 
+def root_leaf_stats(old_roots: dict, new_roots: dict, key: str) -> dict:
+    old_leaves: list[tuple[str, str, str]] = []
+    new_leaves: list[tuple[str, str, str]] = []
+    old_node = old_roots.get(key)
+    new_node = new_roots.get(key)
+    if isinstance(old_node, dict):
+        collect_leaves(old_node, [], old_leaves)
+    if isinstance(new_node, dict):
+        collect_leaves(new_node, [], new_leaves)
+    return leaf_stats(old_leaves, new_leaves)
+
+
 def cmd_diff(args: argparse.Namespace) -> int:
     old_path = Path(args.old).expanduser()
     new_path = Path(args.new).expanduser()
@@ -306,8 +320,10 @@ def cmd_diff(args: argparse.Namespace) -> int:
         if not path.is_file():
             print(f"missing file: {path}", file=sys.stderr)
             return 1
-    old_bar = root_nodes(load_bookmarks(old_path)).get("bookmark_bar") or {}
-    new_bar = root_nodes(load_bookmarks(new_path)).get("bookmark_bar") or {}
+    old_roots = root_nodes(load_bookmarks(old_path))
+    new_roots = root_nodes(load_bookmarks(new_path))
+    old_bar = old_roots.get("bookmark_bar") or {}
+    new_bar = new_roots.get("bookmark_bar") or {}
     old_leaves: list[tuple[str, str, str]] = []
     new_leaves: list[tuple[str, str, str]] = []
     collect_leaves(old_bar, [], old_leaves)
@@ -327,8 +343,18 @@ def cmd_diff(args: argparse.Namespace) -> int:
         print(f"  removed  {url}")
     for url in stats["added_urls"]:
         print(f"  added    {url}")
-    for url, old_path, new_path in stats["moved_rows"]:
-        print(f"  moved    {url}: {old_path} -> {new_path}")
+    for url, from_path, to_path in stats["moved_rows"]:
+        print(f"  moved    {url}: {from_path} -> {to_path}")
+    for key in ("other", "synced"):
+        root_stats = root_leaf_stats(old_roots, new_roots, key)
+        print(
+            f"root {key}: old_urls={root_stats['old_urls']} new_urls={root_stats['new_urls']} "
+            f"kept={root_stats['kept']} added={root_stats['added']} removed={root_stats['removed']}"
+        )
+        for url in root_stats["removed_urls"]:
+            print(f"  {key} removed  {url}")
+        for url in root_stats["added_urls"]:
+            print(f"  {key} added    {url}")
     return 0
 
 
@@ -585,6 +611,8 @@ def cmd_emit(args: argparse.Namespace) -> int:
     collect_leaves(bar, [], old_leaves)
     collect_leaves(new_bar, [], new_leaves)
     stats = leaf_stats(old_leaves, new_leaves)
+    other_stats = root_leaf_stats(roots, prepared_roots, "other")
+    synced_stats = root_leaf_stats(roots, prepared_roots, "synced")
     digest = hashlib.sha256(payload).hexdigest()
     manifest = {
         "scheme": plan.get("scheme") or "",
@@ -593,6 +621,18 @@ def cmd_emit(args: argparse.Namespace) -> int:
         "moved": stats["moved"],
         "removed": stats["removed"],
         "added": stats["added"],
+        "other": {
+            "old_urls": other_stats["old_urls"],
+            "new_urls": other_stats["new_urls"],
+            "added": other_stats["added"],
+            "removed": other_stats["removed"],
+        },
+        "synced": {
+            "old_urls": synced_stats["old_urls"],
+            "new_urls": synced_stats["new_urls"],
+            "added": synced_stats["added"],
+            "removed": synced_stats["removed"],
+        },
         "prepared": out.name,
         "prepared_sha256": digest,
         "source": str(src),
@@ -607,6 +647,14 @@ def cmd_emit(args: argparse.Namespace) -> int:
     print(
         f"kept={stats['kept']} added={stats['added']} removed={stats['removed']} "
         f"moved={stats['moved']} renamed={stats['renamed']}"
+    )
+    print(
+        f"root other: old_urls={other_stats['old_urls']} new_urls={other_stats['new_urls']} "
+        f"added={other_stats['added']} removed={other_stats['removed']}"
+    )
+    print(
+        f"root synced: old_urls={synced_stats['old_urls']} new_urls={synced_stats['new_urls']} "
+        f"added={synced_stats['added']} removed={synced_stats['removed']}"
     )
     print("top_level_folders=" + (", ".join(top_level_folders(new_bar)) or "(none)"))
     for message in warnings:

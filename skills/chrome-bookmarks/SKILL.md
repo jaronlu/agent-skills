@@ -1,6 +1,6 @@
 ---
 name: chrome-bookmarks
-description: Organize, dedupe, back up, or restore Chrome bookmarks (整理书签, 去冗余).
+description: Organize, dedupe, back up, write back, or restore Chrome bookmarks after a sync overwrite (整理书签, 去冗余, 写回, 同步覆盖).
 ---
 
 # Chrome Bookmarks
@@ -18,9 +18,9 @@ Default to Organize, then stop and wait for writeback confirmation. Do Inspect w
 
 ## Contract
 
-- Resolve the profile from `Local State` → `profile.last_used`. Do not guess `Default`.
+- Resolve the profile from `Local State` → `profile.last_used`. If that key is missing, stop and pass `--profile`. Do not guess `Default`.
 - Use [scripts/chrome_bookmarks.py](scripts/chrome_bookmarks.py) for `inspect`, `emit`, `diff`, and `write`. The agent classifies; `emit` assigns `id` / `guid` / timestamps, copies every original top-level key, and replaces only `roots.bookmark_bar`.
-- Follow [references/workflow.md](references/workflow.md) for the mode steps. User scheme wins; read taxonomy and cleanup only when organizing without one.
+- Follow [references/workflow.md](references/workflow.md) for the mode steps. User scheme wins for folder names and tree shape; read taxonomy only when organizing without one. Always apply cleanup on Organize — user numbers override the defaults.
 - Flatten all three roots (`bookmark_bar`, `other`, `synced`). Do not empty `other` or `synced` unless the user confirms.
 - When the target top-level set matches the current one, put "top-level unchanged, internal moves only" in the first line of the report and ask whether that is intended.
 
@@ -36,7 +36,7 @@ Default to Organize, then stop and wait for writeback confirmation. Do Inspect w
 ## Output
 
 - Inspect: profile, last-used name, per-root URL counts (书签栏 / 其他书签 / 移动设备), folder counts, default archive path.
-- Organize: archive and manifest paths, emit / diff counts, top-level list marked 新增 / 删除 / 未变. Stop here unless the user asked to write.
+- Organize: archive and manifest paths, emit / diff counts for `bookmark_bar` plus `other`/`synced`, top-level list marked 新增 / 删除 / 未变. Stop here unless the user asked to write.
 - Writeback: destination, `Bookmarks.bak`, top-level folders, any `warning:` line, how to restore (raw archive first). Remind the user to verify in Chrome before relying on sync.
 - Restore: which source (`Bookmarks.raw` / `Bookmarks.bak` / prepared) and why, then the writeback output.
 
@@ -47,7 +47,7 @@ Read each one only when its trigger applies.
 | Read | When |
 | --- | --- |
 | [references/workflow.md](references/workflow.md) | Any mode: profile, archive, and inspect / organize / writeback / restore steps |
-| [references/taxonomy.md](references/taxonomy.md) | Organize, or the user asks how folders should be named |
-| [references/cleanup-rules.md](references/cleanup-rules.md) | Organize or archive cleanup |
+| [references/taxonomy.md](references/taxonomy.md) | Organize without a user scheme, or the user asks how folders should be named |
+| [references/cleanup-rules.md](references/cleanup-rules.md) | Every Organize, or archive cleanup |
 | [references/schema.md](references/schema.md) | Before writing a plan or a Bookmarks document |
 | [references/writeback.md](references/writeback.md) | Before any live-profile write |

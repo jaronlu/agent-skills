@@ -4,7 +4,7 @@ Use `scripts/chrome_bookmarks.py` for `inspect`, `emit`, `diff`, and `write`. Cl
 
 ## Profile
 
-Resolve the Chrome user-data profile from `Local State` → `profile.last_used`. Do not guess `Default` when another directory is last used.
+Resolve the Chrome user-data profile from `Local State` → `profile.last_used`. If that key is missing, stop and pass `--profile`. Do not guess `Default`.
 
 Defaults:
 
@@ -18,7 +18,11 @@ Pass `--user-data` when Chrome lives elsewhere, including Chromium. `inspect` pr
 
 Keep archives and prepared trees outside this skill package and its repository.
 
-Use the directory the user already uses. If they have none, use `~/ChromeBookmarksArchive/<YYYY-MM-DD>_<profile>/`. Copy the raw file there once per session as `Bookmarks.raw`. On a later session read the newest `manifest.json` in that tree first. Do not invent a second backup if the user already has one.
+Use the directory the user already uses. If they have none, use `~/ChromeBookmarksArchive/<YYYY-MM-DD>_<profile>/`. Same calendar day and profile reuse that folder; do not create a parallel archive location.
+
+`Bookmarks.raw` is the pre-organize rollback for that folder. Copy the live `Bookmarks` file to it only when `Bookmarks.raw` does not exist; never overwrite it.
+
+Organize from the live `Bookmarks` file. After a later writeback, live has moved on — still do not overwrite `Bookmarks.raw`. On a later session read the newest `manifest.json` in that tree first for the accepted scheme.
 
 ## Inspect
 
@@ -28,11 +32,11 @@ Run `inspect` and report what it prints. Stop.
 
 Chrome may stay running. Do not write the live profile.
 
-1. Read `Bookmarks` as JSON and archive it as above.
+1. Read the live `Bookmarks` file as JSON and archive it as above (`Bookmarks.raw` only if missing).
 2. Flatten every URL from all three roots (`bookmark_bar`, `other`, `synced`) with its folder path. Ask for, or reuse, the user's own scheme — from this conversation, a file they name, the newest manifest in their archive, or an earlier plan. When there is none, start from [taxonomy.md](taxonomy.md), follow its decision order, and adapt it to the bookmarks you actually see instead of creating categories they have no items for. Put `bookmark_bar` items into the plan. If `other` or `synced` still holds bookmarks, list them separately in the report; do not empty those roots unless the user confirms moving or dropping them.
 3. Before presenting the plan, diff the target top-level set against the one the user has now. When the two are identical, put "top-level unchanged, internal moves only" in the first line of the report and ask whether that is intended. A re-organized bar that looks the same reads as no work done.
-4. Apply [cleanup-rules.md](cleanup-rules.md). Its limits are defaults — use the user's numbers when they give any.
-5. Write a plan JSON next to the raw copy (fields in [schema.md](schema.md)). Run `emit --src <Bookmarks.raw> --plan <plan.json> --out <prepared.json>`, then `diff --old <Bookmarks.raw> --new <prepared.json>`. Report those counts and the new top-level list. Stop and wait for writeback confirmation.
+4. Always apply [cleanup-rules.md](cleanup-rules.md), including when the user supplied a scheme. Its limits are defaults — use the user's numbers when they give any.
+5. Write a plan JSON next to the raw copy (fields in [schema.md](schema.md)). Run `emit --src <live Bookmarks> --plan <plan.json> --out <prepared.json>`, then `diff --old <live Bookmarks> --new <prepared.json>`. Report bar counts and the `other`/`synced` lines; then the new top-level list. Stop and wait for writeback confirmation.
 
 ## Writeback
 
