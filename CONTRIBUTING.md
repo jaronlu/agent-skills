@@ -22,12 +22,13 @@ skills/<skill-name>/
 技能包内允许的顶级条目仅有：
 
 - `SKILL.md`
+- `README.md`（可选，只给人看）
 - `agents/`
 - `references/`
 - `scripts/`
 - `assets/`
 
-请勿在运行时技能包内添加 `README.md`、`README.zh-CN.md`、`SKILL.zh-CN.md`、`templates/`、`examples/`、`config/`、更新日志、安装指南或快速参考文件。
+请勿在运行时技能包内添加 `README.zh-CN.md`、`SKILL.zh-CN.md`、`templates/`、`examples/`、`config/`、更新日志、安装指南或快速参考文件。可选 `README.md` 不得写入与 `SKILL.md` 冲突的执行规则。
 
 ## 文件职责
 
@@ -78,7 +79,7 @@ interface:
 
 ### `assets/`
 
-存储用于输出而非代理上下文的内容，例如文档模板、起始文件或媒体。如果代理必须读取 Markdown 文件来做决策，则该文件属于 `references/`，而非 `assets/`。
+存储用于输出而非代理上下文的内容，例如文档模板、起始文件或媒体。人读流程图也可以放在这里，由可选的 `README.md` 引用（见 `git-commit`）。如果代理必须读取 Markdown 文件来做决策，则该文件属于 `references/`，而非 `assets/`。
 
 ## 用户文档
 

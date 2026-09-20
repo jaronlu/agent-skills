@@ -53,8 +53,8 @@
 
 ## 流程图
 
-每个 Skill 都有一张 SVG 流程图，统一放在 `assets/`；内容与配色约定见 [RULES.md](RULES.md)。
-下图的顺序与上方技能表一致，点击可打开原始 SVG。
+每个 Skill 都有一张 SVG 流程图。多数放在 `assets/`；`git-commit` 的图在 [skills/git-commit/README.md](skills/git-commit/README.md)。内容与配色约定见 [RULES.md](RULES.md)。
+下图的顺序与上方技能表一致。
 
 ### chrome-bookmarks
 
@@ -76,9 +76,9 @@ Chrome 开着也可整理；完全退出后才写回。
 
 ### git-commit
 
-从模式判定到原子提交。
+从模式判定到原子提交。流程图在 [skills/git-commit/README.md](skills/git-commit/README.md)。
 
-[![git-commit：从模式判定到原子提交](assets/git-commit-flow.svg)](assets/git-commit-flow.svg)
+[![git-commit：从模式判定到原子提交](skills/git-commit/assets/git-commit-flow.svg)](skills/git-commit/README.md)
 
 ### hermes-context-review
 

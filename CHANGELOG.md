@@ -32,6 +32,11 @@
 
 ### 变更
 
+- `git-commit` 跨模块同一意图改为 subject 加每模块一行 `- scope: desc`；流程图补上该产出、修好被下一框盖住的连接箭头
+- `git-commit` 流程图压缩判定步骤，把版面留给使用后结果：8 个 type 的消息示例、跨模块 `&`、breaking footer，以及 commit mode 的 hash + 保留未提交路径
+- `git-commit` 流程图对齐精简后的单文件技能：去掉已删除 reference 的步骤（`git ls-files`、默认规则文件、生成噪声/纯二进制专章），补上同一文件混意图则暂停
+- `git-commit` 流程图从根目录 `assets/` 挪到 `skills/git-commit/README.md`（图文件在技能包 `assets/`）；根目录 README 改为指向该文档
+- `git-commit` 收成单文件：删除 `references/` 下四份参考，`SKILL.md` 压到 500 词以内；同一文件混有多个意图时停下询问，不再教 hunk 分阶。契约测试改为入口预算与短保证，流程图去掉 reference 路由
 - `chrome-bookmarks` 用户方案只覆盖文件夹名和树形；每次 Organize 仍用 `<area>·<slug>`（company / platform / topic，子集优先），除非用户另给命名规则。域名与 `dev` 平台建层统一为 4 条；`emit` 拒绝超过三层的 path；同步契约测试与流程图
 - `chrome-bookmarks` 默认顶层文件夹保持英文（`work` / `study` / …），不因用户使用中文就翻译成 `工作` / `学习`；用户自定方案仍优先
 - `chrome-bookmarks` 将 SKILL.md 收敛为模式、常驻契约、安全边界与输出；定位配置、归档、Inspect / Organize / Writeback / Restore 步骤下沉到 `references/workflow.md`

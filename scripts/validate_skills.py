@@ -11,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS_DIR = ROOT / "skills"
-ALLOWED_ENTRIES = {"SKILL.md", "agents", "references", "scripts", "assets"}
+ALLOWED_ENTRIES = {"SKILL.md", "README.md", "agents", "references", "scripts", "assets"}
 REQUIRED_SKILL_FIELDS = {"name", "description"}
 OPTIONAL_SKILL_FIELDS = {"license", "allowed-tools", "metadata"}
 REQUIRED_OPENAI_INTERFACE_FIELDS = {"display_name", "short_description", "default_prompt"}
@@ -285,7 +285,9 @@ def validate_diagram(path: Path) -> list[str]:
 
 def validate_diagrams() -> list[str]:
     errors: list[str] = []
-    for path in sorted((ROOT / "assets").glob("*.svg")):
+    paths = sorted((ROOT / "assets").glob("*.svg"))
+    paths.extend(sorted((ROOT / "skills").glob("*/assets/*.svg")))
+    for path in paths:
         errors.extend(validate_diagram(path))
     return errors
 
