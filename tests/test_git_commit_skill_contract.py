@@ -134,6 +134,11 @@ class GitCommitSkillContractTests(unittest.TestCase):
         )
 
     def test_one_language_per_run(self) -> None:
+        self.assert_contract(r"Default to English", "messages default to English")
+        self.assert_contract(
+            r"Switch only if the user writes in another language",
+            "repository history does not pick the language",
+        )
         self.assert_contract(
             r"Use one language for every message in a run",
             "one language per run",

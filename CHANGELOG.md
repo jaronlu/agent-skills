@@ -32,6 +32,7 @@
 
 ### 变更
 
+- `git-commit` 提交说明默认英文，仅当用户改用其他语言时切换，不再跟仓库历史语种
 - `git-commit` 跨模块同一意图改为 subject 加每模块一行 `- scope: desc`；流程图补上该产出、修好被下一框盖住的连接箭头
 - `git-commit` 流程图压缩判定步骤，把版面留给使用后结果：8 个 type 的消息示例、跨模块 `&`、breaking footer，以及 commit mode 的 hash + 保留未提交路径
 - `git-commit` 流程图对齐精简后的单文件技能：去掉已删除 reference 的步骤（`git ls-files`、默认规则文件、生成噪声/纯二进制专章），补上同一文件混意图则暂停
