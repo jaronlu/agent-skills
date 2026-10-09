@@ -14,13 +14,5 @@ version = 1
 path = "~/.agents/skills"
 mode = "copy"
 skills = [
-  "chrome-bookmarks",
-  "communication-formulas",
-  "design-convergence-review",
-  "first-principles",
-  "five-dimension-analysis",
   "git-commit",
-  "hermes-context-review",
-  "llm-wiki",
-  "paper-learning",
 ]
