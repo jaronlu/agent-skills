@@ -1,4 +1,4 @@
 interface:
   display_name: "First Principles"
-  short_description: "Analyze hard decisions from first principles"
-  default_prompt: "Use $first-principles to separate real constraints from inherited assumptions, rebuild this problem from evidence and constraints, and close it with the right decision, diagnosis, or communication path."
+  short_description: "Derive cost or performance bounds from verifiable facts"
+  default_prompt: "Use $first-principles to challenge the prevailing claim and derive cost or non-cost bounds from verifiable facts and explicit assumptions. For costs, distinguish origin from eliminability; for non-cost questions, define the metric, baseline, and constraints. Identify the smallest test and the assumption, applicability condition, or derivation step it can refute."

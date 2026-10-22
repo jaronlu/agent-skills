@@ -42,7 +42,7 @@ the library is behind. Entries the manager does not own are never overwritten.
 | --- | --- |
 | [chrome-bookmarks](skills/chrome-bookmarks/SKILL.md) | Classifies Chrome bookmarks, removes duplicates and low-value items, and writes back only after Chrome quits. |
 | [design-convergence-review](skills/design-convergence-review/SKILL.md) | Checks whether a design is ready for implementation and identifies unresolved blockers. |
-| [first-principles](skills/first-principles/SKILL.md) | Rebuilds a decision or diagnosis from evidence, constraints, and testable assumptions. |
+| [first-principles](skills/first-principles/SKILL.md) | Challenges conventional claims, derives cost or performance bounds, and identifies what still needs validation. |
 | [git-commit](skills/git-commit/SKILL.md) | Drafts repository-aware Conventional Commit messages, or turns the selected changes into atomic commits. |
 | [hermes-context-review](skills/hermes-context-review/SKILL.md) | Audits Hermes context for conflicting, stale, unsafe, or wasteful instructions. |
 | [llm-wiki](skills/llm-wiki/SKILL.md) | Searches, verifies, and maintains a local Markdown wiki when explicitly invoked. |
@@ -74,9 +74,9 @@ Six-dimension convergence review.
 
 ### first-principles
 
-Five-step reasoning and closure.
+Four-step analysis with an evidence gate and reality checks.
 
-[![first-principles: five-step reasoning and closure](assets/first-principles-flow.svg)](assets/first-principles-flow.svg)
+[![first-principles: four-step analysis and validation](assets/first-principles-flow.svg)](assets/first-principles-flow.svg)
 
 ### git-commit
 

@@ -39,7 +39,7 @@
 | --- | --- |
 | [chrome-bookmarks](skills/chrome-bookmarks/SKILL.md) | 分类整理 Chrome 书签、去掉冗余和低价值项，并在浏览器完全退出后写回。 |
 | [design-convergence-review](skills/design-convergence-review/SKILL.md) | 检查设计是否可以进入开发，并指出未收敛的阻塞问题。 |
-| [first-principles](skills/first-principles/SKILL.md) | 从证据、约束和可验证假设出发，重新推导决策或诊断。 |
+| [first-principles](skills/first-principles/SKILL.md) | 质疑惯例命题，推导成本或性能边界，明确仍需验证的部分。 |
 | [git-commit](skills/git-commit/SKILL.md) | 生成符合仓库规则的 Conventional Commit 信息，或把选定的改动拆成原子提交。 |
 | [hermes-context-review](skills/hermes-context-review/SKILL.md) | 审查 Hermes 上下文中的冲突、过期、不安全或冗余指令。 |
 | [llm-wiki](skills/llm-wiki/SKILL.md) | 在显式调用时搜索、验证和维护本地 Markdown Wiki。 |
@@ -70,9 +70,9 @@ Chrome 开着也可整理；完全退出后才写回。
 
 ### first-principles
 
-五步推理与闭环。
+四步分析，包含证据门禁与现实验证。
 
-[![first-principles：五步推理与闭环](assets/first-principles-flow.svg)](assets/first-principles-flow.svg)
+[![first-principles：四步分析与现实验证](assets/first-principles-flow.svg)](assets/first-principles-flow.svg)
 
 ### git-commit
 

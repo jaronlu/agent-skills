@@ -1,63 +1,119 @@
 ---
 name: first-principles
-description: First-principles reasoning for strategy, product, engineering, and organizational decisions. Use when asked to rebuild from evidence and constraints, separate real constraints from inherited assumptions, make hard tradeoffs, diagnose a root cause of a recurring or systemic problem, or find high-leverage opportunities. Do not use for emotional support, neutral editing, routine implementation choices, code-level debugging, or low-stakes brainstorming.
+description: >-
+  当用户要求用第一性原理分析问题、质疑行业惯例，或在缺少可靠参照时判断成本、技术路线及性能边界时使用。典型表述包括「这事为什么必须这么贵/这么做」「回到本质」「X 的物理下限是多少」「这块成本到底由什么构成」「不抄同行，重新算一遍」「理论上一件产品最便宜能到多少钱」「哪部分成本是物理必需」。也适用于非成本问题中的「不可能 / 必须如此」主张。Triggers: first principles、first-principles thinking、boil it down、magic wand number、idiot index、white board rebuild、第一性原理、本质思考、从头推、理论下限、降本空间、ab initio。
 ---
 
-# First Principles
+# 第一性原理分析
 
-Reduce a complex problem to its goal, evidence-backed premises, binding constraints, and testable causal assumptions. For each decisive premise, record its source, operational definition, confidence, and falsification condition. Rebuild the simplest viable approach from those foundations, then close the loop with the artifact appropriate to the task mode.
+## 定位
 
-## Task Modes
+第一性原理（first principles）是一套**重构型推理流程**：把问题拆到在当前问题与适用范围内足以作为推导依据的基本事实，再从这些事实往上推导，而不是从「别人怎么做、历史上多贵」出发做类比。
 
-Classify the task before analysis:
+它产出的是**可能性边界**（理论下限 / 上限），不是可行性证明。所有结论都必须回到实验、数据或现实成本去校验。
 
-- **Decision**: choose, stop, continue, or allocate resources.
-- **Diagnosis**: identify and test the root cause.
-- **Communication**: derive and express the core claim without changing the underlying decision.
+## 适用判断（先做这一步）
 
-## Core Workflow
+适用：
 
-1. **Define the decision surface**
-   - State the goal, primary success metric, guardrails, and time window.
-   - State the task mode, reversibility, and cost of being wrong.
-2. **Establish the information state**
-   - Separate facts, assumptions, inferences, and unknowns.
-   - For each decisive fact or assumption, state its source, operational definition, confidence, and what observation would falsify it. Mark unavailable fields as unknown; do not invent them.
-   - When the request refers to a project, repository, document, or artifact that can be located in the workspace, read [evidence-discovery.md](references/evidence-discovery.md) before asking questions.
-   - Otherwise use the evidence supplied by the user and label unsupported assumptions and unknowns.
-   - Ask at most 3 questions, and only when an answer could change the conclusion.
-   - Continue with explicit assumptions for reversible or low-cost decisions. Require evidence before irreversible or high-cost commitments.
-3. **Separate real constraints from inherited assumptions**
-   - Identify non-negotiable physical, technical, economic, legal, resource, and time constraints.
-   - Classify apparent constraints as fact, derived constraint, assumption, convention, analogy, or preference.
-   - Treat unsupported assumptions and conventions as candidates to challenge. Remove them only after checking dependencies or running a reversible test; do not ignore real-world constraints.
-   - Identify the bottleneck and the assumption whose failure would invalidate the plan.
-4. **Rebuild from zero**
-   - Derive the simplest viable approach from the goal, facts, and real constraints without copying the current plan.
-   - Compare it with the current plan and name the inherited assumptions that explain the difference.
-   - Generate alternatives only when they materially change value, cost, risk, speed, or reversibility.
-   - When the goal requires an order-of-magnitude improvement, look for nonlinear leverage and quantify the baseline, target, and mechanism. Otherwise prefer the highest-value feasible move.
-   - In communication mode, rebuild the message structure without reopening the accepted decision. If the claim is unsupported or contradicted by evidence, reclassify the task as communication -> decision.
-5. **Converge**
-   - State the conclusion first and the strongest reason it could be wrong.
-   - Load the primary task guide: [decision.md](references/decision.md), [diagnosis.md](references/diagnosis.md), or [communication.md](references/communication.md).
-   - If the request explicitly spans two stages, load one additional guide only when needed. Use the order diagnosis -> decision -> communication; never load more than two guides.
-   - End with a decision or the smallest test that can resolve the decisive uncertainty.
+- 没有可靠参照物，或现有参照物本身可疑（垄断定价、长期未变的报价、纯惯例沉淀的流程）。
+- 需要做非共识判断：自建 vs 外采、降本目标、技术路线选型、并购与报价合理性。
+- 用户明确怀疑某个「不可能 / 必须如此」的说法。
 
-## Default Output
+不适用，请直接说明并改用常规分析：
 
-- Conclusion: one-sentence judgment.
-- Facts / Assumptions / Unknowns: only decisive items.
-- Real constraints / Inherited assumptions: what must remain and what can be removed.
-- Rebuilt approach: what follows when starting from zero.
-- Leverage judgment: whether a nonlinear opportunity exists or a smaller move is more rational.
-- Main failure condition: the evidence or assumption most likely to overturn the conclusion.
-- Closure: for decision, a choice or smallest decisive test; for diagnosis, a discriminating test; for communication, the requested evidence-grounded artifact.
+- 时间紧、信息成本高，且业界已有可信答案的决策（多数日常决策用类比更省）。
+- 本质是协调、合规或信任问题，而非物理 / 经济约束问题。
+- 结论已经先定、只需要背书材料的场合 —— 那是修辞，不是推理。
 
-## Tone And Safety
+## 四步流程
 
-- Be direct, concise, and evidence-grounded; do not use humiliation, pressure theatrics, or personal judgment.
-- Do not present guesses as facts, consensus as proof, process as results, or incremental work as disruption.
-- Do not invent owners, deadlines, metrics, or evidence.
-- Do not let a breakthrough target or starting from zero become an excuse to ignore feasibility, safety, or irreversible downside.
-- Remove optional sections that do not help the user decide or act.
+### 1. 写下共识
+
+把「一直就是这样」写成**一句可被真 / 假判断的命题**，并标出来源（谁说的、成本加成合同、历史报价）。以下是待核实的共识示例，不作为事实依据：
+
+- 「单次发射报价约 6500 万美元，因此门槛不可逾越。」
+- 「电池组历史成本约 600 美元/kWh，降不下来。」
+
+不可验证的表述（「太难了」「行业都是这样」）要改写成可核对的数字或约束，否则无法进入下一步。
+
+### 2. 拆到硬事实
+
+硬事实的判据：**有可追溯证据，且能在明确的时间、口径与适用范围内被第三方独立复核**。经验数据可能被新证据修正，物理定律和数学关系也须写明适用条件；「硬事实」不代表绝对不可反驳。
+
+| 类别 | 例子 |
+| --- | --- |
+| 物理约束 | 能量守恒、光速不变、热力学第二定律、材料强度与熔点 |
+| 数学恒等式 | 单位换算、组合数、排队论 Little's law |
+| 公开市场价 | 伦敦金属交易所现货价、大宗商品指数、分时电价 |
+| 可复现数据 | 已发表的实验数据、自己能跑的基准测试 |
+
+**把事实、假设与适用条件分开列出**，推导步骤须能逐项检查。结论被推翻时，事实可能依然成立；失效的也可能是假设、适用条件或推导步骤。
+
+**第 2 步门禁**：若拆不出至少两条可第三方复核的硬事实，立即停止本流程，向用户说明「该问题缺少足够的可复核依据」，并改用常规分析。不要用「业内常识」「大家都这样做」充数——那正是要拆掉的东西。
+
+### 3. 重建方案并推导边界
+
+先明确目标与约束，再按问题选择分支；同时涉及成本与性能时分别推导，并写明权衡。
+
+**成本问题**：先算「魔杖数字」（magic wand number）：假设可以挥魔杖免费组装，把剩下的纯材料 / 纯资源采购成本算出来，作为**指定材料、资源用量与采购口径下的理想化成本下限**。
+
+设某成品出厂价 P，材料口径成本 C：
+
+- 魔杖数字 = C（假设组装、工艺、良率全部免费）
+- 待解释差额 = P − C；仅当 P 与 C 的时间、数量及产品边界可比且 C > 0 时，计算 P ÷ C（「白痴指数」）。该比值只提示调查优先级，不能证明可兑现的降本空间。
+
+差额分解要落到具体科目（设计、制造、测试、供应链层级、资本分摊、良率），不要笼统写成「效率低」。每个科目分别标注两条轴：
+
+- **来源**：物理 / 技术、法律 / 契约、组织 / 惯例；可多选。
+- **可消除性**：当前目标与约束下必需、满足条件后可减少、未知。写出判断依据；可减少项须列出条件与验证方式。
+
+例如，目标市场的强制认证来源于法律 / 契约，但在当前销售目标下必需；不能因其不是物理成本就直接删去。
+
+**非成本问题**：定义目标指标、单位、当前基线与适用条件，从事实和显式假设逐步推导上限 / 下限或可行性条件，再按限制因素解释与基线的差距。例：传输时延须注明距离、介质与测量边界，分别考虑传播、处理和排队约束。无法给出有依据的数值边界时，输出定性约束、未知条件与补证方法，不编造数字，也不套用 P、C 或成本差额。
+
+### 4. 回到现实验证
+
+推导给出的是指定条件下的边界；实施可行性仍需验证。交付前必须回答：
+
+1. 哪些现实约束仍须满足？成本问题复核必要成本；非成本问题复核指标、测量边界及可行性条件。
+2. 用什么实验、原型或数据点，可以最短时间证伪这个推论？写出预期观测与判定失败的标准。
+3. 该验证针对哪条假设、适用条件或推导步骤？失败时优先复查什么？若新证据与事实冲突，也应重核事实来源与测量口径。
+
+## 输出格式
+
+结论先行，且严格区分**外部事实**与**本轮推断**：
+
+1. **一句话结论**：带走的知识边界或行动建议。
+2. **共识 vs 硬事实**：原始命题、来源、拆解后得到的硬事实清单。
+3. **边界推导**：标明成本 / 非成本分支，写出目标、约束、算式、假设、单位、基线与数据来源；不能量化时说明缺失条件。
+4. **差距与约束分解**：成本问题按科目标注来源、可消除性及依据；非成本问题按限制因素解释基线与边界的差距。
+5. **未验证部分与残余风险**：哪些没有数据支撑，下一步验证的对象、预期观测及失败标准。
+
+涉及数字的案例先核对原始出处，标注时间与口径（格式示例：「数值；报价时间；产品与数量口径；原文定位」）；引用他人估算时写明是估算口径，不要升级成事实。
+
+**数字纪律（硬性）**：
+
+- 每个关键数字必须带三件事：**数值 + 时间点 + 口径**。
+- 用于对外 / 落笔结论的数字，必须回到原始出处核对；**禁止引用自媒体或二手转述**。
+- 无法核实的数字在报告中显式标注「未核实」，不得默认可信。
+- 本 skill 自带的案例库同样受此约束：`references/cases.md` 中标记为「未核实」的数字，引用前须自行复核。
+
+## 反面清单（做错比不做更糟）
+
+- **无限下钻**：粒度由待解决的问题决定，不是越深越好；停下来的地方必须交代为什么停在这一层（分层实例见 `references/cases.md` 案例 5）。
+- **把 2% 当成 98% 的利润**：原材料占比低只说明「组装之外的科目占大头」，其中大量是真实必要的工程与合规成本。
+- **为结论找原理**：先有立场再补的第一性原理，判据是「同一批硬事实换个结论是否照样成立」。
+- **用它覆盖所有决策**：成本高、耗心力，日常判断用类比即可，明确告知用户哪些部分不需要这样思考。
+
+## 资源
+
+### [references/cases.md](references/cases.md)
+
+含 4 个案例（SpaceX 火箭、特斯拉电池、爱因斯坦狭义相对论、丰田五个为什么）与 1 个「下钻粒度」反面演示，并带「事实 / 他人估算 / 本轮推断」三层标注与引用纪律。
+
+加载时机（按需，不必每次都读）：
+
+1. 交付中需要引用历史案例或案例数字时 —— 必读，照其中的三层标注与引用纪律执行。
+2. 需要向用户解释「第一性原理长什么样」或举例时 —— 读后用自己的话转述，不复制大段原文。
+3. 纯内部推导、不涉及上述数字的日常任务 —— 不读，避免浪费上下文。

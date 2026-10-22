@@ -80,6 +80,7 @@
 
 ### 修复
 
+- `first-principles` 修复 YAML 描述解析、移除不支持的元数据字段并恢复 UI 配置；补齐成本 / 非成本分支，明确假设与推导的证伪对象，将成本来源与可消除性分开；案例中无可追溯依据的数字标为未核实，材料成本差额仅作为待验证的降本假设；同步模板、流程图与双语目录
 - `chrome-bookmarks` 对齐 Organize 契约：用户方案只覆盖分类树，无方案才读 taxonomy，cleanup 每次整理都应用；`description` 补上写回与同步覆盖恢复；`last_used` 缺失时拒绝并要求 `--profile`，不再静默回退 `Default`；`Bookmarks.raw` 只在缺失时拷贝、禁止覆盖，整理始终读 live；`diff`/`manifest` 报告 `other`/`synced` 计数；`--assume-quit` 不能覆盖「正在运行」；流程图为 Writeback 增加旁路
 - `chrome-bookmarks` 统一 `other`/`synced` 契约：写回不再默认清空；`emit` 默认原样保留；将归零时 `write` 在写盘前拒绝，需用户确认后才可 `--allow-empty-roots`
 - `chrome-bookmarks` Linux 进程探测补上 `chrome` / `google-chrome` 精确进程名，继续排除其它 Electron 的 `chrome_crashpad_handler`；同步流程图（Inspect 出口、Organize 可开着跑、默认停在 emit、Restore 走写回闸门）
