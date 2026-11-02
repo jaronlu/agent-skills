@@ -129,3 +129,4 @@ python3 scripts/validate_skills.py
 | first-principles | `assets/first-principles-flow.svg` |
 | hermes-context-review | `assets/hermes-context-review-flow.svg` |
 | llm-wiki | `assets/llm-wiki-flow.svg` |
+| prompt-optimizer | `assets/prompt-optimizer-flow.svg` |

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Prompt Optimizer"
+  short_description: "Diagnose and improve prompts with honest evaluation evidence"
+  default_prompt: "Use $prompt-optimizer to diagnose and improve this prompt."

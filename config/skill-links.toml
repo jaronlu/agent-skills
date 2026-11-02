@@ -15,4 +15,5 @@ path = "~/.agents/skills"
 mode = "copy"
 skills = [
   "git-commit",
+  "prompt-optimizer",
 ]

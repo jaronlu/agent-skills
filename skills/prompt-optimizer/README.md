@@ -50,7 +50,7 @@ references/              evaluation protocol, failure taxonomy, rewrite patterns
 assets/                  meta-prompt and eval-report templates
 scripts/compare.py       zero-dependency statistics and trial aggregation
 scripts/test_compare.py  unit tests
-evals/                   manual behavioral scenarios
+references/evals/       manual behavioral scenarios
 ```
 
 ## Tests

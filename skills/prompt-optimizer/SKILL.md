@@ -134,7 +134,7 @@ Lead with a plain-language decision, what the evidence supports, and the next st
 | [Optimizer integration](references/optimizer-integration.md) | The user requests DSPy or another programmatic optimizer |
 | [Meta-prompt](assets/meta-prompt.md) | Delegating variant generation to a strong model |
 | [Eval report template](assets/eval-report.md) | Writing the decision record |
-| [Behavioral evals](evals/README.md) | Checking this skill's own behavior before publishing |
+| [Behavioral evals](references/evals/README.md) | Checking this skill's own behavior before publishing |
 
 ## Common mistakes
 

@@ -46,6 +46,7 @@
 | [paper-learning](skills/paper-learning/SKILL.md) | 通用论文学习：把论文蒸馏成可复用笔记（存到工作区 papers/ 目录），demo 可选、语言随论文。 |
 | [five-dimension-analysis](skills/five-dimension-analysis/SKILL.md) | 把复杂局面拆成时间、利益、权力、博弈、本质五个维度，产出可证伪的判断与可执行动作。 |
 | [communication-formulas](skills/communication-formulas/SKILL.md) | 按沟通目的选用 SCQA / FAB / BACC / 3W / PREP 五套表达顺序，装配成可直接开口的话术。 |
+| [prompt-optimizer](skills/prompt-optimizer/SKILL.md) | 以最小改动诊断和优化提示词，并区分快速改写与有证据支持的评估。 |
 
 用户指南是可选的，位于运行时包之外的 `docs/skills/`。该目录是指向 llm-wiki workshop 的软链接，
 不受本仓库版本控制。目前只有 [design-convergence-review](docs/skills/design-convergence-review.md)
@@ -109,6 +110,12 @@ Chrome 开着也可整理；完全退出后才写回。
 如何选择公式。
 
 [![communication-formulas：如何选择公式](assets/communication-formulas-routing.svg)](assets/communication-formulas-routing.svg)
+
+### prompt-optimizer
+
+从模式选择到有证据支持的提示词决策。
+
+[![prompt-optimizer：从模式选择到有证据支持的提示词决策](assets/prompt-optimizer-flow.svg)](assets/prompt-optimizer-flow.svg)
 
 ## 验证
 

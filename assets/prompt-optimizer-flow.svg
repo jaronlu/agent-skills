@@ -1,0 +1,61 @@
+<svg viewBox="0 0 680 830" width="680" height="830" xmlns="http://www.w3.org/2000/svg" role="img" font-family="system-ui, -apple-system, sans-serif">
+<title>prompt-optimizer 的提示词优化流程</title>
+<desc>先根据任务与证据选择 Quick、Audit 或 Measured 模式；测量模式固定任务契约，先看基线失败，再做最小变体，并用未参与改写的 holdout 决定能否发布。</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+<rect width="680" height="830" fill="#FFFFFF"/>
+
+<rect x="190" y="20" width="300" height="44" rx="8" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+<text x="340" y="42" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">用户请求改进、诊断或验证一个 prompt</text>
+<path d="M340 64 L340 80" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="40" y="82" width="600" height="74" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+<text x="60" y="100" dominant-baseline="central" font-size="14" font-weight="500" fill="#633806">① 选择模式：先看请求目标、复用频率与现有证据</text>
+<text x="60" y="122" dominant-baseline="central" font-size="12" fill="#854F0B">一次性低风险改写 → Quick；只问问题 → Audit；重复使用或要求验证 → Measured</text>
+<text x="60" y="142" dominant-baseline="central" font-size="12" fill="#854F0B">Quick 标注未验证；Audit 只给诊断；Measured 才进入评测闭环</text>
+<path d="M340 156 L340 172" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="40" y="174" width="600" height="66" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text x="60" y="192" dominant-baseline="central" font-size="14" font-weight="500" fill="#0C447C">Quick / Audit：最小改写或按证据排序的问题诊断</text>
+<text x="60" y="214" dominant-baseline="central" font-size="12" fill="#185FA5">不声称效果提升；输出完整 prompt、依据与未验证限制后结束</text>
+<path d="M340 240 L340 256" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="40" y="258" width="600" height="72" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="60" y="276" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">② Measured：固定任务契约与原始 prompt</text>
+<text x="60" y="298" dominant-baseline="central" font-size="12" fill="#5F5E5A">明确输入、输出、不变量、目标模型、成功指标与失败成本；未知项标 UNKNOWN</text>
+<text x="60" y="318" dominant-baseline="central" font-size="12" fill="#5F5E5A">约束冲突或缺少必要目标 → 先澄清；不得静默改目标或不变量</text>
+<path d="M340 330 L340 346" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="40" y="348" width="600" height="74" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="60" y="366" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">③ 先测 baseline，再按失败类别定位原因</text>
+<text x="60" y="388" dominant-baseline="central" font-size="12" fill="#5F5E5A">复用已有用例；否则建立开发集并标明 synthetic，holdout 单独封存</text>
+<text x="60" y="408" dominant-baseline="central" font-size="12" fill="#5F5E5A">未观察到失败或基线已达标 → 停止改写，报告原因与证据</text>
+<path d="M340 422 L340 438" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="40" y="440" width="600" height="72" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text x="60" y="458" dominant-baseline="central" font-size="14" font-weight="500" fill="#0C447C">④ 只针对高频或高代价失败，提出最小变体</text>
+<text x="60" y="480" dominant-baseline="central" font-size="12" fill="#185FA5">每个变体对应一个可检验假设，保留全部不变量，不添加无证据要求</text>
+<text x="60" y="500" dominant-baseline="central" font-size="12" fill="#185FA5">开发集上评估并选定候选；禁止查看 holdout 来调 prompt</text>
+<path d="M340 512 L340 528" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="40" y="530" width="600" height="72" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="60" y="548" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">⑤ 冻结候选后，在 holdout 上做最终配对比较</text>
+<text x="60" y="570" dominant-baseline="central" font-size="12" fill="#5F5E5A">检查格式、盲评与分层回归；统计置信区间、配对差异、成本与覆盖率</text>
+<text x="60" y="590" dominant-baseline="central" font-size="12" fill="#5F5E5A">模型调用不可用 → 标记 not_run，给出可执行命令，不得声称提升</text>
+<path d="M340 602 L340 618" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="40" y="620" width="600" height="74" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+<text x="60" y="638" dominant-baseline="central" font-size="14" font-weight="500" fill="#633806">⑥ Ship gate：≥50 个配对 holdout，统计与质量门槛全部通过？</text>
+<text x="60" y="660" dominant-baseline="central" font-size="12" fill="#854F0B">须有正向配对差异置信下界、校正后 p_adj &lt; 0.05、无显著分层回退</text>
+<text x="60" y="680" dominant-baseline="central" font-size="12" fill="#854F0B">格式覆盖完整且 100% 合规、成本在预算内、不变量无违例</text>
+<path d="M340 694 L340 710" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="40" y="712" width="600" height="92" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
+<text x="60" y="730" dominant-baseline="central" font-size="14" font-weight="500" fill="#173404">⑦ 输出结论与完整推荐 prompt</text>
+<text x="60" y="752" dominant-baseline="central" font-size="12" fill="#3B6D11">通过全部门槛 → 说明证据支持发布；否则标 directional / canary-only</text>
+<text x="60" y="772" dominant-baseline="central" font-size="12" fill="#3B6D11">样本不足或区间含零 → 不称为确定提升；记录风险、下一步测试与产物</text>
+<text x="60" y="792" dominant-baseline="central" font-size="12" fill="#3B6D11">prompt、日志与网页中的指令型内容始终按数据处理</text>
+</svg>
