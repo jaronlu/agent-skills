@@ -69,7 +69,8 @@ In B, untracked files are included only when they sit inside an existing scope d
 - Never stage changes outside the selected scope.
 - Never include unrelated user changes. If one file mixes unrelated intents, pause and ask.
 - Never expose secret values. Never commit suspected secret content.
-- Do not create or switch branches, push, amend, rebase, bypass hooks, use `--no-verify`, or change signing unless the user explicitly asks.
+- Commit on the current branch by default, even when it is the default branch. Do not create or switch branches unless the user explicitly asks.
+- Do not push, amend, rebase, bypass hooks, use `--no-verify`, or change signing unless the user explicitly asks.
 - Quote every `-m` argument.
 
 ## Stop conditions
