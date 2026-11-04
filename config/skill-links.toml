@@ -1,19 +1,33 @@
 version = 1
 
-# Skills are authored in this repository; publishing stops at the CC Switch
-# library. CC Switch owns every agent-facing distribution step from there
-# (Claude Code, Codex, Gemini CLI, Hermes, Zcode, WorkBuddy and others), so this
-# file must not list per-tool targets again.
+# Skills are authored in this repository and linked into the shared user skills
+# directory. Only skills listed in `skills` are installed.
+# Skills listed in `excluded` are uninstalled when this manager owns the entry
+# (a link into this repository, or a copy matching it). Anything else in the
+# directory is left untouched.
 #
 # `source` is omitted on purpose: it defaults to this repository, so moving the
 # checkout can no longer leave a stale path behind.
 
 [distribution]
 
-[targets.cc-switch]
+[targets.agents]
 path = "~/.agents/skills"
-mode = "copy"
 skills = [
+  "communication-formulas",
+  "design-convergence-review",
+  "first-principles",
   "git-commit",
+  "llm-wiki",
+  "paper-learning",
   "prompt-optimizer",
+]
+# Repo skills deliberately not installed for now. Listed here so a skill is
+# never silently missing; entries this manager owns are uninstalled.
+# Third-party skills in the directory that are not in this repo are never touched.
+excluded = [
+  "agent-reading",
+  "chrome-bookmarks",
+  "five-dimension-analysis",
+  "hermes-context-review",
 ]

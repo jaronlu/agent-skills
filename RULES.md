@@ -18,7 +18,7 @@
 
 - 流程图是给人看的仓库文档，不是技能运行时产物。`CONTRIBUTING.md` 已限定技能包内 `assets/`
   只放「复制到输出中的内容」或 README 引用的人读图。
-- 技能包经符号链接分发到 `~/.codex/skills` 等目录，保持运行时包小巧可预测。
+- 技能包按仓库配置链接到用户级共享技能目录，保持运行时包小巧可预测。
 - 根目录 `assets/` 已在 `README.md` / `README_zh-CN.md` 中以链接清单形式对外暴露；`git-commit` 的清单项指向其 README。
 
 ### 命名
@@ -103,18 +103,14 @@ python3 scripts/validate_skills.py
 3. `README.md` 与 `README_zh-CN.md` 的流程图清单已列出该图。
 4. `CHANGELOG.md` → `Unreleased` 已记录。
 
-## 规则二：新增 skill 必须发布到 CC Switch 库
+## 规则二：skill 必须显式登记到共享目录
 
-技能不会自动分发。新增技能时必须在 `config/skill-links.toml` 的 `[targets.cc-switch]`
-中显式加入 `skills` 列表，由 `sync` 发布到 CC Switch 库（`~/.agents/skills`）。
+技能不会自动同步。新增技能时必须在 `config/skill-links.toml` 的 `[targets.agents]`
+中显式加入 `skills` 列表，由 `sync` 链接到共享目录（默认 `~/.agents/skills`）。
 
-从库到各工具的分发由 CC Switch 负责：它按自身的同步策略（软连接或文件复制）把技能
-提供给 Claude Code、Codex、Gemini CLI、Hermes、Zcode、WorkBuddy 等兼容工具。
-
-- 本仓库的发布终点就是 CC Switch 库，不要再登记任何 per-tool 目标。
-- 该 target 使用 `mode = "copy"`：库里保存真实目录，而不是指回仓库的软链接，
-  这样移动或重命名仓库目录不会让所有下游工具一起失效。
-- 改动 `skills/` 后必须重新 `sync`，变更才会进入 CC Switch 库。
+- 共享目录是本仓库的分发终点；不要登记已不再使用的中间分发服务。
+- 默认使用 `mode = "symlink"`，共享目录中的条目指向仓库，仓库内容改动即时生效；移动或重命名仓库后需重新 `sync`。
+- 改动 `skills/` 后必须重新 `sync`，变更才会进入共享目录。
 - 改完先 `python3 scripts/manage_skill_links.py sync --dry-run`，确认无误再 `sync`。
 
 ## 当前流程图清单

@@ -29,10 +29,16 @@ class SkillLinkManagerTests(unittest.TestCase):
         (skill / "SKILL.md").write_text(f"---\nname: {name}\ndescription: test\n---\n", encoding="utf-8")
 
     def write_config(
-        self, skills: list[str], *, source: Path | None = None, mode: str | None = None
+        self,
+        skills: list[str],
+        *,
+        source: Path | None = None,
+        mode: str | None = None,
+        excluded: list[str] | None = None,
     ) -> None:
         source = source or self.source
         quoted = ", ".join(json.dumps(skill) for skill in skills)
+        excluded_quoted = ", ".join(json.dumps(skill) for skill in excluded or [])
         mode_line = [f"mode = {json.dumps(mode)}"] if mode else []
         self.config_path.write_text(
             "\n".join(
@@ -45,6 +51,7 @@ class SkillLinkManagerTests(unittest.TestCase):
                     "[targets.test]",
                     f"path = {json.dumps(str(self.target))}",
                     f"skills = [{quoted}]",
+                    f"excluded = [{excluded_quoted}]",
                     *mode_line,
                     "",
                 ]
@@ -100,13 +107,20 @@ class SkillLinkManagerTests(unittest.TestCase):
         apply_plan(plan)
         self.assertEqual(Path(os.readlink(self.target / "alpha")), self.source / "skills" / "alpha")
 
-    def test_leaves_deselected_link_untouched(self) -> None:
+    def test_uninstalls_excluded_owned_link(self) -> None:
         self.sync()
-        self.write_config([])
+        self.write_config([], excluded=["alpha"])
         config = load_config(self.config_path)
         plan = build_plan(config)
-        self.assertFalse(plan.operations)
+        self.assertEqual([op.action for op in plan.operations], ["remove"])
         apply_plan(plan)
+        self.assertFalse(os.path.lexists(self.target / "alpha"))
+
+    def test_leaves_unlisted_link_untouched(self) -> None:
+        self.sync()
+        self.write_config([])
+        plan = build_plan(load_config(self.config_path))
+        self.assertFalse(plan.operations)
         self.assertTrue((self.target / "alpha").is_symlink())
 
     def test_source_move_replaces_existing_link(self) -> None:
@@ -139,12 +153,12 @@ class SkillLinkManagerTests(unittest.TestCase):
         self.assertFalse(os.path.lexists(self.target / "alpha"))
         self.assertTrue(external.is_symlink())
 
-    def test_check_ignores_deselected_link(self) -> None:
+    def test_check_reports_excluded_owned_link(self) -> None:
         self.sync()
-        self.write_config([])
+        self.write_config([], excluded=["alpha"])
 
         args = ["check", "--config", str(self.config_path)]
-        self.assertEqual(main(args), 0)
+        self.assertEqual(main(args), 1)
         self.assertTrue((self.target / "alpha").is_symlink())
 
     def test_copy_mode_publishes_a_real_directory_and_is_idempotent(self) -> None:
@@ -199,6 +213,42 @@ class SkillLinkManagerTests(unittest.TestCase):
         apply_plan(build_plan(config, unlink_all=True))
         self.assertFalse(os.path.lexists(self.target / "alpha"))
         self.assertTrue(external.is_dir())
+
+    def test_excluded_copy_is_uninstalled_and_third_party_entries_survive(self) -> None:
+        self.create_skill("gamma")
+        self.write_config(["alpha", "gamma"], mode="copy")
+        self.sync()
+        self.write_config(["alpha"], mode="copy", excluded=["gamma"])
+        external = self.target / "external"
+        external.mkdir()
+
+        config = load_config(self.config_path)
+        plan = build_plan(config)
+        self.assertEqual(
+            [(op.action, op.skill) for op in plan.operations if op.action == "remove"],
+            [("remove", "gamma")],
+        )
+        self.assertFalse(plan.conflicts)
+
+        apply_plan(plan)
+        verify(config)
+        self.assertFalse(os.path.lexists(self.target / "gamma"))
+        self.assertTrue((self.target / "alpha").is_dir())
+        self.assertTrue(external.is_dir())
+
+    def test_excluded_drifted_copy_is_kept(self) -> None:
+        self.create_skill("gamma")
+        self.write_config(["alpha", "gamma"], mode="copy")
+        self.sync()
+        (self.target / "gamma" / "SKILL.md").write_text("local edit", encoding="utf-8")
+        self.write_config(["alpha"], mode="copy", excluded=["gamma"])
+
+        plan = build_plan(load_config(self.config_path))
+        self.assertFalse([op for op in plan.operations if op.skill == "gamma"])
+        self.assertFalse(plan.conflicts)
+        self.assertTrue((self.target / "gamma" / "SKILL.md").is_file())
+        apply_plan(plan)
+        self.assertTrue((self.target / "gamma" / "SKILL.md").is_file())
 
     def test_rejects_unknown_sync_mode(self) -> None:
         self.write_config(["alpha"], mode="binary")

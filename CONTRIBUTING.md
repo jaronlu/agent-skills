@@ -111,8 +111,8 @@ docs/skills/<skill-name>.md
 4. 在 `docs/skills/` 下（而非技能内部）添加可选的用户指南。
 5. 绘制流程图 `assets/<skill-name>-flow.svg`，规范见 [RULES.md](RULES.md)。
 6. 将技能添加到两个根目录目录文件的技能表和流程图清单中。
-7. 在 `config/skill-links.toml` 的 `[targets.cc-switch]` 中登记该技能，并执行 `sync`
-   发布到 CC Switch 库；库到各工具的分发由 CC Switch 负责。
+7. 在 `config/skill-links.toml` 的 `[targets.agents]` 中登记该技能，并执行 `sync`
+   链接到共享技能目录（默认 `~/.agents/skills`）。
 8. 在 `CHANGELOG.md` → `Unreleased` 下添加条目。
 9. 运行验证。
 

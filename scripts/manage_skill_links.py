@@ -26,6 +26,7 @@ class Target:
     path: Path
     skills: tuple[str, ...]
     mode: str = "symlink"
+    excluded: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -116,6 +117,17 @@ def load_config(path: Path) -> Config:
         mode_raw = raw.get("mode", "symlink")
         if mode_raw not in {"symlink", "copy"}:
             raise ConfigError(f"targets.{name}.mode must be 'symlink' or 'copy'")
+        excluded_raw = raw.get("excluded", [])
+        if not isinstance(excluded_raw, list) or not all(isinstance(item, str) for item in excluded_raw):
+            raise ConfigError(f"targets.{name}.excluded must be a list of names")
+        if len(excluded_raw) != len(set(excluded_raw)):
+            raise ConfigError(f"targets.{name}.excluded contains duplicates")
+        overlap = set(excluded_raw) & set(skills_raw)
+        if overlap:
+            raise ConfigError(f"targets.{name} lists skills as both installed and excluded: {sorted(overlap)}")
+        for skill in excluded_raw:
+            if not (skills_root / skill / "SKILL.md").is_file():
+                raise ConfigError(f"unknown excluded skill for {name}: {skill}")
 
         target_path = expand_path(path_raw)
         try:
@@ -130,7 +142,13 @@ def load_config(path: Path) -> Config:
             if not skill_dir.is_dir() or not (skill_dir / "SKILL.md").is_file():
                 raise ConfigError(f"unknown or invalid skill for {name}: {skill}")
         targets.append(
-            Target(name=name, path=target_path, skills=tuple(skills_raw), mode=mode_raw)
+            Target(
+                name=name,
+                path=target_path,
+                skills=tuple(skills_raw),
+                mode=mode_raw,
+                excluded=tuple(excluded_raw),
+            )
         )
 
     return Config(source=source, targets=tuple(targets))
@@ -248,6 +266,23 @@ def build_plan(config: Config, *, unlink_all: bool = False) -> Plan:
             continue
 
         operations.append(sync_operation(target_name, skill, link, source, mode))
+
+    if not unlink_all:
+        # Uninstall only the skills named in `excluded`. Nothing else in the
+        # target directory is ever considered, including third-party skills.
+        for target in config.targets:
+            if not target.path.is_dir():
+                continue
+            for skill in target.excluded:
+                link = target.path / skill
+                if not os.path.lexists(link):
+                    continue
+                source = config.source / "skills" / skill
+                op = removal_operation(target.name, skill, link, source, target.mode)
+                # Entries the manager does not own are left alone rather than
+                # blocking every sync with a conflict.
+                if op.action == "remove":
+                    operations.append(op)
 
     for target in config.targets:
         if not target.path.is_dir():

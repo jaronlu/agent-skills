@@ -1,8 +1,7 @@
 # Agent Skills
 
-One repository for the agent skills you maintain. Skills are published to the CC Switch library
-at `~/.agents/skills`, and CC Switch distributes them to Claude Code, Codex, Gemini CLI, Hermes,
-Zcode, WorkBuddy, and other compatible tools.
+One repository for the agent skills you maintain. Skills are linked into `~/.agents/skills`
+for compatible agents to discover.
 
 [简体中文](README_zh-CN.md)
 
@@ -12,14 +11,14 @@ Zcode, WorkBuddy, and other compatible tools.
 
 ## Why
 
-Maintain a skill once and publish it to one library. CC Switch owns every agent-facing
-distribution step, so this repository never tracks individual tool directories and never has to be
-re-linked when a tool changes where it looks for skills.
+Maintain skills in this repository and sync the registered packages directly to `~/.agents/skills`.
+The distribution target is explicit and can be changed in `config/skill-links.toml` if your local
+agent setup uses another shared skills directory.
 
 ## How
 
 1. Add or update a skill in `skills/`.
-2. Register it in `config/skill-links.toml` under `[targets.cc-switch]`.
+2. Register it in `config/skill-links.toml` under `[targets.agents]`.
 3. Review the proposed changes:
 
    ```bash
@@ -32,14 +31,16 @@ re-linked when a tool changes where it looks for skills.
    python3 scripts/manage_skill_links.py sync
    ```
 
-`sync` copies each configured skill into the CC Switch library. Use `status` to see the configured
-destinations and `check` to verify the library matches this repository; `check` exits non-zero when
-the library is behind. Entries the manager does not own are never overwritten.
+`sync` links each configured skill into `~/.agents/skills`. Use `status` to inspect the configured
+destination and `check` to verify that managed links point at this repository; `check` exits non-zero
+when a link is missing or wrong. Review `sync --dry-run` before applying changes. Entries not
+registered in the configuration are left alone.
 
 ## Skills
 
 | Skill | What it does |
 | --- | --- |
+| [agent-reading](skills/agent-reading/SKILL.md) | Guides systematic, knowledge-point-by-knowledge-point study of open-source agent implementations. |
 | [chrome-bookmarks](skills/chrome-bookmarks/SKILL.md) | Classifies Chrome bookmarks, removes duplicates and low-value items, and writes back only after Chrome quits. |
 | [design-convergence-review](skills/design-convergence-review/SKILL.md) | Checks whether a design is ready for implementation and identifies unresolved blockers. |
 | [first-principles](skills/first-principles/SKILL.md) | Challenges conventional claims, derives cost or performance bounds, and identifies what still needs validation. |

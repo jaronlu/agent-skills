@@ -1,7 +1,6 @@
 # Agent Skills
 
-自研 Agent Skill 的统一仓库。技能发布到 CC Switch 库（`~/.agents/skills`），再由 CC Switch
-分发给 Claude Code、Codex、Gemini CLI、Hermes、Zcode、WorkBuddy 等兼容工具。
+自研 Agent Skill 的统一仓库。技能直接链接到 `~/.agents/skills`，供兼容的 Agent 工具发现。
 
 [English](README.md)
 
@@ -11,13 +10,13 @@
 
 ## 为什么
 
-维护一次，发布到一个库。库到各工具的分发由 CC Switch 负责，本仓库因此不需要跟踪各个工具的
-技能目录，也不会因为工具更换查找位置而重新建链。
+在本仓库维护技能，并将登记的技能直接同步到 `~/.agents/skills`。目标路径可在
+`config/skill-links.toml` 中显式配置；如果本机使用其他共享技能目录，可在该处调整。
 
 ## 怎么做
 
 1. 在 `skills/` 中新增或更新 Skill。
-2. 在 `config/skill-links.toml` 的 `[targets.cc-switch]` 中登记该 Skill。
+2. 在 `config/skill-links.toml` 的 `[targets.agents]` 中登记该 Skill。
 3. 先预览变更：
 
    ```bash
@@ -30,13 +29,15 @@
    python3 scripts/manage_skill_links.py sync
    ```
 
-`sync` 会把配置中的每个 Skill 复制进 CC Switch 库。用 `status` 查看配置的目标位置，用 `check`
-校验库与仓库是否一致（落后时返回非零）。管理器不管理的条目永远不会被覆盖。
+`sync` 会把配置中的每个 Skill 链接到 `~/.agents/skills`。用 `status` 查看配置的目标位置，用
+`check` 校验受管理的链接是否指向本仓库（缺失或错误时返回非零）。执行同步前先用
+`sync --dry-run` 检查变更；未登记的条目不会被处理。
 
 ## Skills
 
 | Skill | 用途 |
 | --- | --- |
+| [agent-reading](skills/agent-reading/SKILL.md) | 按知识点逐条研读开源 Agent 仓库实现，并记录学习进度。 |
 | [chrome-bookmarks](skills/chrome-bookmarks/SKILL.md) | 分类整理 Chrome 书签、去掉冗余和低价值项，并在浏览器完全退出后写回。 |
 | [design-convergence-review](skills/design-convergence-review/SKILL.md) | 检查设计是否可以进入开发，并指出未收敛的阻塞问题。 |
 | [first-principles](skills/first-principles/SKILL.md) | 质疑惯例命题，推导成本或性能边界，明确仍需验证的部分。 |
