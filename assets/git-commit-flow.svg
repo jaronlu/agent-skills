@@ -1,6 +1,6 @@
 <svg viewBox="0 0 680 900" width="680" height="900" xmlns="http://www.w3.org/2000/svg" role="img">
 <title>git-commit 的提交决策流程</title>
-<desc>判定范围后产出 type(scope): subject。跨模块同一意图用 feat(common&amp;share&amp;tool) 加每模块一行正文。连接线箭头画在格子间隙里，避免被下一框盖住。</desc>
+<desc>判定范围后产出 type(scope): subject。仅同一意图跨模块用 feat(common&amp;share&amp;tool)，独立变化拆分提交。连接线箭头画在格子间隙里，避免被下一框盖住。</desc>
 <defs>
 <style>text{font-family:system-ui,-apple-system,sans-serif}</style>
 <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto" markerUnits="strokeWidth">
@@ -19,7 +19,7 @@
 
 <rect x="40" y="164" width="600" height="52" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
 <text x="60" y="182" dominant-baseline="central" font-size="14" font-weight="500" fill="#633806">② porcelain 定范围</text>
-<text x="60" y="200" dominant-baseline="central" font-size="12" fill="#854F0B">有暂存且有未暂存/未跟踪 → 问 A/B；否则自动全选或仅暂存</text>
+<text x="60" y="200" dominant-baseline="central" font-size="12" fill="#854F0B">有暂存且有未暂存/未跟踪 → 问 A/B（B 排除草稿与密钥类未跟踪文件）；否则自动</text>
 <path d="M340 220 L340 236" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 
 <rect x="53" y="244" width="180" height="44" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
@@ -31,12 +31,12 @@
 <path d="M340 292 L340 308" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 
 <rect x="40" y="316" width="600" height="44" rx="8" fill="#FCE8E8" stroke="#A32D2D" stroke-width="0.5"/>
-<text x="60" y="338" dominant-baseline="central" font-size="14" font-weight="500" fill="#822727">③ 密钥 / 混意图 / 格式冲突；进行中 rebase 不提交</text>
+<text x="60" y="338" dominant-baseline="central" font-size="14" font-weight="500" fill="#822727">③ 停止：密钥 / 混意图 / 规则冲突 / MERGE_HEAD 等进行中状态</text>
 <path d="M340 364 L340 380" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 
 <rect x="40" y="388" width="600" height="52" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
 <text x="60" y="406" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">④ 每组一条 type(scope): subject</text>
-<text x="60" y="424" dominant-baseline="central" font-size="12" fill="#5F5E5A">feat / fix / docs / refactor / test / perf / style / chore</text>
+<text x="60" y="424" dominant-baseline="central" font-size="12" fill="#5F5E5A">一意图跨 scope 用 &amp;；独立变化拆成多个提交</text>
 <path d="M340 444 L340 460" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 
 <rect x="40" y="468" width="600" height="412" rx="12" fill="none" stroke="#B4B2A9" stroke-width="0.5" stroke-dasharray="4 3"/>
