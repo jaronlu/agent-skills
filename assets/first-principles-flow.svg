@@ -23,18 +23,18 @@
 <path d="M340 268 L340 298" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 <rect x="40" y="298" width="600" height="90" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
 <text x="56" y="320" font-size="14" font-weight="500" fill="#0C447C">② 拆到硬事实</text>
-<text x="56" y="341" font-size="12" fill="#185FA5">在明确时间、口径与适用范围内，记录可第三方复核的证据</text>
-<text x="56" y="359" font-size="12" fill="#185FA5">分别列出事实、假设与适用条件；推导步骤须可检查</text>
-<text x="56" y="377" font-size="12" fill="#185FA5">关键数字：数值 + 时间点 + 口径；用于结论前核对原始出处</text>
+<text x="56" y="341" font-size="12" fill="#185FA5">区分理论约束（模型 / 假设与适用条件）与经验输入（来源、时间、口径、不确定性）</text>
+<text x="56" y="359" font-size="12" fill="#185FA5">把事实、假设与适用条件分开；推导步骤须逐项可检查</text>
+<text x="56" y="377" font-size="12" fill="#185FA5">关键数字：数值 + 时间点 + 口径 + 来源 + 核实状态</text>
 <path d="M340 388 L340 404 L220 404 L220 418" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 <rect x="40" y="418" width="360" height="64" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
-<text x="56" y="440" font-size="14" font-weight="500" fill="#633806">至少两条可第三方复核的硬事实？</text>
-<text x="56" y="461" font-size="12" fill="#854F0B">不足时不以业内常识或惯例充数</text>
+<text x="56" y="440" font-size="14" font-weight="500" fill="#633806">依据是否足以约束关键变量？</text>
+<text x="56" y="461" font-size="12" fill="#854F0B">不按条数判断；不以业内常识或惯例充数</text>
 <path d="M400 450 L436 450" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 <text x="410" y="440" font-size="12" fill="#5F5E5A">否</text>
 <rect x="436" y="418" width="204" height="64" rx="8" fill="#FCE8E8" stroke="#A32D2D" stroke-width="0.5"/>
-<text x="452" y="440" font-size="14" font-weight="500" fill="#822727">停止本流程</text>
-<text x="452" y="461" font-size="12" fill="#A32D2D">说明证据不足，改常规分析</text>
+<text x="452" y="440" font-size="14" font-weight="500" fill="#822727">暂停定量结论</text>
+<text x="452" y="461" font-size="12" fill="#A32D2D">列缺口，改条件式或常规分析</text>
 <path d="M220 482 L220 514" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 <text x="230" y="504" font-size="12" fill="#5F5E5A">是</text>
 <rect x="40" y="514" width="600" height="64" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
@@ -44,8 +44,8 @@
 <path d="M340 594 L494 594 L494 610" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 <rect x="40" y="610" width="292" height="138" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
 <text x="56" y="632" font-size="14" font-weight="500" fill="#0C447C">成本问题</text>
-<text x="56" y="653" font-size="12" fill="#185FA5">C：指定材料 / 用量的理想成本</text>
-<text x="56" y="671" font-size="12" fill="#185FA5">同口径比较 P − C 与 P ÷ C</text>
+<text x="56" y="653" font-size="12" fill="#185FA5">C：固定物料方案的零加工基线</text>
+<text x="56" y="671" font-size="12" fill="#185FA5">同口径比较 P − C；P ÷ C 仅作启发式</text>
 <text x="56" y="689" font-size="12" fill="#185FA5">按科目标注来源与可消除性</text>
 <text x="56" y="707" font-size="12" fill="#185FA5">非物理来源也可能是必需成本</text>
 <text x="56" y="725" font-size="12" fill="#185FA5">减少条件与验证方式须有依据</text>
@@ -77,8 +77,8 @@
 <text x="56" y="993" font-size="12" fill="#185FA5">结论失败时事实可仍然成立；证据冲突时重核来源与测量口径</text>
 <path d="M340 1016 L340 1046" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
 <rect x="40" y="1046" width="600" height="120" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
-<text x="56" y="1068" font-size="14" font-weight="500" fill="#173404">出口：结论先行，区分外部事实与本轮推断</text>
-<text x="56" y="1089" font-size="12" fill="#3B6D11">一句话结论 → 共识 vs 硬事实 → 边界推导</text>
+<text x="56" y="1068" font-size="14" font-weight="500" fill="#173404">出口：结论先行，区分事实、估算与本轮推断</text>
+<text x="56" y="1089" font-size="12" fill="#3B6D11">一句话结论 → 问题主张与依据 → 边界推导</text>
 <text x="56" y="1107" font-size="12" fill="#3B6D11">→ 差距与约束分解 → 未验证部分与残余风险</text>
 <text x="56" y="1125" font-size="12" fill="#3B6D11">成本：来源与可消除性分列；非成本：指标与限制因素</text>
 <text x="56" y="1143" font-size="12" fill="#3B6D11">未核实数字显式标注；列出验证对象、预期观测和失败标准</text>
