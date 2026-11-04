@@ -7,19 +7,19 @@
 
 **适用范围**：`skills/` 下的每一个技能。没有例外。
 
-**判定标准**：`skills/<skill-name>/` 存在 ⟺ 对应流程图存在。默认文件是 `assets/<skill-name>-flow.svg`（或 `assets/<skill-name>-<topic>.svg`）。`git-commit` 的图改由技能包 README 承载，文件是 `skills/git-commit/assets/git-commit-flow.svg`。
+**判定标准**：`skills/<skill-name>/` 存在 ⟺ 对应流程图存在。默认文件是 `assets/<skill-name>-flow.svg`（或 `assets/<skill-name>-<topic>.svg`）。
 新增技能未配流程图，视为未完成；改动了 `SKILL.md` 的工作流、分支或停止条件，必须同步改图。
 
 ### 存放位置
 
-默认放在**仓库根目录的 `assets/`**。`git-commit` 例外：图放在 `skills/git-commit/assets/`，由 `skills/git-commit/README.md` 引用，不放进根目录 `assets/`。
+所有流程图都放在**仓库根目录的 `assets/`**，没有例外。
 
 理由：
 
 - 流程图是给人看的仓库文档，不是技能运行时产物。`CONTRIBUTING.md` 已限定技能包内 `assets/`
   只放「复制到输出中的内容」或 README 引用的人读图。
 - 技能包按仓库配置链接到用户级共享技能目录，保持运行时包小巧可预测。
-- 根目录 `assets/` 已在 `README.md` / `README_zh-CN.md` 中以链接清单形式对外暴露；`git-commit` 的清单项指向其 README。
+- 根目录 `assets/` 已在 `README.md` / `README_zh-CN.md` 中以链接清单形式对外暴露。
 
 ### 命名
 
@@ -120,7 +120,7 @@ python3 scripts/validate_skills.py
 | chrome-bookmarks | `assets/chrome-bookmarks-flow.svg` |
 | communication-formulas | `assets/communication-formulas-routing.svg` |
 | five-dimension-analysis | `assets/five-dimension-analysis-flow.svg` |
-| git-commit | `skills/git-commit/assets/git-commit-flow.svg`（见 `skills/git-commit/README.md`） |
+| git-commit | `assets/git-commit-flow.svg` |
 | design-convergence-review | `assets/design-convergence-review-flow.svg` |
 | first-principles | `assets/first-principles-flow.svg` |
 | hermes-context-review | `assets/hermes-context-review-flow.svg` |

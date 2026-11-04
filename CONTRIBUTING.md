@@ -79,7 +79,7 @@ interface:
 
 ### `assets/`
 
-存储用于输出而非代理上下文的内容，例如文档模板、起始文件或媒体。人读流程图也可以放在这里，由可选的 `README.md` 引用（见 `git-commit`）。如果代理必须读取 Markdown 文件来做决策，则该文件属于 `references/`，而非 `assets/`。
+存储用于输出而非代理上下文的内容，例如文档模板、起始文件或媒体。如果代理必须读取 Markdown 文件来做决策，则该文件属于 `references/`，而非 `assets/`。
 
 ## 用户文档
 

@@ -33,6 +33,7 @@
 
 ### 变更
 
+- `git-commit` 删除技能包内的 `README.md`，流程图移到根目录 `assets/git-commit-flow.svg`，两份 README 直接链接该文件；`RULES.md` 与契约测试同步更新
 - 分发目标改为 `[targets.agents]`，默认以符号链接指向 `~/.agents/skills`，不再经过 CC Switch 库；`config/skill-links.toml` 仅安装 `skills` 中登记的技能
 - 链接管理器的 sync 会卸载 `excluded` 中、由本管理器拥有的条目（指向仓库的链接或与仓库一致的副本）；内容已偏离仓库的副本与 `skills`、`excluded` 之外的条目保持不动
 - `first-principles` 将「硬事实」拆为理论约束与经验输入，证据门禁改按关键变量与结论敏感性判断，允许条件式推导；魔杖数字限定为固定物料方案的零加工基线；案例库改为待检验主张与条件式推断，数字引用统一为五要素；同步流程图

@@ -35,11 +35,14 @@ class GitCommitSkillContractTests(unittest.TestCase):
         self.assertEqual(files, [])
         self.assertNotIn("references/", self.skill)
 
-    def test_flow_diagram_lives_in_the_skill_readme(self) -> None:
-        readme = PACKAGE / "README.md"
-        diagram = PACKAGE / "assets" / "git-commit-flow.svg"
-        self.assertTrue(readme.is_file(), "skills/git-commit/README.md is missing")
-        self.assertTrue(diagram.is_file(), "the flow diagram is missing from the skill package")
+    def test_flow_diagram_lives_in_the_root_assets(self) -> None:
+        readme = ROOT / "README.md"
+        diagram = ROOT / "assets" / "git-commit-flow.svg"
+        self.assertTrue(diagram.is_file(), "the flow diagram is missing from root assets")
+        self.assertFalse(
+            (PACKAGE / "assets").exists(),
+            "the skill package must not keep its own assets directory",
+        )
         self.assertIn("assets/git-commit-flow.svg", readme.read_text(encoding="utf-8"))
         svg = diagram.read_text(encoding="utf-8")
         self.assertIn("type(scope): subject", svg)
@@ -58,7 +61,6 @@ class GitCommitSkillContractTests(unittest.TestCase):
             "chore",
         ):
             self.assertIn(commit_type, svg, f"missing type: {commit_type}")
-        self.assertFalse((ROOT / "assets" / "git-commit-flow.svg").exists())
 
     def test_breaking_change_supports_subject_or_footer_marker(self) -> None:
         self.assertIn("`!` before `:` or a `BREAKING CHANGE:` footer", self.skill)

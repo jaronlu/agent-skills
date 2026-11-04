@@ -58,8 +58,7 @@ a symlink into the llm-wiki workshop, so it is not version-controlled here. Only
 
 ## Diagrams
 
-Every skill ships one SVG flow diagram. Most live in `assets/`; `git-commit` keeps its diagram
-in [skills/git-commit/README.md](skills/git-commit/README.md). [RULES.md](RULES.md) defines the
+Every skill ships one SVG flow diagram. All live in `assets/`. [RULES.md](RULES.md) defines the
 required content and styling. Each diagram below follows the order of the skill table above.
 
 ### chrome-bookmarks
@@ -82,9 +81,9 @@ Four-step analysis with an evidence gate and reality checks.
 
 ### git-commit
 
-From mode selection to atomic commits. The diagram lives in [skills/git-commit/README.md](skills/git-commit/README.md).
+From mode selection to atomic commits.
 
-[![git-commit: from mode selection to atomic commits](skills/git-commit/assets/git-commit-flow.svg)](skills/git-commit/README.md)
+[![git-commit: from mode selection to atomic commits](assets/git-commit-flow.svg)](assets/git-commit-flow.svg)
 
 ### hermes-context-review
 
