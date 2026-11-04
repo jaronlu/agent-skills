@@ -37,7 +37,6 @@
 
 | Skill | 用途 |
 | --- | --- |
-| [agent-reading](skills/agent-reading/SKILL.md) | 按知识点逐条研读开源 Agent 仓库实现，并记录学习进度。 |
 | [chrome-bookmarks](skills/chrome-bookmarks/SKILL.md) | 分类整理 Chrome 书签、去掉冗余和低价值项，并在浏览器完全退出后写回。 |
 | [design-convergence-review](skills/design-convergence-review/SKILL.md) | 检查设计是否可以进入开发，并指出未收敛的阻塞问题。 |
 | [first-principles](skills/first-principles/SKILL.md) | 质疑惯例命题，推导成本或性能边界，明确仍需验证的部分。 |

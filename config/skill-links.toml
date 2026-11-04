@@ -26,7 +26,6 @@ skills = [
 # never silently missing; entries this manager owns are uninstalled.
 # Third-party skills in the directory that are not in this repo are never touched.
 excluded = [
-  "agent-reading",
   "chrome-bookmarks",
   "five-dimension-analysis",
   "hermes-context-review",

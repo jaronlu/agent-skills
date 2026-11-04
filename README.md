@@ -40,7 +40,6 @@ registered in the configuration are left alone.
 
 | Skill | What it does |
 | --- | --- |
-| [agent-reading](skills/agent-reading/SKILL.md) | Guides systematic, knowledge-point-by-knowledge-point study of open-source agent implementations. |
 | [chrome-bookmarks](skills/chrome-bookmarks/SKILL.md) | Classifies Chrome bookmarks, removes duplicates and low-value items, and writes back only after Chrome quits. |
 | [design-convergence-review](skills/design-convergence-review/SKILL.md) | Checks whether a design is ready for implementation and identifies unresolved blockers. |
 | [first-principles](skills/first-principles/SKILL.md) | Challenges conventional claims, derives cost or performance bounds, and identifies what still needs validation. |

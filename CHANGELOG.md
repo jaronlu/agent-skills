@@ -9,6 +9,7 @@
 
 ### 新增
 
+- 移除 `agent-reading` 技能及其流程图：在 ag2 上的实测显示速查表已过时，单仓库结果不足以支持通用推广
 - `prompt-optimizer` 技能：按 Quick、Audit、Measured 模式诊断与优化提示词；以未见 holdout 的评估证据决定是否发布，并登记 CC Switch 分发
 - `chrome-bookmarks` 技能：通用 Chrome 书签整理（分类、去冗余、归档精简），用户自带的分类树优先，仅在浏览器完全退出后写回；附流程图并登记 CC Switch 分发
 - `paper-learning` 技能（由 `rsi-paper` 重构更名）：通用论文学习流程——识别论文、抓取通读、按 `references/paper-template.md` 蒸馏为工作区 `papers/<slug>.md`（笔记是产出物，不放技能包内）、按问题类型路由回答；demo 可选且语言随论文生态，无意义的论文明确记 "no demo"。首篇产出 `papers/rsi-2609-11873.md` + `papers/rsi-2609-11873_demo.py`（原 RSI 论文内容，arXiv:2609.11873），附通用流程图并登记 CC Switch 分发

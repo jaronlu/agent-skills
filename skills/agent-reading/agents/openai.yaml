@@ -1,4 +1,0 @@
-interface:
-  display_name: "Agent 源码研读"
-  short_description: "按知识点逐条系统研读开源 Agent 仓库实现并跟踪学习进度"
-  default_prompt: "Use $agent-reading to 按知识点逐条研读当前开源 Agent 仓库的实现。"
