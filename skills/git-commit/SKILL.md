@@ -11,7 +11,7 @@ Subject: `type(scope): subject`. Types: `feat`, `fix`, `docs`, `refactor`, `test
 
 - Scope is required when the repo has a module, package, or area for the change. It must match an existing name: a top-level directory, or a name in a package manifest (`package.json` `name`, `go.mod` module path last segment, `Cargo.toml` `[package] name`). If no existing name fits, stop and report; never invent one.
 - Imperative mood, no trailing period, 50 characters or fewer when practical.
-- Body only for why or impact, except the `&` form: its body always lists one `- scope: desc` line per scope, in the same order as the `&` list.
+- Body explains why or impact, and lists every detail as its own `- desc` line when the change has several distinct parts. One line per detail, with no grouping or nesting, and the list does not repeat the scope already in the subject. The `&` form is the exception: its body always lists one `- scope: desc` line per scope, in the same order as the `&` list.
 - Breaking change: `!` before `:` or a `BREAKING CHANGE:` footer.
 - Default language is English. Switch only if the user writes in another language, and use one language for the whole run.
 - Leave identifiers, file names, API names, and type names untranslated.
