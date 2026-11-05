@@ -11,7 +11,7 @@ Subject: `type(scope): subject`. Types: `feat`, `fix`, `docs`, `refactor`, `test
 
 - Scope is required when the repo has a module, package, or area for the change. It must match an existing name: a top-level directory, or a name in a package manifest (`package.json` `name`, `go.mod` module path last segment, `Cargo.toml` `[package] name`). If no existing name fits, stop and report; never invent one.
 - Imperative mood, no trailing period, 50 characters or fewer when practical.
-- Body only for why or impact.
+- Body only for why or impact, except the `&` form: its body always lists one `- scope: desc` line per scope, in the same order as the `&` list.
 - Breaking change: `!` before `:` or a `BREAKING CHANGE:` footer.
 - Default language is English. Switch only if the user writes in another language, and use one language for the whole run.
 - Leave identifiers, file names, API names, and type names untranslated.
@@ -87,7 +87,7 @@ In B, untracked files are included only when they sit inside an existing scope d
 ## Commit
 
 1. Record the staged path set for the group: `git diff --cached --name-only -z`.
-2. Commit non-interactively: `git commit -m "<subject>"` (add `-m "<body>"` only when needed).
+2. Commit non-interactively: `git commit -m "<subject>" -m "<body>"`. For the `&` form, always pass the body; otherwise pass it only when the body rule requires it.
 3. Read the committed paths: `git show --name-only --format= HEAD -z`.
 4. Confirm they match the recorded set. If they differ, report the mismatch and stop before the next group.
 5. Report the hash and subject.
