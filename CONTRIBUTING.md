@@ -1,6 +1,6 @@
 # 贡献指南
 
-本仓库遵循当前 Codex 技能包模型。保持运行时包小巧、可预测，且不包含重复的用户文档。
+技能包的结构与 `SKILL.md` 字段约束以官方 Agent Skills 规范为准，中文记录见 [docs/reference/agentskills.md](docs/reference/agentskills.md)。
 
 仓库级强制规则（每个技能必须配 SVG 流程图、分发目标必须显式登记）见 [RULES.md](RULES.md)。
 本文件描述技能包契约，两者冲突时以 `RULES.md` 为准。
@@ -12,39 +12,32 @@
 ```text
 skills/<skill-name>/
 ├── SKILL.md              # 必需：唯一的执行指令来源
-├── agents/
-│   └── openai.yaml       # 本仓库要求：UI 元数据
 ├── references/           # 可选：代理按需阅读的资料
 ├── scripts/              # 可选：确定性可执行辅助工具
-└── assets/               # 可选：模板或复制到输出中的文件
+├── assets/               # 可选：模板、媒体或复制到输出中的文件
+├── agents/
+│   └── openai.yaml       # 可选：UI 元数据（仅 Codex 展示需要）
+└── ...                   # 官方允许的其他文件或目录
 ```
 
-技能包内允许的顶级条目仅有：
-
-- `SKILL.md`
-- `README.md`（可选，只给人看）
-- `agents/`
-- `references/`
-- `scripts/`
-- `assets/`
-
-请勿在运行时技能包内添加 `README.zh-CN.md`、`SKILL.zh-CN.md`、`templates/`、`examples/`、`config/`、更新日志、安装指南或快速参考文件。可选 `README.md` 不得写入与 `SKILL.md` 冲突的执行规则。
+可选 `README.md` 只给人看，不得写入与 `SKILL.md` 冲突的执行规则。
 
 ## 文件职责
 
 ### `SKILL.md`
 
-- 使用 YAML 前置元数据；`name` 和 `description` 为必需字段，可选字段仅允许当前官方校验器支持的 `license`、`allowed-tools` 和 `metadata`。
+- 使用 YAML 前置元数据；`name` 和 `description` 为必需字段，可选字段为 `license`、`compatibility`、`allowed-tools` 和 `metadata`。`name` 最多 64 字符，`description` 最多 1024 字符，`compatibility` 最多 500 字符。
 - `name` 必须与技能目录名称完全一致。
 - 仅使用小写字母、数字和连字符。
 - 将所有触发条件放入 `description` 中，因为它控制技能激活。
 - 正文专注于另一个代理执行任务所需的指令。
 - 优先使用祈使句和渐进式披露。
 - 将详细的领域知识放入 `references/`，避免重复。
+- 将 `SKILL.md` 控制在 500 行以内；参考文件从 `SKILL.md` 只链接一层。
 
-### `agents/openai.yaml`
+### `agents/openai.yaml`（可选）
 
-提供以下内容：
+存在时提供以下内容：
 
 ```yaml
 interface:

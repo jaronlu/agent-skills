@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the repository's Codex skill package contract."""
+"""Validate the repository's skill packages against the Agent Skills spec."""
 
 from __future__ import annotations
 
@@ -11,9 +11,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS_DIR = ROOT / "skills"
-ALLOWED_ENTRIES = {"SKILL.md", "README.md", "agents", "references", "scripts", "assets"}
 REQUIRED_SKILL_FIELDS = {"name", "description"}
-OPTIONAL_SKILL_FIELDS = {"license", "allowed-tools", "metadata"}
+OPTIONAL_SKILL_FIELDS = {"license", "compatibility", "allowed-tools", "metadata"}
 REQUIRED_OPENAI_INTERFACE_FIELDS = {"display_name", "short_description", "default_prompt"}
 OPTIONAL_OPENAI_INTERFACE_FIELDS = {"icon_small", "icon_large", "brand_color"}
 NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
@@ -96,12 +95,8 @@ def validate_skill(skill_dir: Path) -> list[str]:
     relative = skill_dir.relative_to(ROOT)
     name = skill_dir.name
 
-    if not NAME_RE.fullmatch(name):
+    if not NAME_RE.fullmatch(name) or len(name) > 64:
         errors.append(f"{relative}: invalid directory name")
-
-    entries = {path.name for path in skill_dir.iterdir()}
-    for entry in sorted(entries - ALLOWED_ENTRIES):
-        errors.append(f"{relative}: unsupported top-level entry {entry!r}")
 
     skill_file = skill_dir / "SKILL.md"
     if not skill_file.is_file():
@@ -124,11 +119,13 @@ def validate_skill(skill_dir: Path) -> list[str]:
             errors.append(f"{skill_file.relative_to(ROOT)}: name must match directory {name!r}")
         if not fields.get("description", "").strip():
             errors.append(f"{skill_file.relative_to(ROOT)}: description is empty")
+        elif len(fields["description"]) > 1024:
+            errors.append(f"{skill_file.relative_to(ROOT)}: description exceeds 1024 characters")
+        if len(fields.get("compatibility", "")) > 500:
+            errors.append(f"{skill_file.relative_to(ROOT)}: compatibility exceeds 500 characters")
 
     openai_file = skill_dir / "agents" / "openai.yaml"
-    if not openai_file.is_file():
-        errors.append(f"{relative}: missing agents/openai.yaml")
-    else:
+    if openai_file.is_file():
         fields, yaml_errors = parse_openai_yaml(openai_file)
         errors.extend(f"{openai_file.relative_to(ROOT)}: {error}" for error in yaml_errors)
         field_names = set(fields)
