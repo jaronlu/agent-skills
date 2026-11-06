@@ -47,6 +47,7 @@
 | [five-dimension-analysis](skills/five-dimension-analysis/SKILL.md) | 把复杂局面拆成时间、利益、权力、博弈、本质五个维度，产出可证伪的判断与可执行动作。 |
 | [communication-formulas](skills/communication-formulas/SKILL.md) | 按沟通目的选用 SCQA / FAB / BACC / 3W / PREP 五套表达顺序，装配成可直接开口的话术。 |
 | [prompt-optimizer](skills/prompt-optimizer/SKILL.md) | 以最小改动诊断和优化提示词，并区分快速改写与有证据支持的评估。 |
+| [human-readable-codebook](skills/human-readable-codebook/SKILL.md) | 把仓库讲成不翻源码也能读懂的书：OpenWiki 硬闸门、按 Phase 挂载参考、证据分级维护。 |
 
 用户指南是可选的，位于运行时包之外的 `docs/skills/`。该目录是指向 llm-wiki workshop 的软链接，
 不受本仓库版本控制。目前只有 [design-convergence-review](docs/skills/design-convergence-review.md)
@@ -116,6 +117,12 @@ Chrome 开着也可整理；完全退出后才写回。
 从模式选择到有证据支持的提示词决策。
 
 [![prompt-optimizer：从模式选择到有证据支持的提示词决策](assets/prompt-optimizer-flow.svg)](assets/prompt-optimizer-flow.svg)
+
+### human-readable-codebook
+
+OpenWiki 闸门、八个阶段、证据分级的页面。
+
+[![human-readable-codebook：闸门、八阶段、证据分级](assets/human-readable-codebook-flow.svg)](assets/human-readable-codebook-flow.svg)
 
 ## 验证
 

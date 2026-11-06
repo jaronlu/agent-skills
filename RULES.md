@@ -124,5 +124,6 @@ python3 scripts/validate_skills.py
 | design-convergence-review | `assets/design-convergence-review-flow.svg` |
 | first-principles | `assets/first-principles-flow.svg` |
 | hermes-context-review | `assets/hermes-context-review-flow.svg` |
+| human-readable-codebook | `assets/human-readable-codebook-flow.svg` |
 | llm-wiki | `assets/llm-wiki-flow.svg` |
 | prompt-optimizer | `assets/prompt-optimizer-flow.svg` |

@@ -9,6 +9,7 @@
 
 ### 新增
 
+- `human-readable-codebook` 技能：把仓库讲成不翻源码也能读懂的书——OpenWiki 硬闸门（不可用即停止，不写独立页面）、Phase 1-8 各挂一份 reference、逐条 Claim 标 Verified / Inferred / Unverified；维护路径按变更符号映射受影响章节。附流程图并登记 `[targets.agents]` 分发
 - 移除 `agent-reading` 技能及其流程图：在 ag2 上的实测显示速查表已过时，单仓库结果不足以支持通用推广
 - `prompt-optimizer` 技能：按 Quick、Audit、Measured 模式诊断与优化提示词；以未见 holdout 的评估证据决定是否发布，并登记 CC Switch 分发
 - `chrome-bookmarks` 技能：通用 Chrome 书签整理（分类、去冗余、归档精简），用户自带的分类树优先，仅在浏览器完全退出后写回；附流程图并登记 CC Switch 分发
