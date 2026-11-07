@@ -67,10 +67,11 @@ For each proposed chapter, define:
 - Relevant source locations
 - Relationship to other chapters
 - Source-to-chapter mapping: the files and symbols the chapter depends on
+- Reading mode: first-time understanding, project-level architecture, or implementation-level investigation
 
 Prefer a capability that survives without the source. "Can describe how a request is routed from the HTTP entry point to a handler" is a usable capability. "Has seen the router class" is not.
 
-When the plan contains five or more chapters, add one summary page as the last page in the plan. It is the compressed tutorial, not a table of contents: its `purpose` states the ten-minute read, and its `relatedPages` points to every chapter it summarizes. It introduces no topic that the chapters do not already cover.
+The plan must include the required page set defined in SKILL.md: `openwiki/overview.md`, `openwiki/quickstart.md`, `openwiki/glossary.md`, `openwiki/open-questions.md`, and the topic chapters. When the plan contains five or more topic chapters, add one `openwiki/summary.md` as the last page in the plan. Count only pages with a primary knowledge topic; overview, quickstart, summary, glossary, open-questions, and diagram appendixes do not count. The summary is the compressed tutorial, not a table of contents: its `purpose` states the ten-minute read, its `relatedPages` points to every chapter it summarizes, it introduces no factual proposition the chapters do not already cover, and its Claims only restate a chapter's statement and evidence.
 
 OpenWiki is the planning host: these definitions are planning inputs, not a separate artifact. `purpose` carries the topic, objective, and capability; `seedPaths` carries the source locations; `relatedPages` carries the chapter relationships and learning order; `instructions` carries constraints the plan needs. Do not emit a parallel outline document.
 

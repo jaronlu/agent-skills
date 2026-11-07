@@ -42,7 +42,7 @@ Establish how the code runs, not only where it lives. Cover, where applicable:
 Rules:
 
 - Do not infer runtime behavior solely from class names, filenames, or directory structure. Read the implementation and its call sites before stating what it does.
-- When dynamic dispatch, reflection, or framework wiring hides a link, record it as Unverified until a registration, configuration entry, or test confirms it.
+- When dynamic dispatch, reflection, or framework wiring hides a link, record it as Unverified in working notes or the Claim until a registration, configuration entry, or test confirms it; do not present it as fact.
 
 ## Phase 3 — Scenario-driven analysis
 

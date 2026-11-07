@@ -87,6 +87,7 @@
 
 ### 修复
 
+- `human-readable-codebook` 全链路校正：`openwiki_begin` 明确 root / mode / language 选择（已有 wiki 即 update）并禁止无请求的 `force`；update 路径补上先 `submit_plan` 受影响页与 `deletePages` 再进页面循环、空计划用 `pages: []`、finish 失败回环、计划被源码漂移作废后重开；新增页面作业机制（issue Claim 的 confirm / revise / retract、`repo://` 证据、`.openwikiignore` 与控制文件禁改）。明确 OpenWiki Claim 无置信度字段：`Inferred:` / `Unverified:` 写进 statement，不进正文；无据假设归 open-questions 页。固定 init 必需页面集（overview / quickstart / glossary / open-questions / summary 阈值）、summary 只数主题章节且给出 2000-3000 字与十分之一上限的冲突规则、速读 / 全读两条路线；SVG 资产明确 ASCII kebab-case 命名、按页目录的相对链接、XML 解析校验、共享图改图与孤儿清理；为 overview / quickstart / glossary / open-questions 补写作规范。流程图同步 update 分支并去掉清单项数硬编码
 - `first-principles` 修复 YAML 描述解析、移除不支持的元数据字段并恢复 UI 配置；补齐成本 / 非成本分支，明确假设与推导的证伪对象，将成本来源与可消除性分开；案例中无可追溯依据的数字标为未核实，材料成本差额仅作为待验证的降本假设；同步模板、流程图与双语目录
 - `chrome-bookmarks` 对齐 Organize 契约：用户方案只覆盖分类树，无方案才读 taxonomy，cleanup 每次整理都应用；`description` 补上写回与同步覆盖恢复；`last_used` 缺失时拒绝并要求 `--profile`，不再静默回退 `Default`；`Bookmarks.raw` 只在缺失时拷贝、禁止覆盖，整理始终读 live；`diff`/`manifest` 报告 `other`/`synced` 计数；`--assume-quit` 不能覆盖「正在运行」；流程图为 Writeback 增加旁路
 - `chrome-bookmarks` 统一 `other`/`synced` 契约：写回不再默认清空；`emit` 默认原样保留；将归零时 `write` 在写盘前拒绝，需用户确认后才可 `--allow-empty-roots`

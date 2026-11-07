@@ -1,6 +1,6 @@
 # Evidence Verification
 
-Read this file before executing Phase 7 (evidence and quality verification) in SKILL.md. Run the review checklist at the end of this file after generating a chapter or a complete repository book.
+Read this file before executing Phase 7 (evidence and quality verification) in SKILL.md. Run the parts of the checklist below that apply to each page while writing, and run the full checklist once across the page set before `openwiki_finish`. On `update`, skip the sections that only apply to a new book.
 
 ## Phase 7 — Evidence and quality verification
 
@@ -22,7 +22,12 @@ After drafting, verify the documentation independently of the author's own asses
 - Data-flow descriptions match the actual transformations.
 - State transitions are supported by the implementation.
 - Diagrams reflect real components and relationships.
-- Flowcharts and sequence diagrams are valid SVG and render without external assets.
+- Flowcharts and sequence diagrams exist as SVG files under `openwiki/assets/` and are valid SVG that render without external assets. Parse each file with an XML parser and require a single `<svg>` root.
+- Every image link in a page resolves from that page's own directory to an existing file under `openwiki/assets/`, and no page contains inline SVG markup. Check by listing `openwiki/assets/` and matching each page's image targets against the listing; a missing target fails the check.
+- No asset exists without a page that links it.
+- Diagram files survive the run: after `openwiki_finish`, re-list `openwiki/assets/` and confirm every referenced asset is still present.
+- Every stale or unresolved Claim in the page job has an explicit decision: confirmed with `confirmedClaimIds`, revised under the same `id` in `claims`, or retracted with `retractedClaimIds`. The final page body and the reconciled Claim set agree.
+- Every submitted Claim cites a `repo://` resource; no bare path is accepted.
 - Code examples match actual APIs and signatures.
 - Generated code is distinguished from handwritten code.
 
@@ -32,12 +37,13 @@ If the available tools cannot verify a claim, label it Unverified and disclose t
 
 The three confidence levels are a writing and verification device, not reader-facing prose.
 
-- OpenWiki Claims own the label and its evidence. Do not duplicate them inline, and do not keep a parallel section-level note.
+- OpenWiki Claims have no confidence field. Record the judgement in the Claim statement: state Verified claims plainly, and prefix Inferred and Unverified claims with `Inferred:` or `Unverified:`. Do not duplicate it inline, and do not keep a parallel section-level note.
+- An unsupported hypothesis belongs on the open-questions page, not in a Claim.
 - The reader must be able to understand and trust the chapter without parsing confidence markers.
 
 ## Review checklist
 
-Use this checklist after generating a chapter or a complete repository book.
+Apply the sections that fit each page while writing it; run the full checklist once across the page set before `openwiki_finish`.
 
 ### Reader understanding
 - [ ] The reader knows what problem the topic solves.
@@ -54,7 +60,7 @@ Use this checklist after generating a chapter or a complete repository book.
 - [ ] Cross-file call chains have been verified.
 - [ ] Every key call chain shown to the reader is verified hop by hop, including dispatch, callback, event, and DI hops.
 - [ ] Dynamic dispatch, callbacks, events, reflection, and dependency injection are not guessed.
-- [ ] Facts, inferences, and unknowns are distinguishable.
+- [ ] Facts, inferences, and unknowns are distinguishable in the Claim record; the prose does not present an inference as a verified fact.
 - [ ] Generated code is traced back to its schema or generator where applicable.
 
 ### Writing and structure
@@ -64,8 +70,11 @@ Use this checklist after generating a chapter or a complete repository book.
 - [ ] Examples match actual repository behavior.
 - [ ] Each mechanism carries a key call chain and focused code excerpts; excerpts keep the original language and are trimmed to what carries the mechanism.
 - [ ] Diagrams represent verified relationships.
-- [ ] Flowcharts and sequence diagrams are SVG, not Mermaid or raster screenshots.
-- [ ] Chinese quotation marks in prose outside code spans are paired and oriented correctly: `“` opens, `”` closes, nested quotes use `‘’`, and no closing position is written as a second `“`.
+- [ ] Flowcharts and sequence diagrams are SVG asset files under `openwiki/assets/`, not Mermaid, raster screenshots, or inline markup in the page.
+- [ ] Every SVG parses as XML with a single `<svg>` root before it is linked.
+- [ ] Every image link resolves from that page's directory to an existing file in `openwiki/assets/`, verified against a directory listing rather than by assuming the write succeeded.
+- [ ] No asset exists without a page that links it.
+- [ ] When the run language is Chinese, quotation marks in prose outside code spans are paired and oriented correctly: `“` opens, `”` closes, nested quotes use `‘’`, and no closing position is written as a second `“`.
 - [ ] Repetition, filler, and unnecessary detail have been removed.
 
 ### Completeness
@@ -73,8 +82,8 @@ Use this checklist after generating a chapter or a complete repository book.
 - [ ] Important mechanisms and end-to-end flows are covered.
 - [ ] Design trade-offs are explained when evidence permits.
 - [ ] The chapter ends with useful takeaways and understanding questions.
-- [ ] The summary page traces every statement to a chapter, introduces no claim the chapters lack, and stays within its ten-minute length cap.
-- [ ] A reader can reconstruct the system model and the role of the core mechanisms from the summary page alone.
+- [ ] The summary page traces every statement to a chapter, introduces no new factual proposition, submits only Claims that restate a chapter's statement and evidence, and respects the 2000-3000 character target and the one-tenth cap.
+- [ ] A reader can reconstruct the system model and the role of the core mechanisms from the summary page alone when the book has one, or from the overview and first chapter when it does not.
 - [ ] Limitations and unverified areas are disclosed.
 
 ### Repository understanding
@@ -112,11 +121,13 @@ Use this checklist after generating a chapter or a complete repository book.
 - [ ] Data-flow descriptions match the actual transformations.
 - [ ] State transition descriptions match the implementation.
 - [ ] Diagrams match the verified components and relationships.
-- [ ] Flowcharts and sequence diagrams are well-formed SVG with readable labels and no clipped or overlapping text; when `fireworks-tech-graph` was used, its `check` gate passed.
+- [ ] Flowcharts and sequence diagrams are well-formed SVG asset files under `openwiki/assets/` with readable labels and no clipped or overlapping text; each SVG parses as XML; each page link resolves to an existing file; when `fireworks-tech-graph` was used, its `check` gate passed.
 - [ ] Code examples match actual APIs and signatures.
 - [ ] Quoted code is copied from the verified implementation, not reconstructed from memory.
 - [ ] Generated code is distinguished from handwritten code.
-- [ ] Every important claim carries a Verified, Inferred, or Unverified label in the OpenWiki Claim record, not inline in the prose.
+- [ ] Every important claim's confidence is in its Claim statement (plain for Verified, `Inferred:` or `Unverified:` prefix otherwise), not in the prose.
+- [ ] Every submitted Claim cites a `repo://` resource, and no Claim rests on an unsupported hypothesis that belongs on the open-questions page.
+- [ ] Every stale or unresolved Claim in the page job is confirmed, revised, or retracted, and the final body matches the Claim set.
 - [ ] Checks that the available tools could not perform are disclosed, not reported as passed.
 
 ### Knowledge maintenance
@@ -128,7 +139,7 @@ Use this checklist after generating a chapter or a complete repository book.
 - [ ] Incremental consistency is claimed only for dependencies that were checked.
 
 ### Reader adaptation
-- [ ] Each chapter declares its reading mode: first-time understanding, project-level architecture, or implementation-level investigation.
+- [ ] Each topic chapter declares its reading mode: first-time understanding, project-level architecture, or implementation-level investigation.
 - [ ] First-time chapters give purpose, boundaries, and one end-to-end path before implementation detail.
 - [ ] Architecture chapters explain component responsibilities and collaboration without reading as a file list.
 - [ ] Implementation chapters give call chains, data transformations, and source locations.
