@@ -23,6 +23,7 @@ SCRIPT = (
 SPEC = importlib.util.spec_from_file_location("chinese_text_fixer", SCRIPT)
 assert SPEC and SPEC.loader
 MODULE = importlib.util.module_from_spec(SPEC)
+sys.modules[SPEC.name] = MODULE
 SPEC.loader.exec_module(MODULE)
 
 
