@@ -20,7 +20,6 @@ skills = [
   "git-commit",
   "human-readable-codebook",
   "llm-wiki",
-  "paper-learning",
   "prompt-optimizer",
 ]
 # Repo skills deliberately not installed for now. Listed here so a skill is
@@ -30,4 +29,40 @@ excluded = [
   "chrome-bookmarks",
   "five-dimension-analysis",
   "hermes-context-review",
+  "paper-learning",
+]
+
+[targets.workbuddy]
+# WorkBuddy user-level skills, symlinked like every other target.
+path = "~/.workbuddy/skills"
+skills = [
+  "human-readable-codebook",
+  "git-commit",
+  "prompt-optimizer",
+  "first-principles",
+]
+
+[targets.zcode]
+# Symlink target; the pre-existing link chained through ~/.agents/skills and is
+# rewritten to point at this repository directly so `check` can detect drift.
+path = "~/.zcode/skills"
+skills = [
+  "human-readable-codebook",
+  "git-commit",
+  "prompt-optimizer",
+  "first-principles",
+]
+
+[targets.claude]
+# Claude Code only reads ~/.claude/skills (plus project/plugin dirs); it has no
+# native support for ~/.agents/skills. Managed here like zcode: repo skills are
+# symlinked directly so `check` can detect drift. The dangling legacy
+# paper-learning link (pointing into ~/.agents/skills) was removed by hand.
+path = "~/.claude/skills"
+skills = [
+  "first-principles",
+  "git-commit",
+  "human-readable-codebook",
+  "llm-wiki",
+  "prompt-optimizer",
 ]
