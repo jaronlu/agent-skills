@@ -95,6 +95,17 @@ class PunctuationRulesTest(unittest.TestCase):
         findings, fixed = analyze("中文，，重复。。标点！！")
         self.assertEqual(fixed, "中文，重复。标点！")
 
+    def test_date_unit_separators_keep_the_dot(self):
+        text = "两位年.月.日，例如 26.11.07.42。"
+        findings, fixed = analyze(text)
+        self.assertEqual(fixed, text)
+        self.assertEqual(findings, [])
+
+    def test_period_after_a_date_unit_still_converts(self):
+        findings, fixed = analyze("会议定在次年.然后再说")
+        self.assertEqual(fixed, "会议定在次年。然后再说")
+        self.assertEqual([finding.rule for finding in findings], ["FW001"])
+
     def test_space_before_chinese_punctuation_is_removed(self):
         findings, fixed = analyze("中文 ， 后面（ 括号）")
         self.assertEqual(fixed, "中文， 后面（括号）")

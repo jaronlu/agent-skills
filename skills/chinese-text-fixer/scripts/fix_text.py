@@ -38,6 +38,9 @@ OPEN_TO_CLOSE = {"“": "”", "‘": "’"}
 BRACKET_PAIRS = {"（": "）", "【": "】", "《": "》", "〈": "〉", "「": "」", "『": "』"}
 BRACKET_CLOSERS = set(BRACKET_PAIRS.values())
 
+# Units that turn a dot into a date separator (年.月.日) rather than a period.
+DATE_UNITS = "年月日号"
+
 ZERO_WIDTH_FIX = {"\u200b": "零宽空格", "\ufeff": "BOM / 零宽不换行符"}
 INVISIBLE_REVIEW = {
     "\u200c": "零宽非连接符（部分文字系统中有意义）",
@@ -454,6 +457,10 @@ def check_fullwidth_punctuation(
         if char == ".":
             nxt = text[index + 1 : index + 2]
             if nxt == "." or (nxt and ASCII_ALNUM_RE.match(nxt)):
+                continue
+            # 两位年.月.日 keeps the dot: both sides are date units, so this is
+            # a separator rather than a sentence-final period.
+            if previous[1] in DATE_UNITS and nxt and nxt in DATE_UNITS:
                 continue
         if char in ",;:?!" and (
             (index + 1 < len(text) and text[index + 1] == char)
