@@ -1,0 +1,53 @@
+<svg viewBox="0 0 680 690" width="680" height="690" xmlns="http://www.w3.org/2000/svg" role="img" font-family="system-ui, -apple-system, sans-serif">
+<title>chinese-text-fixer 的扫描、复核与写回流程</title>
+<desc>先判定输入范围，默认 dry-run 扫描并输出 fix 与 review 两类问题。可自动修复项进入 diff，需人工判断项单独复核；用户确认后才原子写回，最后报告修复数、待复核数与退出码。非 UTF-8、二进制与符号链接跳过。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<rect width="680" height="690" fill="#FFFFFF"/>
+<rect x="40" y="20" width="600" height="64" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="56" y="44" font-size="14" font-weight="500" fill="#2C2C2A">入口：中文文本校对、排版体检或批量清洗</text>
+<text x="56" y="66" font-size="12" fill="#5F5E5A">用户贴出文本、给出文件，或要求批量扫描目录</text>
+<path d="M340 84 L340 100" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="40" y="100" width="360" height="76" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text x="56" y="122" font-size="14" font-weight="500" fill="#0C447C">① 判定输入范围</text>
+<text x="56" y="143" font-size="12" fill="#185FA5">文件 / 目录 / 粘贴文本 / 只诊断</text>
+<text x="56" y="161" font-size="12" fill="#185FA5">确认写回权限与 Git 工作区状态</text>
+<path d="M400 138 L436 138" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="408" y="130" font-size="12" fill="#5F5E5A">是</text>
+<rect x="436" y="100" width="204" height="76" rx="8" fill="#FCE8E8" stroke="#A32D2D" stroke-width="0.5"/>
+<text x="452" y="122" font-size="14" font-weight="500" fill="#822727">非 UTF-8 / 二进制</text>
+<text x="452" y="143" font-size="12" fill="#A32D2D">跳过并报告</text>
+<text x="452" y="161" font-size="12" fill="#A32D2D">不自动转码或猜编码</text>
+<path d="M220 176 L220 206" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="230" y="198" font-size="12" fill="#5F5E5A">否</text>
+<rect x="40" y="206" width="600" height="94" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text x="56" y="228" font-size="14" font-weight="500" fill="#0C447C">② 扫描：默认 dry-run，不写回</text>
+<text x="56" y="249" font-size="12" fill="#185FA5">运行 scripts/fix_text.py 收集 fix / review 两类问题</text>
+<text x="56" y="267" font-size="12" fill="#185FA5">报告行号、规则、消息与逐行 diff</text>
+<text x="56" y="285" font-size="12" fill="#185FA5">默认跳过 Markdown frontmatter、代码区与 URL</text>
+<path d="M340 300 L340 330" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="40" y="330" width="360" height="76" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+<text x="56" y="352" font-size="14" font-weight="500" fill="#633806">③ 有需要人工判断的 review 项？</text>
+<text x="56" y="373" font-size="12" fill="#854F0B">fix 项可直接写回；review 项不猜</text>
+<text x="56" y="391" font-size="12" fill="#854F0B">乱码、未闭合引号、括号错配</text>
+<path d="M400 368 L436 368" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="408" y="360" font-size="12" fill="#5F5E5A">是</text>
+<rect x="436" y="330" width="204" height="76" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="452" y="352" font-size="14" font-weight="500" fill="#2C2C2A">④ 人工复核 review</text>
+<text x="452" y="373" font-size="12" fill="#5F5E5A">给出候选与理由</text>
+<text x="452" y="391" font-size="12" fill="#5F5E5A">不批量接受建议</text>
+<path d="M220 406 L220 450" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="230" y="428" font-size="12" fill="#5F5E5A">否</text>
+<path d="M538 406 L538 450" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="548" y="428" font-size="12" fill="#5F5E5A">复核后</text>
+<rect x="40" y="450" width="600" height="94" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text x="56" y="472" font-size="14" font-weight="500" fill="#0C447C">⑤ 用户确认后 --apply 原子写回</text>
+<text x="56" y="493" font-size="12" fill="#185FA5">保留 LF / CRLF 与文件权限；写完再扫描一次</text>
+<text x="56" y="511" font-size="12" fill="#185FA5">仍有 review 项则退出码 1，不谎报通过</text>
+<text x="56" y="529" font-size="12" fill="#185FA5">未确认时只交付 diff，不落盘</text>
+<path d="M340 544 L340 564" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="40" y="564" width="600" height="100" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
+<text x="56" y="586" font-size="14" font-weight="500" fill="#173404">出口：修复报告与退出码</text>
+<text x="56" y="607" font-size="12" fill="#3B6D11">修复 N 处；待复核 M 处；跳过 K 个非 UTF-8/二进制文件</text>
+<text x="56" y="625" font-size="12" fill="#3B6D11">退出码 0 = 无问题；1 = 仍有 review；2 = 输入或编码错误</text>
+<text x="56" y="643" font-size="12" fill="#3B6D11">不改写语义、不转码、不自动还原乱码</text>
+</svg>

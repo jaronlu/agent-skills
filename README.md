@@ -51,6 +51,7 @@ registered in the configuration are left alone.
 | [communication-formulas](skills/communication-formulas/SKILL.md) | Picks one of five speaking formulas (SCQA, FAB, BACC, 3W, PREP) by communication goal and assembles ready-to-say wording. |
 | [prompt-optimizer](skills/prompt-optimizer/SKILL.md) | Diagnoses and improves prompts with minimal edits, separating quick rewrites from evidence-backed evaluation. |
 | [human-readable-codebook](skills/human-readable-codebook/SKILL.md) | Turns a repository into a tutorial that reads without the source, gated on OpenWiki and tracked by claim evidence. |
+| [chinese-text-fixer](skills/chinese-text-fixer/SKILL.md) | Fixes Chinese punctuation and typography, including reversed quotes, width, spacing, zero-width characters, and entities; reports mojibake without repairing it. |
 
 User guides are optional and live outside the runtime packages, in `docs/skills/`. That directory is
 a symlink into the llm-wiki workshop, so it is not version-controlled here. Only
@@ -126,6 +127,12 @@ From mode selection to an evidence-backed prompt decision.
 OpenWiki gate, eight phases, evidence-tracked pages.
 
 [![human-readable-codebook: OpenWiki gate and eight phases](assets/human-readable-codebook-flow.svg)](assets/human-readable-codebook-flow.svg)
+
+### chinese-text-fixer
+
+Scan, classify, review, and write back only after confirmation.
+
+[![chinese-text-fixer: scan, review, and confirmed write-back](assets/chinese-text-fixer-flow.svg)](assets/chinese-text-fixer-flow.svg)
 
 ## Verify
 
