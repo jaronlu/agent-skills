@@ -3,7 +3,7 @@ name: human-readable-codebook
 description: Turn an unfamiliar software repository into a tutorial a reader can understand without opening the source. Use when producing a learning-oriented book or wiki for a codebase, or when keeping it consistent after source changes; especially when the intended reader has no source at hand, or when generated documentation reads like an API reference, file inventory, or dense engineering notes. Requires the OpenWiki MCP tool set (openwiki_begin, openwiki_submit_plan, openwiki_next_page, openwiki_submit_page, openwiki_finish), matching OpenWiki 0.9.0; when it is unavailable, the skill stops instead of writing standalone chapters. Do not use it when the deliverable is only an API reference, a README rewrite, or an explanation of a single file.
 compatibility: Requires the OpenWiki MCP tool set (openwiki_begin, openwiki_submit_plan, openwiki_next_page, openwiki_submit_page, openwiki_finish), matching OpenWiki 0.9.0. Without it the run stops before analysis and reports the blocker in the run language, defaulting to Simplified Chinese.
 metadata:
-  version: "1.4"
+  version: "1.5"
 ---
 
 # Human-Readable Codebook
@@ -51,6 +51,7 @@ The reader has no repository, no runnable environment, and no intention of check
 8. **No invented certainty.** Keep verified facts, reasoned inferences, and unresolved hypotheses distinct in the Claim record and in how firmly the prose is worded.
 9. **Scenario-grounded.** Choose representative execution scenarios from evidence in the repository. Do not invent scenarios the source does not support, and do not require the user to list them.
 10. **Incremental maintenance.** When source changes, update the knowledge it affects. Do not regenerate the whole book unless the changed concept is a conceptual prerequisite of most chapters.
+11. **Current version only.** Document the version line and APIs the project officially recommends today; anything deprecated or superseded by an official recommendation is out of scope, judged from official sources rather than version numbers.
 
 ## Workflow
 
@@ -65,6 +66,8 @@ Before executing each phase, read the reference listed for it in the Reference l
 ### Phase 1 — Repository discovery
 
 Inspect the repository before planning the book: purpose, languages and build systems, entry points, boundaries, configuration, tests, and generated files. Directory names are only a starting map.
+
+Establish the version scope before going further: the release line and APIs the project officially recommends today, taken from official documentation, release notes, or migration guides.
 
 ### Phase 2 — Repository understanding
 
@@ -96,7 +99,7 @@ Track every important claim as Verified, Inferred, or Unverified on the writing 
 
 ### Phase 8 — Knowledge maintenance
 
-When source changes, call `openwiki_begin` with `mode: "update"`, map the changed files and symbols it reports to affected chapters, classify each affected item, and update only what the changes affect. Submit a plan for the affected pages and any required deletions, then run the Phase 6/7 page loop and `openwiki_finish`. Revalidate with the Phase 7 checks.
+When source changes, call `openwiki_begin` with `mode: "update"`, map the changed files and symbols it reports to affected chapters, classify each affected item, and update only what the changes affect. Submit a plan for the affected pages and any required deletions, then run the Phase 6/7 page loop and `openwiki_finish`. Revalidate with the Phase 7 checks. A page documenting a version line or API that an official release supersedes is deleted, not kept as history.
 
 ## Reference loading
 
@@ -236,13 +239,14 @@ Both submissions carry the `runId` returned by `openwiki_begin`, and `openwiki_s
 ### Hard constraints
 
 - **Language.** Pass and use the BCP-47 `language` returned by `openwiki_begin` for page prose, `title`, and `description`; write `tags` as stable English. Fall back to Simplified Chinese only when the host specifies no language.
+- **Version scope.** Cover only the version line and APIs the project officially recommends now. Exclude anything marked deprecated, superseded by a recommended newer version, or replaced by a recommended new API: no chapter, section, excerpt, or "deprecated but available" aside. Judge from official documentation, release notes, migration guides, and deprecation markers, not version numbers alone.
 - **Frontmatter.** Author only `type`, `title`, `description`, and `tags`. `title` and `description` are in the run language; `tags` are stable English. `verified`, `sources`, and `timestamp` belong to OpenWiki; never move confidence labels into frontmatter.
 - **Generated pages.** Never plan `index.md`. On `init` the plan must include `openwiki/quickstart.md`; that page is the tutorial's entry point and reading router, so the learning path and task routing live there rather than in a separate table-of-contents page. On `update`, never delete `quickstart.md`; plan it whenever pages are added, deleted, moved, or materially regrouped so its routing map stays correct.
 - **Required page set.** On `init`, plan `openwiki/overview.md`, `openwiki/quickstart.md`, `openwiki/glossary.md`, `openwiki/open-questions.md`, the topic chapters, and `openwiki/summary.md` when the threshold below is met. These are the concrete homes for deliverables 1, 3, 8, and 9, with deliverable 2 as the conditional summary. A diagram appendix is optional. On `update`, keep existing canonical paths, plan any missing required page (summary still follows its threshold), and plan only affected pages, required moves or deletions, and the pages those changes invalidate.
 - **Summary page.** When the planned book has five or more topic chapters, plan one summary page (`openwiki/summary.md`) as the compressed tutorial. Count only pages with a primary knowledge topic; overview, quickstart, summary, glossary, open-questions, and diagram appendixes do not count. It is not a second overview: the overview fixes purpose and boundaries, while the summary explains the system model, the core mechanisms, and the compressed running example at a level just above the chapters. Put it last in the page queue so it is written against finished chapters, and make it the first stop of the short reading path in `quickstart.md`; the full path starts at `overview.md`. The quickstart page remains the entry point for both routes. On `update`, plan it when it is missing and the book has five or more topic chapters. It introduces no new factual proposition: every statement traces to a chapter, and any Claim submitted for it restates that chapter's statement and evidence.
 - **Deliverables are pages.** The text deliverables must exist as planned pages: overview, quickstart, topic chapters, glossary, and unresolved questions, plus the summary when the threshold is met. A diagram appendix is optional. A diagram appendix page is prose plus links; the diagrams it shows are still `openwiki/assets/` files, never page content.
 - **Diagrams are asset files.** Every SVG a page uses — flowcharts, sequence diagrams, architecture and state diagrams, and any icon or logo — lives in its own file under `openwiki/assets/`; pages reference it by relative path. Name each file in ASCII kebab-case for its content. From a top-level page the link is `assets/<name>.svg`; from `openwiki/<group>/page.md` it is `../assets/<name>.svg`. Validate each file by parsing it with an XML parser before linking it; a parse error fails the check. Do not inline `<svg>` markup, base64-encode it, or write diagram files elsewhere.
-- **Assets are not pages.** Diagram files carry no page job and no Claims; write them together with the page that links them, before `openwiki_submit_page`. Never leave an asset that no page links. If a later check removes them or the renderer cannot load them, disclose that limitation — do not fall back to inline SVG.
+- **Assets are not pages.** `openwiki/assets/` holds SVG files and, only when a diagram's generation or rendering pipeline actually reads it, one accompanying JSON file; no Markdown document, prose file, raster image, or unrelated data artifact belongs there. Diagram files carry no page job and no Claims; write them together with the page that links them, before `openwiki_submit_page`. Never leave an asset that no page links. If a later check removes them or the renderer cannot load them, disclose that limitation — do not fall back to inline SVG.
 - **Page loop discipline.** Write only the assigned page and the diagram assets that page links. On `update`, preserve accurate unaffected content. Do not modify source, create unplanned pages, edit OpenWiki control files (`openwiki/.claims`, `.run.json`, indexes, provenance), or delegate pages to subagents. Submit Claims only through `openwiki_submit_page`.
 - **Evidence lives in Claims.** OpenWiki Claims have no confidence field, so the Verified/Inferred/Unverified judgement is writer-side and recorded in the Claim statement: state Verified claims plainly, and prefix Inferred and Unverified claims with `Inferred:` or `Unverified:`. Never print those prefixes or any other confidence label in page prose. Claims are only for propositions the page asserts with repository evidence; an unsupported hypothesis belongs on the open-questions page, not in a Claim. Every Claim cites a `repo://` resource in OpenWiki's required format; OpenWiki owns Claim IDs, evidence versions, and persistence. Do not add a parallel evidence note; if OpenWiki cannot record Claims, the run is blocked rather than downgraded.
 - **No checklist padding.** A page exists to explain a system, not to tick review items.

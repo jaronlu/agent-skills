@@ -35,6 +35,7 @@
 
 ### 变更
 
+- `human-readable-codebook` 升至 1.5：新增「只覆盖官方当前推荐版本线」规则——标记弃用、被推荐版本或新 API 取代的内容不写进正文，维护时被取代版本页及独占资产直接删除；明确 `openwiki/assets/` 只放 SVG，JSON 仅在图示生成或渲染流程实际读取时允许，禁止 Markdown、草稿、raster 与无关数据文件；同步 `SKILL.md`、五份 references 与流程图
 - `human-readable-codebook` 升至 1.4：补 OpenWiki 运行前置条件（五个工具、0.9.0 版本锚点、npm 安装与 `integrations install` 注册路径）和载荷必填字段（plan 的 `title`、page 的 `runId`/`jobId`），新增 `references/examples.md` 提供页面骨架、plan/Claim 载荷与 blocker 报告示例；新增生命周期排障表（`invalid_input` / `conflict` / `invalid_state` / `not_found` 与传输失败）；补密钥脱敏条款与「不适用」负面边界；`fireworks-tech-graph` 明确为可选依赖并保留手写 SVG 兜底
 - `git-commit` 删除技能包内的 `README.md`，流程图移到根目录 `assets/git-commit-flow.svg`，两份 README 直接链接该文件；`RULES.md` 与契约测试同步更新
 - 分发目标改为 `[targets.agents]`，默认以符号链接指向 `~/.agents/skills`，不再经过 CC Switch 库；`config/skill-links.toml` 仅安装 `skills` 中登记的技能

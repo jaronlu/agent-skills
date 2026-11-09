@@ -22,7 +22,7 @@ When source code changes:
    - Unaffected: the item cites no changed file or symbol, and its dependencies did not change.
    - Needs review: the item cites a changed file, but the changed lines do not alter any name, condition, sequence, or data shape the item describes.
    - Requires update: the described behavior, sequence, or data flow changed, and the new behavior can be verified.
-   - Invalidated: the described mechanism no longer exists, or its replacement cannot be verified.
+   - Invalidated: the described mechanism no longer exists, or its replacement cannot be verified. A page documenting a version line, API, or legacy namespace that official sources now supersede is also Invalidated.
 6. Submit a plan for the affected pages. When pages are added, deleted, moved, or materially regrouped, also plan `openwiki/quickstart.md` so its routing map stays correct; never delete `quickstart.md`. Put page deletions in the plan's `deletePages` and remove inbound links to the deleted pages. If impact analysis finds no page edits or deletions, submit `pages: []` and proceed to `openwiki_finish`; do not invent pages to fill the plan.
 7. Update affected content when the Phase 7 checks can verify the new behavior.
 8. Revalidate updated references, diagrams, and execution flows with the Phase 7 checks. When a mechanism changes, update the diagram asset under `openwiki/assets/` in place and keep the page reference pointing at the same file only when every page linking it needs the change. If only one page's diagram changes, write a new asset, retarget that page, and delete the old asset when no other page links it. Do not leave an outdated asset behind or inline a replacement into the page.
@@ -34,6 +34,7 @@ Rules:
 - Treat the glossary as affected when a term is added, removed, or redefined.
 - Treat the quickstart as affected when pages are added, removed, or moved, or when any route it names changes.
 - Treat the open-questions page as affected when a listed question is resolved by the change, or when the change creates a new unverified area.
+- When official sources supersede a version line, an API, or a legacy namespace the book documents, delete the affected pages through `deletePages`, remove inbound links, and delete the assets only those pages link. Do not keep a superseded page, section, or excerpt as history.
 - Do not regenerate the entire book when the changed files map to only the chapters that cite them. Regenerate everything only when a changed concept is a conceptual prerequisite of most chapters.
 - Do not leave orphaned assets. When a page or section is removed, or an item is classified Invalidated, delete the SVG assets that only it referenced and remove the links to them. Keep an asset that another page still links.
 - Resolve every `stale` or `unresolved` Claim deliberately: confirm it with `confirmedClaimIds` after rechecking, revise it under the same `id` in `claims`, or retract it with `retractedClaimIds`. Never retract a Claim merely because it is stale.

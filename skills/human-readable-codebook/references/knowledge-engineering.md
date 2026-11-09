@@ -28,6 +28,8 @@ Explicitly distinguish three kinds of relationship:
 
 Use conceptual dependencies to determine the learning sequence. Do not use the source-code dependency graph as the learning order. Group related source locations under knowledge topics. A topic may span multiple directories, languages, classes, and functions.
 
+Model knowledge from the current recommended version line only. A deprecated API, a legacy namespace, or a behavior that exists only in a superseded version is not a knowledge topic: do not extract it, map sources to it, or let it set a conceptual dependency.
+
 ## Phase 5 — Adaptive book planning
 
 Create the chapter sequence based on reader learning progression, using the conceptual dependencies from Phase 4.
@@ -76,5 +78,7 @@ The plan must include the required page set defined in SKILL.md: `openwiki/overv
 OpenWiki is the planning host: these definitions are planning inputs, not a separate artifact. `purpose` carries the topic, objective, and capability; `seedPaths` carries the source locations; `relatedPages` carries the chapter relationships and learning order; `instructions` carries constraints the plan needs. Do not emit a parallel outline document.
 
 Avoid chapters that merely mirror folders or list symbols. Avoid excessive fragmentation, duplicated explanations, and oversized chapters containing unrelated topics.
+
+Plan no chapter, section, or source mapping for a deprecated API or a superseded version line. When a chapter's whole topic is one of those, drop it from the plan instead of weakening it into a historical note.
 
 Before writing all chapters, present or internally validate the outline if the surrounding workflow supports approval. When the host already gates a plan on user confirmation, as OpenWiki does on plan submission, treat that as the approval step and do not invent a second one. Do not claim user approval unless it was actually given.

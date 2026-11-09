@@ -71,6 +71,8 @@ Apply the sections that fit each page while writing it; run the full checklist o
 - [ ] Dynamic dispatch, callbacks, events, reflection, and dependency injection are not guessed.
 - [ ] Facts, inferences, and unknowns are distinguishable in the Claim record; the prose does not present an inference as a verified fact.
 - [ ] Generated code is traced back to its schema or generator where applicable.
+- [ ] The version scope baseline comes from official documentation, release notes, or migration guides, not from version numbers alone.
+- [ ] No page, section, or excerpt documents a deprecated API, a legacy namespace, or a version line that official sources have superseded.
 
 ### Writing and structure
 - [ ] The outline follows reader learning progression, not directory order.
@@ -83,6 +85,7 @@ Apply the sections that fit each page while writing it; run the full checklist o
 - [ ] Every SVG parses as XML with a single `<svg>` root before it is linked.
 - [ ] Every image link resolves from that page's directory to an existing file in `openwiki/assets/`, verified against a directory listing rather than by assuming the write succeeded.
 - [ ] No asset exists without a page that links it.
+- [ ] `openwiki/assets/` contains SVG files and, only where a diagram workflow actually reads it, the accompanying JSON; no Markdown document, prose file, raster image, or unrelated JSON exists there.
 - [ ] When the run language is Chinese, quotation marks in prose outside code spans are paired and oriented correctly: `“` opens, `”` closes, nested quotes use `‘’`, and no closing position is written as a second `“`.
 - [ ] No credential, token, connection string, private key, or `.env` value appears in the page, its excerpts, its diagrams, or its Claims; every redaction is marked as a redaction.
 - [ ] Repetition, filler, and unnecessary detail have been removed.

@@ -24,6 +24,16 @@ A project may belong to multiple categories. Do not force it into one label.
 
 Directory discovery is only a starting map. It is not repository understanding; Phase 2 is still required.
 
+### Version scope baseline
+
+Fix what the book may cover before tracing behavior:
+
+- The release line and APIs the project officially recommends today, from release notes, changelogs, the documentation's upgrade guide, or package metadata.
+- Deprecation evidence: `@deprecated` annotations, deprecation warnings, `deprecated` flags, "removed in the next version" notes, legacy namespaces, and migration guides.
+- Recommended replacements: when official documentation names a newer version or a new API, that recommendation defines the scope.
+
+A version or API is out of scope when it is marked deprecated, superseded by a recommended newer version, or replaced by a recommended new API. Do not decide from version numbers alone, and do not cover a legacy path merely because it still exists in the source tree.
+
 ## Phase 2 — Repository understanding
 
 Establish how the code runs, not only where it lives. Cover, where applicable:
@@ -43,6 +53,7 @@ Rules:
 
 - Do not infer runtime behavior solely from class names, filenames, or directory structure. Read the implementation and its call sites before stating what it does.
 - When dynamic dispatch, reflection, or framework wiring hides a link, record it as Unverified in working notes or the Claim until a registration, configuration entry, or test confirms it; do not present it as fact.
+- Do not model deprecated or superseded components as part of the current runtime. A deprecated path is not the behavior the book explains, even when it still executes.
 
 ## Phase 3 — Scenario-driven analysis
 
@@ -72,5 +83,6 @@ Rules:
 - Name the evidence for each scenario, such as the entry point file and key symbols.
 - If a step cannot be traced, mark that step Unverified. Do not fill the gap with a plausible guess.
 - Do not invent scenarios unsupported by source code.
+- Do not select a deprecated or superseded path as a scenario. The running example must come from the current recommended version line.
 
 Finally, promote one traced scenario to the book's running example, as described in Phase 3 of SKILL.md. It must be a path the source fully supports, because every chapter will lean on it.
