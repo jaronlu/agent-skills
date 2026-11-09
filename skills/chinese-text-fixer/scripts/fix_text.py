@@ -136,18 +136,20 @@ def is_cjk(char: str) -> bool:
     return bool(CJK_RE.match(char))
 
 
-def prev_nonspace(text: str, index: int) -> tuple[int, str] | tuple[None, None]:
+def prev_nonspace(text: str, index: int) -> tuple[int, str] | None:
+    """Return the nearest non-blank character before ``index``, or ``None``."""
     for pos in range(index - 1, -1, -1):
         if text[pos] not in " \t":
             return pos, text[pos]
-    return None, None
+    return None
 
 
-def next_nonspace(text: str, index: int) -> tuple[int, str] | tuple[None, None]:
+def next_nonspace(text: str, index: int) -> tuple[int, str] | None:
+    """Return the nearest non-blank character after ``index``, or ``None``."""
     for pos in range(index + 1, len(text)):
         if text[pos] not in " \t":
             return pos, text[pos]
-    return None, None
+    return None
 
 
 def near_cjk(text: str, index: int, radius: int = 2) -> bool:
@@ -265,8 +267,8 @@ def quote_closes_previous(text: str, opener_pos: int, index: int) -> bool:
     """
     if re.search(r"\n[ \t]*\r?\n", text[opener_pos + 1 : index]):
         return False
-    prev_index, prev_char = prev_nonspace(text, index)
-    if prev_index is None or prev_char in "\r\n：:":
+    previous = prev_nonspace(text, index)
+    if previous is None or previous[1] in "\r\n：:":
         return False
     return True
 
@@ -337,12 +339,14 @@ def check_quotes(text: str, mask: bytearray, findings: list[Finding]) -> None:
                     stacks[opener].pop()
                 continue
 
-            prev_index, prev_char = prev_nonspace(text, index)
-            next_index, next_char = next_nonspace(text, index)
-            at_boundary = prev_index is None or text[prev_index] in "\r\n" or (
-                prev_char is not None and prev_char in OPENING_PUNCT
+            previous = prev_nonspace(text, index)
+            following = next_nonspace(text, index)
+            at_boundary = (
+                previous is None
+                or previous[1] in "\r\n"
+                or previous[1] in OPENING_PUNCT
             )
-            if at_boundary and next_char and is_cjk(next_char):
+            if at_boundary and following is not None and is_cjk(following[1]):
                 add_finding(
                     findings,
                     mask,
@@ -444,8 +448,8 @@ def check_fullwidth_punctuation(
     for index, char in enumerate(text):
         if mask[index] or char not in FULLWIDTH_MAP:
             continue
-        prev_index, prev_char = prev_nonspace(text, index)
-        if prev_index is None or not is_cjk(prev_char):
+        previous = prev_nonspace(text, index)
+        if previous is None or not is_cjk(previous[1]):
             continue
         if char == ".":
             nxt = text[index + 1 : index + 2]
@@ -494,8 +498,8 @@ def check_repeated_punctuation(
     for match in REPEAT_ASCII_RE.finditer(text):
         if any(mask[pos] for pos in range(match.start(), match.end())):
             continue
-        prev_index, prev_char = prev_nonspace(text, match.start())
-        if prev_index is None or not is_cjk(prev_char):
+        previous = prev_nonspace(text, match.start())
+        if previous is None or not is_cjk(previous[1]):
             continue
         target = FULLWIDTH_MAP[match.group(1)]
         severity = "fix" if profile_allows(profile, "standard") else "review"
@@ -518,8 +522,8 @@ def check_ellipsis(
     for match in ELLIPSIS_RE.finditer(text):
         if any(mask[pos] for pos in range(match.start(), match.end())):
             continue
-        prev_index, prev_char = prev_nonspace(text, match.start())
-        if prev_index is None or not is_cjk(prev_char):
+        previous = prev_nonspace(text, match.start())
+        if previous is None or not is_cjk(previous[1]):
             continue
         severity = "fix" if profile_allows(profile, "standard") else "review"
         add_finding(
@@ -672,24 +676,25 @@ def analyze(
     check_entities(text, mask, findings, profile, fix_entities, html_like)
     check_mojibake(text, mask, findings)
 
-    editable = sorted(
-        (finding for finding in findings if finding.severity == "fix" and finding.edit),
-        key=lambda finding: (
-            finding.edit[0],  # type: ignore[index]
-            -(finding.edit[1] - finding.edit[0]),  # type: ignore[index]
-            finding.priority,
-        ),
+    edits: list[tuple[tuple[int, int, str], Finding]] = []
+    for finding in findings:
+        edit = finding.edit
+        if finding.severity == "fix" and edit is not None:
+            edits.append((edit, finding))
+    edits.sort(
+        key=lambda item: (item[0][0], -(item[0][1] - item[0][0]), item[1].priority)
     )
+
     selected: list[tuple[tuple[int, int, str], Finding]] = []
     last_end = -1
-    for finding in editable:
-        start, end, replacement = finding.edit  # type: ignore[misc]
+    for edit, finding in edits:
+        start, end, _ = edit
         if start < last_end:
             finding.severity = "review"
             finding.edit = None
             finding.message += "（与更高优先级修复重叠，未自动改）"
             continue
-        selected.append((finding.edit, finding))  # type: ignore[arg-type]
+        selected.append((edit, finding))
         last_end = end
 
     pieces: list[str] = []
@@ -838,12 +843,13 @@ def build_json(
     apply: bool,
     max_issues: int,
 ) -> str:
+    files: list[dict[str, object]] = []
     payload = {
         "tool": "chinese-text-fixer",
         "profile": profile,
         "apply": apply,
         "summary": summary.__dict__,
-        "files": [],
+        "files": files,
     }
     for result in results:
         issues = []
@@ -858,7 +864,7 @@ def build_json(
                     "message": finding.message,
                 }
             )
-        payload["files"].append(
+        files.append(
             {
                 "path": result.label,
                 "skipped": result.skipped or None,
