@@ -101,6 +101,12 @@ class PunctuationRulesTest(unittest.TestCase):
         self.assertEqual(fixed, text)
         self.assertEqual(findings, [])
 
+    def test_date_unit_chain_with_cjk_suffix_keeps_the_dot(self):
+        text = "版本 26.11.07 日.构建号 已发布"
+        findings, fixed = analyze(text)
+        self.assertEqual(fixed, text)
+        self.assertEqual(findings, [])
+
     def test_period_after_a_date_unit_still_converts(self):
         findings, fixed = analyze("会议定在次年.然后再说")
         self.assertEqual(fixed, "会议定在次年。然后再说")

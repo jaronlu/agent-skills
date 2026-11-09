@@ -68,7 +68,7 @@ MOJIBAKE_MARKERS = (
 )
 
 ENTITY_RE = re.compile(r"&(?:#[0-9]{1,6}|#[xX][0-9A-Fa-f]{1,6}|[A-Za-z][A-Za-z0-9]{1,31});")
-URL_RE = re.compile(r"(?:https?|ftp|file)://[^\s<>\"'“”‘’]+")
+URL_RE = re.compile(r"(?:https?|ftp|file)://[^\s<>\"'“”‘’`\u0080-\uffff]+")
 INLINE_CODE_RE = re.compile(r"(?<!`)(`+)(?!`)([^\n]+?)(?<!`)\1(?!`)")
 FENCE_OPEN_RE = re.compile(r"^(\`{3,}|~{3,})")
 
@@ -458,10 +458,21 @@ def check_fullwidth_punctuation(
             nxt = text[index + 1 : index + 2]
             if nxt == "." or (nxt and ASCII_ALNUM_RE.match(nxt)):
                 continue
-            # 两位年.月.日 keeps the dot: both sides are date units, so this is
-            # a separator rather than a sentence-final period.
-            if previous[1] in DATE_UNITS and nxt and nxt in DATE_UNITS:
-                continue
+            # A dot right after a date unit is a separator, not a sentence-final
+            # period, when it links date units (年.月.日) or continues a dotted
+            # or digit-led chain into a CJK suffix (26.11.07日.构建号). Otherwise
+            # it ends a sentence (次年.然后) and converts.
+            if previous[1] in DATE_UNITS:
+                if nxt and nxt in DATE_UNITS:
+                    continue
+                before_unit = prev_nonspace(text, previous[0])
+                if (
+                    nxt
+                    and is_cjk(nxt)
+                    and before_unit is not None
+                    and (before_unit[1] == "." or ASCII_ALNUM_RE.match(before_unit[1]))
+                ):
+                    continue
         if char in ",;:?!" and (
             (index + 1 < len(text) and text[index + 1] == char)
             or (index > 0 and text[index - 1] == char)
