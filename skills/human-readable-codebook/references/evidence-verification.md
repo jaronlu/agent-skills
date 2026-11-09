@@ -41,6 +41,15 @@ The three confidence levels are a writing and verification device, not reader-fa
 - An unsupported hypothesis belongs on the open-questions page, not in a Claim.
 - The reader must be able to understand and trust the chapter without parsing confidence markers.
 
+## Secrets and sensitive values
+
+Pages, excerpts, diagrams, and Claims are published material, and a codebook is often shared beyond the team that owns the repository.
+
+- Never carry a credential, token, connection string, private key, internal hostname, or `.env` value into a page, a code excerpt, a diagram, or a Claim statement.
+- Redact in place and keep the surrounding line, for example `apiKey = "<redacted>"`.
+- A redaction is disclosed as a redaction, so the reader knows the source had a value rather than no line at all.
+- If the run itself was configured with a secret to reach the repository, keep it out of the pages, the plan, and every Claim.
+
 ## Review checklist
 
 Apply the sections that fit each page while writing it; run the full checklist once across the page set before `openwiki_finish`.
@@ -75,6 +84,7 @@ Apply the sections that fit each page while writing it; run the full checklist o
 - [ ] Every image link resolves from that page's directory to an existing file in `openwiki/assets/`, verified against a directory listing rather than by assuming the write succeeded.
 - [ ] No asset exists without a page that links it.
 - [ ] When the run language is Chinese, quotation marks in prose outside code spans are paired and oriented correctly: `“` opens, `”` closes, nested quotes use `‘’`, and no closing position is written as a second `“`.
+- [ ] No credential, token, connection string, private key, or `.env` value appears in the page, its excerpts, its diagrams, or its Claims; every redaction is marked as a redaction.
 - [ ] Repetition, filler, and unnecessary detail have been removed.
 
 ### Completeness

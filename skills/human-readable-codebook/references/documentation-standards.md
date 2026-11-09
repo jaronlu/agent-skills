@@ -184,6 +184,7 @@ When explaining actual repository behavior:
 - Trace cross-file behavior through verified call sites, registrations, dispatch, dependency injection, events, or configuration.
 - Cite tests and examples when they demonstrate intended behavior.
 - Avoid dumping large source blocks. Quote only the code needed to support the explanation.
+- Never publish a credential, token, connection string, private key, internal host, or `.env` value: redact it in place, keep the surrounding line, and do not hint at the removed value's length or format. The same rule applies to diagrams and to Claim statements.
 
 Never invent a call chain based only on naming similarity or architectural convention. Dynamic dispatch, reflection, callbacks, event buses, dependency injection, async tasks, and generated registries require special care.
 
@@ -216,7 +217,7 @@ Keep generated code distinct from handwritten business logic. Do not treat gener
 - Explain jargon; do not explain one unknown term with several other unknown terms.
 - Use concrete examples grounded in repository behavior.
 - Give each mechanism a verified key call chain and the short code excerpts that carry it, not merely prose about the code.
-- Draw diagrams as SVG files under `openwiki/assets/`, linked from the page; icons and logos follow the same asset rule. Use the `fireworks-tech-graph` skill for flowcharts and sequence diagrams when it is installed. Add diagrams only for meaningful architecture, sequence, flow, state, or data relationships; do not add them decoratively.
+- Draw diagrams as SVG files under `openwiki/assets/`, linked from the page; icons and logos follow the same asset rule. `fireworks-tech-graph` is an optional dependency outside this skill package: use it for flowcharts and sequence diagrams when it is installed, and fall back to the hand-authored SVG route in **SVG assets** when it is not. Add diagrams only for meaningful architecture, sequence, flow, state, or data relationships; do not add them decoratively.
 - Avoid repeated definitions, generic filler, and claims such as "highly scalable" unless evidence and constraints are explained.
 - Do not speculate about author intent. Distinguish explicit design rationale from rationale inferred from implementation.
 - Do not force every chapter to contain the same headings.
