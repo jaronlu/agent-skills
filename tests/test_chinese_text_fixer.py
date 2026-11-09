@@ -152,6 +152,13 @@ class MarkdownProtectionTest(unittest.TestCase):
         self.assertIn('description: "使用 “错误“ 引号"', fixed)
         self.assertIn("“代码块“", fixed)
 
+    def test_bom_does_not_disable_frontmatter_protection(self):
+        text = "\ufeff---\ndescription: 使用 “错误“ 引号\n---\n\n正文“错误“。\n"
+        findings, fixed = analyze(text, markdown=True)
+        self.assertIn("description: 使用 “错误“ 引号", fixed)
+        self.assertIn("正文“错误”。", fixed)
+        self.assertNotIn("\ufeff", fixed)
+
 
 class CommandLineTest(unittest.TestCase):
     def test_apply_writes_fix_and_preserves_crlf(self):
@@ -213,6 +220,22 @@ class CommandLineTest(unittest.TestCase):
     def test_fixed_with_json_is_rejected(self):
         with self.assertRaises(SystemExit), redirect_stderr(io.StringIO()):
             MODULE.main(["--text", "中文 ，", "--fixed", "--format", "json"])
+
+    def test_text_input_protects_inline_code_by_default(self):
+        stream = io.StringIO()
+        with redirect_stdout(stream):
+            code = MODULE.main(["--text", "中文 ， 和 `代码 ，`", "--fixed"])
+        self.assertEqual(code, 0)
+        self.assertEqual(stream.getvalue(), "中文， 和 `代码 ，`")
+
+    def test_directory_without_matching_files_is_an_error(self):
+        with tempfile.TemporaryDirectory() as directory:
+            (Path(directory) / "notes.py").write_text("print('中文 ，')", encoding="utf-8")
+            stream = io.StringIO()
+            with redirect_stdout(stream), redirect_stderr(io.StringIO()):
+                code = MODULE.main([directory])
+            self.assertEqual(code, 2)
+            self.assertNotIn("clean", stream.getvalue())
 
     def test_json_reports_original_line_and_column(self):
         with tempfile.TemporaryDirectory() as directory:

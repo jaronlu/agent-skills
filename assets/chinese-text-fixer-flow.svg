@@ -48,6 +48,6 @@
 <rect x="40" y="564" width="600" height="100" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
 <text x="56" y="586" font-size="14" font-weight="500" fill="#173404">出口：修复报告与退出码</text>
 <text x="56" y="607" font-size="12" fill="#3B6D11">修复 N 处；待复核 M 处；跳过 K 个非 UTF-8/二进制文件</text>
-<text x="56" y="625" font-size="12" fill="#3B6D11">退出码 0 = 无问题；1 = 仍有 review；2 = 输入或编码错误</text>
+<text x="56" y="625" font-size="12" fill="#3B6D11">退出码 0 = 无问题；1 = 仍有可修项或复核项；2 = 参数、I/O、编码或目录无匹配</text>
 <text x="56" y="643" font-size="12" fill="#3B6D11">不改写语义、不转码、不自动还原乱码</text>
 </svg>

@@ -3,7 +3,7 @@ name: chinese-text-fixer
 description: >-
   修复中文文本的标点与排版问题：引号方向与配对（如 “xxxx“ → “xxxx”）、全角/半角标点、中文标点旁多余空格、零宽字符与 BOM、HTML 实体残留、括号/书名号错配；乱码只识别不擅自还原。当用户要求校对、清洗或规范化中文文案、OCR 结果、Markdown、字幕、聊天记录，或贴出引号明显错误的中文文本时使用。附带确定性脚本：默认 dry-run 输出逐行 diff，确认后才写回。Triggers: 中文校对、标点修复、引号方向、全角半角、乱码识别、Chinese punctuation, Chinese quotes, mojibake.
 metadata:
-  version: "1.0"
+  version: "1.1"
 ---
 
 # Chinese Text Fixer
@@ -87,6 +87,34 @@ metadata:
 
 规则细节、边界和误判清单见 [references/punctuation-rules.md](references/punctuation-rules.md)。需要解释某条 finding、修改规则或处理争议样例时再读。
 
+## 示例
+
+```text
+$ python3 scripts/fix_text.py draft.md
+chinese-text-fixer · profile=standard · dry-run
+
+draft.md:1:16  [QT001 fix] 引号方向：此处应为闭引号 ”
+
+--- draft.md
++++ draft.md (fixed)
+@@ -1 +1 @@
+-他说“数据怎么流转/谁响应手势“
++他说“数据怎么流转/谁响应手势”
+
+summary: 1 fix, 0 review, 0 skipped file(s); 1 of 1 file(s) with fixes
+```
+
+确认后再 `--apply` 写回，然后重跑一次 dry-run，输出 `summary: clean` 才算收尾。机器可读时加 `--format json`，每个文件的条目形如：
+
+```json
+{"path": "draft.md", "skipped": null, "changed": true, "wrote": true,
+ "issues": [{"rule": "QT001", "severity": "fix", "line": 1, "column": 16,
+             "message": "引号方向：此处应为闭引号 ”"}],
+ "issue_count": 1, "diff": "--- draft.md\n+++ draft.md (fixed)\n@@ -1 +1 @@\n"}
+```
+
+`issues` 受 `--max-issues` 截断，`issue_count` 始终是总数。
+
 ## 脚本契约
 
 ```text
@@ -101,8 +129,9 @@ python3 scripts/fix_text.py [PATHS...] [--text TEXT] [--apply]
 - `--fixed`：只输出修正后的全文，适合单文件、`--text` 或 stdin；不写回，不能与 `--format json` 同用。
 - `--apply`：仅用于文件路径；原子写回，写后报告仍会列出剩余 `review` 项。
 - `--format json`：机器可读；包含每个文件的 `issues`、`issue_count`、`diff`、`wrote`；`issue_count` 是总数，不受 `--max-issues` 截断影响。
-- `--ext`：目录扫描时追加后缀；默认 `.md .markdown .mdx .txt .rst .csv .tsv`。
-- `--no-skip-code`：连 Markdown frontmatter、代码围栏、行内代码一起处理；只有用户明确要求时才用。
+- `--ext`：目录扫描时追加后缀；默认 `.md .markdown .mdx .txt .rst .csv .tsv`。所有输入都没匹配到文件时报错并返回 `2`，不会输出 `clean`。
+- `--text` 与 stdin：默认按 Markdown 处理，同样保护代码围栏、行内代码和 frontmatter。
+- `--no-skip-code`：关闭上述保护，连 frontmatter、代码围栏、行内代码一起处理；只有用户明确要求时才用。
 - `--fix-entities`：在非 HTML/XML 文件中解码实体；默认只报告。
 - `--max-issues`：限制每个文件展示的条数，不影响实际修复与退出码。
 
@@ -110,14 +139,14 @@ python3 scripts/fix_text.py [PATHS...] [--text TEXT] [--apply]
 
 - `0`：没有发现问题，或所有 fix 已写回且没有 review/跳过项。
 - `1`：dry-run 发现问题；或 apply 后仍有 review/跳过项。
-- `2`：参数、I/O 或编码错误。
+- `2`：参数、I/O 或编码错误，或目录里没有匹配的文件。
 
 `--fixed` 只按剩余 `review` 项计：无 review 为 `0`，有 review 为 `1`；已经输出的 fix 项不改变退出码。
 
 ## 安全边界
 
 - 只处理 UTF-8。UTF-16、二进制、含 NUL 的文件一律跳过并报告，不自动转码。
-- 默认保护 Markdown frontmatter、代码围栏、行内代码和 URL；宁可不改，也不误改代码。
+- 默认保护 Markdown frontmatter、代码围栏、行内代码和 URL；`--text` 与 stdin 同样按 Markdown 处理。宁可不改，也不误改代码。
 - 不补全未闭合引号，不移动括号，不猜测乱码原文；这些只报告。
 - 不因修复标点而改变语义、语序或措辞；不删除疑似正文的内容。
 - 没有用户确认，不写回任何文件。

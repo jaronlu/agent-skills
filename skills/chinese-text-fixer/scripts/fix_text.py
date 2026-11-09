@@ -169,11 +169,14 @@ def build_mask(text: str, markdown: bool) -> bytearray:
     if not markdown:
         return mask
 
-    frontmatter = re.match(r"---[ \t]*\r?\n", text)
+    # A leading BOM must not hide the frontmatter: ZW001 removes it in the same
+    # pass, and edits inside frontmatter would otherwise skip the protection.
+    frontmatter = re.match(r"\ufeff?---[ \t]*\r?\n", text)
     if frontmatter:
         closing = re.search(r"^---[ \t]*$", text[frontmatter.end() :], re.MULTILINE)
         if closing:
-            mask_range(mask, 0, frontmatter.end() + closing.end())
+            start = 1 if text.startswith("\ufeff") else 0
+            mask_range(mask, start, frontmatter.end() + closing.end())
 
     offset = 0
     fence: tuple[str, int] | None = None
@@ -629,24 +632,23 @@ def check_entities(
 def check_mojibake(text: str, mask: bytearray, findings: list[Finding]) -> None:
     offset = 0
     for line in text.splitlines(keepends=True):
-        if not any(mask[offset : offset + len(line)]):
-            for marker in MOJIBAKE_MARKERS:
-                index = line.find(marker)
-                if index < 0:
-                    continue
-                absolute = offset + index
-                if any(mask[pos] for pos in range(absolute, absolute + len(marker))):
-                    continue
-                add_finding(
-                    findings,
-                    mask,
-                    "MO001",
-                    "review",
-                    absolute,
-                    absolute + len(marker),
-                    f"疑似乱码（{marker}）：确认原始编码后转换，不自动还原",
-                )
-                break
+        for marker in MOJIBAKE_MARKERS:
+            index = line.find(marker)
+            if index < 0:
+                continue
+            absolute = offset + index
+            if any(mask[pos] for pos in range(absolute, absolute + len(marker))):
+                continue
+            add_finding(
+                findings,
+                mask,
+                "MO001",
+                "review",
+                absolute,
+                absolute + len(marker),
+                f"疑似乱码（{marker}）：确认原始编码后转换，不自动还原",
+            )
+            break
         offset += len(line)
 
 
@@ -733,6 +735,8 @@ def write_text(path: Path, text: str) -> None:
     try:
         with os.fdopen(handle, "w", encoding="utf-8", newline="") as stream:
             stream.write(text)
+            stream.flush()
+            os.fsync(stream.fileno())
         os.chmod(temporary, status.st_mode)
         os.replace(temporary, path)
     except BaseException:
@@ -955,7 +959,7 @@ def main(argv: list[str] | None = None) -> int:
                     args.text,
                     "<text>",
                     args.profile,
-                    markdown=False,
+                    markdown=not args.no_skip_code,
                     fix_entities=args.fix_entities,
                     html_like=False,
                 )
@@ -972,7 +976,7 @@ def main(argv: list[str] | None = None) -> int:
                     text,
                     "<stdin>",
                     args.profile,
-                    markdown=False,
+                    markdown=not args.no_skip_code,
                     fix_entities=args.fix_entities,
                     html_like=False,
                 )
@@ -1020,6 +1024,13 @@ def main(argv: list[str] | None = None) -> int:
                 results.append(result)
     except (OSError, ValueError) as exc:
         print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+    if not results:
+        print(
+            "error: no files matched; check the path or the --ext suffixes",
+            file=sys.stderr,
+        )
         return 2
 
     for result in results:
