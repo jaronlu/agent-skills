@@ -33,6 +33,9 @@
 `check` 校验受管理的链接是否指向本仓库（缺失或错误时返回非零）。执行同步前先用
 `sync --dry-run` 检查变更；未登记的条目不会被处理。
 
+`manage_skill_links.py` 需要 TOML 解析，因此请用 Python 3.11+（标准库 `tomllib`）运行，或在旧解释器
+上安装 `tomli`。旧版 `python3` 会直接给出该提示并以非零退出，而不是抛出 `ModuleNotFoundError`。
+
 ## Skills
 
 | Skill | 用途 |

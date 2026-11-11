@@ -111,7 +111,7 @@ python3 scripts/validate_skills.py
 - 共享目录是本仓库的分发终点；不要登记已不再使用的中间分发服务。
 - 默认使用 `mode = "symlink"`，共享目录中的条目指向仓库，仓库内容改动即时生效；移动或重命名仓库后需重新 `sync`。
 - 改动 `skills/` 后必须重新 `sync`，变更才会进入共享目录。
-- 改完先 `python3 scripts/manage_skill_links.py sync --dry-run`，确认无误再 `sync`。
+- 改完先 `python3 scripts/manage_skill_links.py sync --dry-run`，确认无误再 `sync`；该脚本需要 Python 3.11+（或安装 `tomli`）。
 
 ## 当前流程图清单
 

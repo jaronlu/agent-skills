@@ -36,6 +36,9 @@ destination and `check` to verify that managed links point at this repository; `
 when a link is missing or wrong. Review `sync --dry-run` before applying changes. Entries not
 registered in the configuration are left alone.
 
+`manage_skill_links.py` needs TOML parsing, so run it with Python 3.11+ (stdlib `tomllib`) or install
+`tomli` on older interpreters. Older `python3` fails fast with that message instead of a `ModuleNotFoundError`.
+
 ## Skills
 
 | Skill | What it does |

@@ -6,7 +6,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import scripts.manage_skill_links as _manager
 from scripts.manage_skill_links import ConfigError, apply_plan, build_plan, load_config, main, verify
+
+if getattr(_manager, "tomllib", None) is None:
+    raise unittest.SkipTest("manage_skill_links requires TOML support (Python 3.11+ or tomli)")
 
 
 class SkillLinkManagerTests(unittest.TestCase):

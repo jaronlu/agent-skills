@@ -8,9 +8,16 @@ import hashlib
 import os
 import shutil
 import sys
-import tomllib
 from dataclasses import dataclass
 from pathlib import Path
+
+try:  # Python 3.11+ ships tomllib in the standard library.
+    import tomllib
+except ModuleNotFoundError:  # Python 3.10 and older
+    try:
+        import tomli as tomllib  # type: ignore[no-redef]
+    except ModuleNotFoundError:
+        tomllib = None  # type: ignore[assignment]
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -70,6 +77,11 @@ def expand_path(value: str) -> Path:
 
 
 def load_config(path: Path) -> Config:
+    if tomllib is None:
+        raise ConfigError(
+            "TOML support requires Python 3.11+ (stdlib tomllib) or the tomli package; "
+            f"this interpreter is {sys.version.split()[0]}"
+        )
     try:
         data = tomllib.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError as exc:
