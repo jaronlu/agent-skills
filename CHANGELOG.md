@@ -9,6 +9,7 @@
 
 ### 新增
 
+- `agent-gitignore` 技能：扫描 AI Agent 在项目内生成的一次性运行时产物（`.zcode/`、`.workbuddy/`、`.mimosa/`、`.v2c/`、`.claude/settings.local.json`、Aider 缓存），只追加缺失且未被跟踪的条目，并原子提交 `.gitignore`；用户编写的 Agent 配置不忽略。附 `scripts/add-entries.sh`（`--dry-run` / `--no-commit` / `--only`）、产物取证参考与流程图，登记四个分发目标
 - `chinese-text-fixer` 技能：中文标点与排版体检——修复引号方向/配对（如 `“xxxx“` → `“xxxx”`）、全角半角、标点旁空格、重复标点、零宽字符与 BOM、HTML 实体（HTML/XML 中只报告）；乱码只识别不还原。附 `scripts/fix_text.py`（默认 dry-run + 逐行 diff，`--apply` 才原子写回，保留换行与权限，默认保护 Markdown 代码区），附流程图并登记分发目标
 - `human-readable-codebook` 技能：把仓库讲成不翻源码也能读懂的书——OpenWiki 硬闸门（不可用即停止，不写独立页面）、Phase 1-8 各挂一份 reference、逐条 Claim 标 Verified / Inferred / Unverified；维护路径按变更符号映射受影响章节。附流程图并登记 `[targets.agents]` 分发
 - 移除 `agent-reading` 技能及其流程图：在 ag2 上的实测显示速查表已过时，单仓库结果不足以支持通用推广

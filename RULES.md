@@ -128,3 +128,4 @@ python3 scripts/validate_skills.py
 | chinese-text-fixer | `assets/chinese-text-fixer-flow.svg` |
 | llm-wiki | `assets/llm-wiki-flow.svg` |
 | prompt-optimizer | `assets/prompt-optimizer-flow.svg` |
+| agent-gitignore | `assets/agent-gitignore-flow.svg` |

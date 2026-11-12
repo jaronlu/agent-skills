@@ -55,6 +55,7 @@ registered in the configuration are left alone.
 | [prompt-optimizer](skills/prompt-optimizer/SKILL.md) | Diagnoses and improves prompts with minimal edits, separating quick rewrites from evidence-backed evaluation. |
 | [human-readable-codebook](skills/human-readable-codebook/SKILL.md) | Turns a repository into a tutorial that reads without the source, gated on OpenWiki and tracked by claim evidence. |
 | [chinese-text-fixer](skills/chinese-text-fixer/SKILL.md) | Fixes Chinese punctuation and typography, including reversed quotes, width, spacing, zero-width characters, and entities; reports mojibake without repairing it. |
+| [agent-gitignore](skills/agent-gitignore/SKILL.md) | Adds only disposable agent runtime artifacts (.zcode, .workbuddy, .mimosa, .v2c, Claude local settings, Aider caches) to .gitignore, skipping tracked files and user-authored config. |
 
 User guides are optional and live outside the runtime packages, in `docs/skills/`. That directory is
 a symlink into the llm-wiki workshop, so it is not version-controlled here. Only
@@ -136,6 +137,12 @@ OpenWiki gate, eight phases, evidence-tracked pages.
 Scan, classify, review, and write back only after confirmation.
 
 [![chinese-text-fixer: scan, review, and confirmed write-back](assets/chinese-text-fixer-flow.svg)](assets/chinese-text-fixer-flow.svg)
+
+### agent-gitignore
+
+Detect runtime artifacts, skip tracked or covered paths, and commit .gitignore atomically.
+
+[![agent-gitignore: detect, append, and commit runtime artifacts](assets/agent-gitignore-flow.svg)](assets/agent-gitignore-flow.svg)
 
 ## Verify
 

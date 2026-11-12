@@ -1,0 +1,66 @@
+<svg viewBox="0 0 680 700" width="680" height="700" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>agent-gitignore 的检测与提交流程</title>
+<desc>扫描白名单，按存在性、git 跟踪状态和现有忽略规则分流，只追加缺失条目并原子提交 .gitignore。</desc>
+<defs>
+<style>text{font-family:system-ui,-apple-system,sans-serif}</style>
+<marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto" markerUnits="strokeWidth">
+<path d="M0 1 L10 5 L0 9 z" fill="#888780"/>
+</marker>
+</defs>
+<rect width="680" height="700" fill="#FFFFFF"/>
+
+<rect x="190" y="16" width="300" height="40" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="340" y="36" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">Agent 运行时产物进入 git status</text>
+<path d="M340 56 L340 84" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="40" y="84" width="600" height="40" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="60" y="104" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">① 扫描仓库内白名单条目（按 Agent 归类）</text>
+<path d="M340 124 L340 152" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="220" y="152" width="240" height="48" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+<text x="340" y="176" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#633806">② 条目存在？</text>
+<path d="M220 176 L192 176" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="40" y="152" width="150" height="48" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text x="52" y="176" dominant-baseline="central" font-size="12" fill="#185FA5">不存在 → 跳过</text>
+<path d="M340 200 L340 220" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="220" y="220" width="240" height="48" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+<text x="340" y="244" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#633806">③ 已被 git 跟踪？</text>
+<path d="M460 244 L488 244" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="490" y="220" width="150" height="48" rx="8" fill="#FCE8E8" stroke="#A32D2D" stroke-width="0.5"/>
+<text x="502" y="244" dominant-baseline="central" font-size="12" fill="#822727">是 → 报告；继续</text>
+<path d="M340 268 L340 288" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="220" y="288" width="240" height="48" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+<text x="340" y="312" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#633806">④ 已被忽略？</text>
+<path d="M220 312 L192 312" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="40" y="288" width="150" height="48" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
+<text x="52" y="312" dominant-baseline="central" font-size="12" fill="#3B6D11">是 → 记为 covered</text>
+<path d="M340 336 L340 356" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="40" y="356" width="600" height="48" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text x="60" y="380" dominant-baseline="central" font-size="14" font-weight="500" fill="#0C447C">⑤ 追加缺失条目，写入 marker 分组</text>
+<path d="M340 404 L340 424" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="40" y="424" width="600" height="48" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text x="60" y="448" dominant-baseline="central" font-size="14" font-weight="500" fill="#0C447C">⑥ 只提交 .gitignore（pathspec，不动用户暂存区）</text>
+<path d="M340 472 L340 492" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="220" y="492" width="240" height="48" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+<text x="340" y="516" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#633806">⑦ 原有未提交改动？</text>
+<path d="M460 516 L488 516" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="490" y="492" width="150" height="48" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+<text x="502" y="516" dominant-baseline="central" font-size="12" fill="#854F0B">是 → 跳过提交并询问</text>
+<path d="M340 540 L340 560" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="40" y="560" width="600" height="48" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="60" y="584" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">⑧ 提交；失败则原样报错，不盲目重试</text>
+<path d="M340 608 L340 626" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="40" y="628" width="600" height="48" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
+<text x="60" y="652" dominant-baseline="central" font-size="12" fill="#3B6D11">输出：added / covered / tracked / not present</text>
+</svg>
