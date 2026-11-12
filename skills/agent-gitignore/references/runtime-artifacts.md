@@ -19,7 +19,7 @@
 
 | 条目 | 归属 Agent | 实测内容 |
 |---|---|---|
-| `.zcode/` | ZCode | `plans/` 会话计划；项目级 session 数据 |
+| `.zcode/plans/`、`.zcode/workflow-runs/`、`.zcode/workflow-drafts/` | ZCode | 会话计划（`plan-<sessionId>.md`）、动态工作流运行脚本与草稿；会话数据库在全局 `~/.zcode/cli/db`，不落在项目内 |
 | `.workbuddy/` | WorkBuddy | `memory/`、`reviews/`、`artifacts/` |
 | `.mimosa/` | mimosa 安全扫描插件 | `hook-state/`、`history/`、`finding-ledger/`、`reports/`、`hook-status/` |
 | `.v2c/` | video2code 插件 | `plugin_root` 指针 |
@@ -37,6 +37,7 @@
 以下路径常被用户有意提交，整目录忽略会隐藏真正的配置变更：
 
 - Claude Code：`.claude/settings.json`、`.claude/commands/`、`.claude/agents/`、`.claude/skills/`、`.claude/hooks/`
+- ZCode：`.zcode/config.json`、`.zcode/agents/`、`.zcode/workflows/`（用户主动保存的工作流定义）
 - Cursor：`.cursor/rules/`、`.cursor/mcp.json`、`.cursorignore`
 - Gemini CLI：`.gemini/`、`GEMINI.md`（实测已被跟踪）
 - OpenCode：`.opencode/`、`opencode.json`

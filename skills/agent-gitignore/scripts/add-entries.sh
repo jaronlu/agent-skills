@@ -13,7 +13,9 @@ COMMIT_MSG="chore: ignore agent runtime artifacts"
 # Extend only after verifying the path holds disposable project-level state,
 # never user-authored agent configuration.
 CATALOG='
-zcode|dir|.zcode
+zcode|dir|.zcode/plans
+zcode|dir|.zcode/workflow-runs
+zcode|dir|.zcode/workflow-drafts
 workbuddy|dir|.workbuddy
 mimosa|dir|.mimosa
 video2code|dir|.v2c
