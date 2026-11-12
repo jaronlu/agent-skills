@@ -1,6 +1,6 @@
 ---
 name: agent-gitignore
-description: Adds disposable AI-agent runtime artifacts to the current git repo's .gitignore and commits only that file. Ignores ZCode plan/workflow-run paths, .workbuddy/, .mimosa/, .v2c/, .claude/settings.local.json and Aider caches, skipping absent paths, tracked files and user-authored config. Use when asked to ignore agent-generated or runtime files, clean git status noise from AI agents/plugins, or when the user mentions ZCode, WorkBuddy, Claude Code, mimosa, video2code, Aider, 忽略 Agent 运行时产物, or gitignore 太乱.
+description: Adds disposable AI-agent runtime artifacts to the current git repo's .gitignore and commits only that file. Ignores ZCode plugin dirs .mimosa/ and .v2c/, plus .workbuddy/, .claude/settings.local.json and Aider caches, skipping absent paths, tracked files and user-authored config. Use when asked to ignore agent-generated or runtime files, clean git status noise from AI agents/plugins, or when the user mentions ZCode, WorkBuddy, Claude Code, mimosa, video2code, Aider, 忽略 Agent 运行时产物, or gitignore 太乱.
 ---
 
 # agent-gitignore
@@ -11,10 +11,9 @@ description: Adds disposable AI-agent runtime artifacts to the current git repo'
 
 | 条目 | Agent | 运行时性质 |
 |---|---|---|
-| `.zcode/plans/`、`.zcode/workflow-runs/`、`.zcode/workflow-drafts/` | ZCode | 会话计划文件、动态工作流运行脚本与草稿；同目录 `.zcode/config.json`、`.zcode/agents/`、`.zcode/workflows/` 是用户配置，不忽略 |
+| `.mimosa/` | ZCode 插件 mimosa | `hook-state/`、`history/`、`reports/` |
+| `.v2c/` | ZCode 插件 video2code | `plugin_root` 指针 |
 | `.workbuddy/` | WorkBuddy | `memory/`、`reviews/`、`artifacts/` |
-| `.mimosa/` | mimosa 插件 | `hook-state/`、`history/`、`reports/` |
-| `.v2c/` | video2code 插件 | `plugin_root` 指针 |
 | `.claude/settings.local.json` | Claude Code | 本机权限缓存；同目录 `settings.json`、`commands/` 不忽略 |
 | `.aider.*` | Aider | chat/input/llm 历史与 tags 缓存 |
 
@@ -34,7 +33,7 @@ description: Adds disposable AI-agent runtime artifacts to the current git repo'
    可用参数：
    - `--dry-run`：只预览，不写文件、不提交。用户说「先看看」时使用。
    - `--no-commit`：只写 `.gitignore`，不提交。
-   - `--only zcode,workbuddy`：只处理指定 Agent，逗号分隔。
+   - `--only mimosa,workbuddy`：只处理指定 Agent，逗号分隔。
 2. 按脚本输出向用户转述：新增了哪些条目（附 Agent）、提交 hash（如有）、哪些本来已覆盖、哪些已被跟踪、哪些当前不存在。
 3. 特殊输出按以下方式处理：
    - `tracked, unaffected: ...` — 该路径已在 git 索引里，`.gitignore` 对它无效，脚本不会自动改索引，并报告跟踪路径。目录条目仍可添加规则以忽略该目录下未跟踪的运行时产物。向用户确认是否要 `git rm -r --cached <path>` 将已跟踪路径移出索引；未确认前不执行。
@@ -45,7 +44,7 @@ description: Adds disposable AI-agent runtime artifacts to the current git repo'
 ## 边界情况
 
 - **不在 git 仓库内**：脚本退回当前目录并写 `.gitignore`，跳过 Git 检查和提交；输出明确提示该目录不是 git 仓库、请用户判断是否保留该文件。不要自行删除文件。
-- **Agent 配置不是运行时产物**：`.claude/settings.json`、`.claude/commands/`、`.cursor/rules/`、`.gemini/`、`.opencode/`、`.codex/`、`.continue/`、`AGENTS.md`、`GEMINI.md`、`opencode.json`、`.github/copilot-instructions.md` 等通常由用户编写并有意提交，**禁止整目录忽略**。ZCode 同理：只处理 `.zcode/plans/` 等一次性子路径，`.zcode/config.json`、`.zcode/agents/`、`.zcode/workflows/` 属用户配置。白名单只接受经过确认的一次性状态。
+- **Agent 配置不是运行时产物**：`.claude/settings.json`、`.claude/commands/`、`.cursor/rules/`、`.gemini/`、`.opencode/`、`.codex/`、`.continue/`、`AGENTS.md`、`GEMINI.md`、`opencode.json`、`.github/copilot-instructions.md` 等通常由用户编写并有意提交，**禁止整目录忽略**。ZCode 的项目产物只有插件的 `.mimosa/`、`.v2c/` 两个目录，其余不纳入白名单。白名单只接受经过确认的一次性状态。
 - **白名单之外的可疑目录**：先向用户确认它是否是一次性产物，再决定是否扩展 `CATALOG`；不擅自扩大写入范围。
 - **已提交的运行时产物**：先报告，再由用户决定是否移出跟踪；不自动 `git rm --cached`。
 - **重复唤起**：幂等。已有条目不会再写，也不会产生空提交。

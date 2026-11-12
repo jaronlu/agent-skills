@@ -13,9 +13,6 @@ COMMIT_MSG="chore: ignore agent runtime artifacts"
 # Extend only after verifying the path holds disposable project-level state,
 # never user-authored agent configuration.
 CATALOG='
-zcode|dir|.zcode/plans
-zcode|dir|.zcode/workflow-runs
-zcode|dir|.zcode/workflow-drafts
 workbuddy|dir|.workbuddy
 mimosa|dir|.mimosa
 video2code|dir|.v2c
@@ -32,8 +29,8 @@ usage: add-entries.sh [--dry-run] [--no-commit] [--only <agents>]
 
   --dry-run        print what would change; touch nothing, commit nothing
   --no-commit      append entries but skip the automatic commit
-  --only <agents>  comma-separated agents (zcode,workbuddy,mimosa,
-                   video2code,claude-code,aider)
+  --only <agents>  comma-separated agents (workbuddy,mimosa,video2code,
+                   claude-code,aider)
 USAGE
 }
 
