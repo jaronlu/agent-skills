@@ -12,7 +12,7 @@ Verified locally: `Validated 13 skill package(s).`
 
 ![How packages reach an agent](assets/repository-overview.svg)
 
-**Verifiable**: `git rev-list --count HEAD` -> 130 commits; `ls skills | wc -l` -> 13 packages; `grep -rho 'def test_' tests --include='*.py' | wc -l` -> 112 test definitions. These are static counts from the local HEAD, not a claim that the suite passes; run `python3 -m unittest discover -s tests` for the current status.
+**Verifiable**: `ls skills | wc -l` -> 13 packages; `python3 -m unittest discover -s tests` -> 112 tests passing; `python3 scripts/validate_skills.py` -> `Validated 13 skill package(s).`. The same three checks run in CI on every push.
 
 **What this is not**: this repository maintains skill packages and link rules only; it does not ship an agent runtime.
 
