@@ -67,8 +67,8 @@ class AgentGitignoreScriptTest(unittest.TestCase):
 
     def test_adds_present_untracked_artifacts_and_commits_only_gitignore(self) -> None:
         self.commit_initial_gitignore()
-        self.write(".zcode/plans/p.md")
         self.write(".workbuddy/memory/m.md")
+        self.write(".mimosa/state.json")
         self.write(".claude/settings.local.json", "{}\n")
         self.write("notes.txt")
 
@@ -76,8 +76,8 @@ class AgentGitignoreScriptTest(unittest.TestCase):
 
         gitignore = (self.repo / ".gitignore").read_text(encoding="utf-8")
         self.assertIn("# agent runtime artifacts", gitignore)
-        self.assertIn(".zcode/", gitignore)
         self.assertIn(".workbuddy/", gitignore)
+        self.assertIn(".mimosa/", gitignore)
         self.assertIn(".claude/settings.local.json", gitignore)
         self.assertIn("committed:", output)
         # Only .gitignore may enter the automatic commit.
@@ -86,36 +86,36 @@ class AgentGitignoreScriptTest(unittest.TestCase):
 
     def test_tracked_artifact_is_reported_and_skipped(self) -> None:
         self.commit_initial_gitignore()
-        self.write(".zcode/tracked.md")
-        self.git("add", ".zcode/tracked.md")
+        self.write(".workbuddy/tracked.md")
+        self.git("add", ".workbuddy/tracked.md")
         self.git("commit", "-qm", "track")
-        self.write(".workbuddy/memory/m.md")
+        self.write(".mimosa/state.json")
 
         output = self.run_script("--no-commit")
 
-        self.assertIn("tracked, unaffected: .zcode/tracked.md (zcode; unaffected)", output)
+        self.assertIn("tracked, unaffected: .workbuddy/tracked.md (workbuddy; unaffected)", output)
         gitignore = (self.repo / ".gitignore").read_text(encoding="utf-8")
+        self.assertIn(".mimosa/", gitignore)
         self.assertIn(".workbuddy/", gitignore)
-        self.assertIn(".zcode/", gitignore)
 
     def test_partially_tracked_directory_is_reported_and_rule_added(self) -> None:
         self.commit_initial_gitignore()
-        self.write(".zcode/tracked.md")
-        self.git("add", ".zcode/tracked.md")
+        self.write(".workbuddy/tracked.md")
+        self.git("add", ".workbuddy/tracked.md")
         self.git("commit", "-qm", "track")
-        self.write(".zcode/untracked.md")
+        self.write(".workbuddy/untracked.md")
 
         output = self.run_script("--no-commit")
 
-        self.assertIn("tracked, unaffected: .zcode/tracked.md (zcode; unaffected)", output)
-        self.assertIn("\n.zcode/\n", (self.repo / ".gitignore").read_text(encoding="utf-8"))
-        self.assertEqual(self.git("check-ignore", ".zcode/untracked.md"), ".zcode/untracked.md")
+        self.assertIn("tracked, unaffected: .workbuddy/tracked.md (workbuddy; unaffected)", output)
+        self.assertIn("\n.workbuddy/\n", (self.repo / ".gitignore").read_text(encoding="utf-8"))
+        self.assertEqual(self.git("check-ignore", ".workbuddy/untracked.md"), ".workbuddy/untracked.md")
 
     def test_non_git_directory_reports_write_without_invoking_git(self) -> None:
         outside_temp = tempfile.TemporaryDirectory()
         self.addCleanup(outside_temp.cleanup)
         outside = Path(outside_temp.name)
-        (outside / ".zcode").mkdir()
+        (outside / ".workbuddy").mkdir()
         env = self.env.copy()
         env["PATH"] = "/usr/bin:/bin"
 
@@ -130,22 +130,22 @@ class AgentGitignoreScriptTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("not a git repository", result.stdout)
         self.assertIn("review whether to keep .gitignore", result.stdout)
-        self.assertIn(".zcode/", (outside / ".gitignore").read_text(encoding="utf-8"))
+        self.assertIn(".workbuddy/", (outside / ".gitignore").read_text(encoding="utf-8"))
 
     def test_second_run_is_idempotent_and_creates_no_commit(self) -> None:
-        self.write(".zcode/plans/p.md")
+        self.write(".workbuddy/memory/m.md")
         self.run_script()
         head = self.git("rev-parse", "HEAD")
         output = self.run_script()
         self.assertEqual(self.git("rev-parse", "HEAD"), head)
-        self.assertIn("already ignored: .zcode/ (zcode)", output)
+        self.assertIn("already ignored: .workbuddy/ (workbuddy)", output)
 
     def test_only_filters_to_requested_agent(self) -> None:
-        self.write(".zcode/plans/p.md")
         self.write(".workbuddy/memory/m.md")
+        self.write(".mimosa/state.json")
         output = self.run_script("--only", "workbuddy", "--dry-run")
         self.assertIn("would add: .workbuddy/ (workbuddy)", output)
-        self.assertNotIn(".zcode/ (zcode)", output.split("would add:")[1].splitlines()[0])
+        self.assertNotIn(".mimosa/", output)
 
     def test_unknown_agent_is_rejected(self) -> None:
         result = subprocess.run(
