@@ -1,5 +1,23 @@
 # Agent Skills
 
+**One line**: 13 self-contained agent skill packages, maintained in one repository and linked to `~/.agents/skills` so compatible agents can discover them.
+
+**Run in 30 seconds**
+
+```sh
+python3 scripts/validate_skills.py
+```
+
+Verified locally: `Validated 13 skill package(s).`
+
+![How packages reach an agent](assets/repository-overview.svg)
+
+**Verifiable**: `git rev-list --count HEAD` -> 130 commits; `ls skills | wc -l` -> 13 packages; `grep -rho 'def test_' tests --include='*.py' | wc -l` -> 112 test definitions. These are static counts from the local HEAD, not a claim that the suite passes; run `python3 -m unittest discover -s tests` for the current status.
+
+**What this is not**: this repository maintains skill packages and link rules only; it does not ship an agent runtime.
+
+---
+
 One repository for the agent skills you maintain. Skills are linked into `~/.agents/skills`
 for compatible agents to discover.
 

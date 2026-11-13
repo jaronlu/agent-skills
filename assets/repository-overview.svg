@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="230" viewBox="0 0 1200 230" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif">
+  <rect x="0" y="0" width="1200" height="230" rx="14" fill="#000000"/>
+  <text x="40" y="42" fill="#e6eefa" font-size="15" font-weight="500">技能包从仓库到 Agent 的四步</text>
+  <text x="40" y="66" fill="#8ea3ba" font-size="12">源码只在 skills/ 一处维护，登记后再同步，避免多处副本走样</text>
+
+  <rect x="40" y="88" width="250" height="104" rx="12" fill="#123a5c" stroke="#4f9bd8" stroke-width="1"/>
+  <text x="60" y="118" fill="#e6eefa" font-size="15" font-weight="500">编写</text>
+  <text x="60" y="146" fill="#c7d8ea" font-size="12">skills/ 下每个目录一个技能</text>
+  <text x="60" y="166" fill="#c7d8ea" font-size="12">入口为 SKILL.md</text>
+
+  <rect x="330" y="88" width="250" height="104" rx="12" fill="#2b1f57" stroke="#a78bfa" stroke-width="1"/>
+  <text x="350" y="118" fill="#e6eefa" font-size="15" font-weight="500">登记</text>
+  <text x="350" y="146" fill="#d8cdf0" font-size="12">config/skill-links.toml</text>
+  <text x="350" y="166" fill="#d8cdf0" font-size="12">显式列出要分发的技能</text>
+
+  <rect x="620" y="88" width="250" height="104" rx="12" fill="#12463a" stroke="#46c99b" stroke-width="1"/>
+  <text x="640" y="118" fill="#e6eefa" font-size="15" font-weight="500">校验与同步</text>
+  <text x="640" y="146" fill="#c4e8da" font-size="12">先 dry-run 预览变更</text>
+  <text x="640" y="166" fill="#c4e8da" font-size="12">再 sync 建立链接</text>
+
+  <rect x="910" y="88" width="250" height="104" rx="12" fill="#4a3212" stroke="#d9a84e" stroke-width="1"/>
+  <text x="930" y="118" fill="#e6eefa" font-size="15" font-weight="500">被发现</text>
+  <text x="930" y="146" fill="#eddcb8" font-size="12">~/.agents/skills</text>
+  <text x="930" y="166" fill="#eddcb8" font-size="12">兼容的 Agent 自动读取</text>
+
+  <path d="M296 140 H322 M316 135 L322 140 L316 145" stroke="#8ea3ba" stroke-width="1.5" fill="none"/>
+  <path d="M586 140 H612 M606 135 L612 140 L606 145" stroke="#8ea3ba" stroke-width="1.5" fill="none"/>
+  <path d="M876 140 H902 M896 135 L902 140 L896 145" stroke="#8ea3ba" stroke-width="1.5" fill="none"/>
+  <text x="40" y="216" fill="#8ea3ba" font-size="12">本仓库只维护技能包与分发规则，不提供 Agent 运行时本身。</text>
+</svg>
