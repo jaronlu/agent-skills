@@ -78,6 +78,19 @@ class QuoteRulesTest(unittest.TestCase):
         self.assertEqual(fixed, text)
         self.assertEqual(findings, [])
 
+    def test_mixed_ascii_and_curly_quotes_are_reported(self):
+        text = '他说"参数“。另一处”解析"不同。'
+        findings, fixed = analyze(text)
+        self.assertEqual(fixed, text)
+        self.assertIn("QT002", {finding.rule for finding in findings})
+        self.assertTrue(all(finding.severity == "review" for finding in findings))
+
+    def test_mixed_quotes_inside_inline_code_are_not_reported(self):
+        text = "正文“提示”，代码 `x = \"y\"`。"
+        findings, fixed = analyze(text, markdown=True)
+        self.assertEqual(fixed, text)
+        self.assertEqual(findings, [])
+
 
 class PunctuationRulesTest(unittest.TestCase):
     def test_halfwidth_punctuation_becomes_fullwidth_only_after_cjk(self):
@@ -115,6 +128,27 @@ class PunctuationRulesTest(unittest.TestCase):
     def test_space_before_chinese_punctuation_is_removed(self):
         findings, fixed = analyze("中文 ， 后面（ 括号）")
         self.assertEqual(fixed, "中文， 后面（括号）")
+
+    def test_numbering_dot_before_latin_heading_is_left_alone(self):
+        findings, fixed = analyze("第5章. LangGraph 入门")
+        self.assertEqual(fixed, "第5章. LangGraph 入门")
+        self.assertNotIn("FW001", {finding.rule for finding in findings})
+
+    def test_dot_in_path_token_is_left_alone(self):
+        findings, fixed = analyze("第5章. LangGraph/第3节. 概念")
+        self.assertEqual(fixed, "第5章. LangGraph/第3节. 概念")
+        self.assertNotIn("FW001", {finding.rule for finding in findings})
+
+    def test_ratio_colon_spec_is_left_alone(self):
+        findings, fixed = analyze("配额 5h:2000/周:10000")
+        self.assertEqual(fixed, "配额 5h:2000/周:10000")
+        self.assertNotIn("FW001", {finding.rule for finding in findings})
+
+    def test_dotted_proper_noun_is_review_only(self):
+        findings, fixed = analyze("双越.编程经验与认知")
+        self.assertEqual(fixed, "双越.编程经验与认知")
+        self.assertEqual([finding.rule for finding in findings], ["FW001"])
+        self.assertEqual(findings[0].severity, "review")
 
 
 class InvisibleAndEntityTest(unittest.TestCase):

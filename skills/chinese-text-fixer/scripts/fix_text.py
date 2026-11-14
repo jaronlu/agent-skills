@@ -252,6 +252,18 @@ def check_zero_width(text: str, mask: bytearray, findings: list[Finding]) -> Non
             )
 
 
+def in_path_token(text: str, index: int) -> bool:
+    """A dot inside a whitespace-delimited path token is not a sentence period."""
+    start = index
+    while start > 0 and text[start - 1] not in " \t\r\n":
+        start -= 1
+    end = index
+    while end + 1 < len(text) and text[end + 1] not in " \t\r\n":
+        end += 1
+    token = text[start : end + 1]
+    return "/" in token or "\\" in token
+
+
 def is_measurement_mark(text: str, index: int) -> bool:
     """A quote right after a digit that ends the line is a unit mark, not a quote."""
     if index == 0 or not text[index - 1].isdigit():
@@ -386,6 +398,38 @@ def check_quotes(text: str, mask: bytearray, findings: list[Finding]) -> None:
             )
 
 
+def check_mixed_quotes(text: str, mask: bytearray, findings: list[Finding]) -> None:
+    """Report ASCII quote pairs around CJK text on a line that also has curly quotes.
+
+    ASCII quotes are outside the curly-quote state machine, so two misplaced
+    curly quotes can pair with each other while the real delimiters are ASCII
+    (``"参数“。另一处”解析"``). Pairing alone looks valid; this review keeps
+    that case from being reported as clean. Pairs around pure ASCII text are
+    ordinary English quotations and stay silent.
+    """
+    offset = 0
+    for line in text.splitlines(keepends=True):
+        positions = [offset + i for i, char in enumerate(line) if not mask[offset + i]]
+        curly = [position for position in positions if text[position] in "“”"]
+        quotes = [position for position in positions if text[position] == '"']
+        if not curly or len(quotes) < 2 or not CJK_RE.search(line):
+            offset += len(line)
+            continue
+        for start, end in zip(quotes[::2], quotes[1::2]):
+            if CJK_RE.search(text[start + 1 : end]):
+                add_finding(
+                    findings,
+                    mask,
+                    "QT002",
+                    "review",
+                    start,
+                    start + 1,
+                    '同一行混用直引号（"）与中文弯引号：直引号内是中文，弯引号配对可能被掩盖，需人工确认',
+                )
+                break
+        offset += len(line)
+
+
 def check_brackets(text: str, mask: bytearray, findings: list[Finding]) -> None:
     stack: list[tuple[str, int]] = []
     for index, char in enumerate(text):
@@ -454,9 +498,12 @@ def check_fullwidth_punctuation(
         previous = prev_nonspace(text, index)
         if previous is None or not is_cjk(previous[1]):
             continue
+        severity_override: str | None = None
         if char == ".":
             nxt = text[index + 1 : index + 2]
             if nxt == "." or (nxt and ASCII_ALNUM_RE.match(nxt)):
+                continue
+            if in_path_token(text, index):
                 continue
             # A dot right after a date unit is a separator, not a sentence-final
             # period, when it links date units (年.月.日) or continues a dotted
@@ -473,12 +520,30 @@ def check_fullwidth_punctuation(
                     and (before_unit[1] == "." or ASCII_ALNUM_RE.match(before_unit[1]))
                 ):
                     continue
+            elif nxt in (" ", "\t"):
+                # "第5章. LangGraph" and "1. 入门" use the dot as a numbering
+                # separator, so a Latin heading after the blank is not a sentence.
+                after = next_nonspace(text, index)
+                if after is not None and ASCII_ALNUM_RE.match(after[1]):
+                    continue
+            elif nxt and is_cjk(nxt):
+                # A dot between two CJK characters is either a sentence end
+                # (次日.然后) or a dotted proper noun (双越.编程经验); the text
+                # alone cannot tell them apart.
+                severity_override = "review"
+        if char == ":" and index + 1 < len(text) and text[index + 1].isdigit():
+            continue  # Ratio or spec such as 5h:2000/周:10000.
         if char in ",;:?!" and (
             (index + 1 < len(text) and text[index + 1] == char)
             or (index > 0 and text[index - 1] == char)
         ):
             continue  # Repeated ASCII punctuation is handled by PU002.
         severity = "fix" if profile_allows(profile, "standard") else "review"
+        if severity_override == "review":
+            severity = "review"
+            message = f"半角标点 {char} 位于中文语境，但可能是专名或编号分隔而非句末，请人工确认"
+        else:
+            message = f"中文语境中的半角标点 {char} 建议改为 {FULLWIDTH_MAP[char]}"
         replacement = FULLWIDTH_MAP[char] if severity == "fix" else None
         add_finding(
             findings,
@@ -487,7 +552,7 @@ def check_fullwidth_punctuation(
             severity,
             index,
             index + 1,
-            f"中文语境中的半角标点 {char} 建议改为 {FULLWIDTH_MAP[char]}",
+            message,
             replacement,
             PRIORITY_PUNCTUATION,
         )
@@ -686,6 +751,7 @@ def analyze(
     findings: list[Finding] = []
     check_zero_width(text, mask, findings)
     check_quotes(text, mask, findings)
+    check_mixed_quotes(text, mask, findings)
     check_brackets(text, mask, findings)
     check_fullwidth_punctuation(text, mask, findings, profile)
     check_repeated_punctuation(text, mask, findings, profile)
