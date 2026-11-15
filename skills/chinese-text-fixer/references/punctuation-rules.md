@@ -189,22 +189,10 @@
 
 ## 报告与退出码
 
-```text
-chinese-text-fixer · profile=standard · dry-run
+报告格式、计数口径与退出码统一见 [script-contract.md](script-contract.md)。本节只保留与规则判断相关的两点：
 
-path/to/file.md:12:8  [QT001 fix] 引号方向：此处应为闭引号 ”
-path/to/file.md:20:3  [BR003 review] 开括号 （ 未闭合，未自动补全
-
---- path/to/file.md
-+++ path/to/file.md (fixed)
-@@ ...
-```
-
-- `fix` 计数包含已进入 diff 的修复；apply 后这些修复已写回。
-- `review` 计数是仍需人工判断的项。
+- `fix` 计数包含已进入 diff 的修复；`review` 计数是仍需人工判断的项，两者不可混算。
 - 跳过文件单独列出原因：非 UTF-8、UTF-16、二进制/NUL、符号链接。
-- 退出码 `0` 表示无问题或全部 fix 已处理且无 review；`1` 表示仍有发现或复核项；`2` 表示参数、I/O、编码错误，或所有输入都没匹配到文件（此时不输出 `clean`）。
-- `--fixed` 只输出修正文本，因此只按剩余 review 计退出码：无 review 为 `0`，有 review 为 `1`。
 
 ## 修改脚本时的自检
 

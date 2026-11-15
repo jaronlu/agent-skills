@@ -1,9 +1,9 @@
 ---
 name: chinese-text-fixer
 description: >-
-  修复中文文本的标点与排版问题：引号方向与配对（如 “xxxx“ → “xxxx”）、全角/半角标点、中文标点旁多余空格、零宽字符与 BOM、HTML 实体残留、括号/书名号错配；乱码只识别不擅自还原。当用户要求校对、清洗或规范化中文文案、OCR 结果、Markdown、字幕、聊天记录，或贴出引号明显错误的中文文本时使用。附带确定性脚本：默认 dry-run 输出逐行 diff，确认后才写回。Triggers: 中文校对、标点修复、引号方向、全角半角、乱码识别、Chinese punctuation, Chinese quotes, mojibake.
+  修复中文文本的确定性标点与排版错误：引号方向反转（如 “xxxx“ → “xxxx”）、中文语境中的半角标点、重复标点、三个点号的省略号、中文标点旁多余空格、零宽字符与 BOM、HTML 实体残留。只改能唯一判定的项：未闭合或交叉引号、括号与书名号错配、疑似乱码只报告，不补全、不移动、不猜测、不转码，也不做润色、改写或补写。当文本出现上述具体错误，或用户要求校对、清洗中文稿件、OCR 结果、Markdown、聊天记录时使用。默认 dry-run，用户明确授权后才写回。Triggers: 引号方向、全角半角、重复标点、零宽字符、BOM、中文标点空格、Chinese punctuation, Chinese quotes.
 metadata:
-  version: "1.2"
+  version: "1.4"
 ---
 
 # Chinese Text Fixer
@@ -33,40 +33,41 @@ metadata:
 - 纯英文排版：英文引号、撇号和中文规则不同；不要把它当英文校对器。中文语境中的 ASCII 直引号也不在检测范围。
 - 代码、配置、序列化数据中的符号：默认跳过 Markdown 代码区，其他文件类型不要批量套用。
 
+字幕（`.srt`）、日志（`.log`）等不在默认后缀内，目录扫描前先加 `--ext`，否则会以“无匹配文件”退出。
+
 ## 工作流
 
-1. **确认输入与写回权限。** 区分文件/目录、内联文本、只诊断三种输入。写回前确认目标文件可写；在 Git 仓库内先看 `git status`，不覆盖用户未提交的改动。
-2. **先扫描，不写回。** 默认就是 dry-run：
+1. **确认输入。** 四种输入命令不同：文件路径、目录、内联文本（`--text`）、只诊断（不带 `--apply`）。写回前确认目标可写；Git 仓库内先看 `git status`，不覆盖用户未提交的改动。目录先确认后缀，字幕等格式补 `--ext`。
+
+2. **扫描，不写回。** 默认就是 dry-run：
 
    ```bash
    python3 scripts/fix_text.py <path> [--profile standard] [--format json]
    ```
 
-   粘贴文本用 `--text "..."`，管道用 `-`。脚本输出 `fix` 与 `review` 两类问题、逐行 diff、退出码。
+   粘贴文本用 `--text "..."`，管道用 `-`。输出 `fix` 与 `review` 两类问题、逐行 diff、退出码。
 
-3. **分级复核。** 不要把两类问题混在一起：
-   - `fix`：规则能确定修复，例如引号方向反转、零宽字符、中文语境中的半角标点、重复标点、中文标点旁空格。
-   - `review`：需要上下文判断，例如未闭合/孤立/交叉引号、括号错配、乱码、HTML 实体、有意义或不确定的不可见字符、中拉丁间距。
-   对 `review` 项逐条说明原因，不擅自改成“看起来对”的样子。
-4. **用户确认后写回。** 只有用户明确同意，才执行：
+3. **分级复核。** 两类不要混：`fix` 是规则能确定修复的（引号方向反转、零宽字符、中文语境半角标点、重复标点、标点旁空格）；`review` 需要上下文判断（未闭合/孤立/交叉引号、括号错配、乱码、HTML 实体、有意义的不可见字符、中拉丁间距）。
 
-   ```bash
-   python3 scripts/fix_text.py <path> --apply
-   ```
+   每条 review 给三句话：**是什么问题**（规则码 + 位置 + 原字符）、**为什么脚本不改**、**需要用户定什么**。同类合并成一条并列出全部位置。不擅自改成“看起来对”的样子。
 
-   写回是原子替换，保留原换行符（LF/CRLF）与文件权限。写完再跑一次 dry-run，确认只剩 `review` 项。
-5. **输出报告。** 报告实际修复数、仍需人工复核数、跳过的文件及原因。未处理的项要明说，不能把“没有 fix 项”说成“文本已完全正确”。
-6. **停止条件。** 遇到非 UTF-8、二进制、符号链接、乱码时跳过并报告；用户未确认时不写回；判断不了引号/括号归属时停在该项，不补全、不猜测。
+4. **写回或交付。** 依次过五项，任一不成立就停在当前项：
+
+   - **授权**按用户原话判，不自行扩大。“改吧 / 直接改 / 弄好告诉我”算明确授权；“看看 / 有什么问题 / 先诊断”不算，只交 diff；“先告诉我改哪些”算分步授权，等下一轮。
+   - **批量**：`fix` 涉及 2 个及以上文件时，即使已授权也先列「文件 + 每个文件 fix 数」等二次确认；单文件可直接写；授权不继承到下一批。
+   - **写回**：`python3 scripts/fix_text.py <path> --apply`。原子替换，保留 LF/CRLF 与文件权限。`--apply` 会重新扫描，写前用 `git status` 或文件大小核对是否被外部改动，有变化就重扫。
+   - **报告**：写后复扫一次，只剩 `review` 才算收尾；报告实际修复数、待复核数、跳过文件及原因。`0 fix` 不等于文本正确。
+   - **停止**：非 UTF-8、二进制、符号链接、乱码跳过并报告；未授权不写回；判断不了引号/括号归属时停在该项，不补全、不猜测。
 
 ## Profile 选择
 
 | Profile | 自动修复范围 | 使用场景 |
 | --- | --- | --- |
-| `minimal` | 引号方向、零宽字符/BOM | 只做最保守的修复 |
-| `standard`（默认） | 再加全角/半角标点、重复标点、中文省略号、中文标点旁空格 | 常规中文校对 |
-| `strict` | 再加中文与拉丁字母/数字之间的空格、非 HTML 文件中的实体解码 | 排版统一、可接受较多改动 |
+| `minimal` | 引号方向、零宽字符/BOM | 只改引号，不碰其他标点 |
+| `standard`（默认） | 再加全角/半角标点、重复标点、中文省略号、标点旁空格 | 常规中文校对 |
+| `strict` | 再加中文与拉丁字母/数字之间的空格、非 HTML 文件实体解码 | 排版统一、可接受较多改动 |
 
-无论哪个 profile，`review` 项都会报告；profile 只决定哪些项进入自动修复。
+默认 `standard`。只有用户明确说“只改引号”或“连中英间距一起改”时才切换，其余情况不动。无论哪档，`review` 项都会报告。
 
 ## 规则速查
 
@@ -85,7 +86,9 @@ metadata:
 | `EN001` | review；strict 或 `--fix-entities` 下 fix | HTML 实体残留；HTML/XML 中始终只报告，解码后是不可见字符时也只报告 |
 | `MO001` | review | 疑似乱码，只识别不还原 |
 
-规则细节、边界和误判清单见 [references/punctuation-rules.md](references/punctuation-rules.md)。需要解释某条 finding、修改规则或处理争议样例时再读。
+点号数量边界：`...`（三个点）由 `PU003` 处理；`..`（两个点）与四个及以上点都不进任何规则，既不修改也不报告。
+
+规则细节、边界与误判清单见 [references/punctuation-rules.md](references/punctuation-rules.md)。
 
 ## 示例
 
@@ -104,7 +107,7 @@ draft.md:1:16  [QT001 fix] 引号方向：此处应为闭引号 ”
 summary: 1 fix, 0 review, 0 skipped file(s); 1 of 1 file(s) with fixes
 ```
 
-确认后再 `--apply` 写回，然后重跑一次 dry-run，输出 `summary: clean` 才算收尾。机器可读时加 `--format json`，每个文件的条目形如：
+确认后再 `--apply`，然后重跑 dry-run，输出 `summary: clean` 才算收尾。机器可读时加 `--format json`，条目形如：
 
 ```json
 {"path": "draft.md", "skipped": null, "changed": true, "wrote": true,
@@ -113,41 +116,19 @@ summary: 1 fix, 0 review, 0 skipped file(s); 1 of 1 file(s) with fixes
  "issue_count": 1, "diff": "--- draft.md\n+++ draft.md (fixed)\n@@ -1 +1 @@\n"}
 ```
 
-`issues` 受 `--max-issues` 截断，`issue_count` 始终是总数。
-
 ## 脚本契约
 
-```text
-python3 scripts/fix_text.py [PATHS...] [--text TEXT] [--apply]
-                            [--profile minimal|standard|strict]
-                            [--format text|json] [--fixed]
-                            [--fix-entities] [--ext .srt]
-                            [--no-skip-code] [--max-issues N]
-```
+无参数即 dry-run；`--apply` 写回（仅文件路径）；`--format json` 机器可读；`--text` 内联；`--fixed` 只输出修正文本；目录补 `--ext`。
 
-- 无 `--apply`：只打印报告与 diff，不写文件。
-- `--fixed`：只输出修正后的全文，适合单文件、`--text` 或 stdin；不写回，不能与 `--format json` 同用。
-- `--apply`：仅用于文件路径；原子写回，写后报告仍会列出剩余 `review` 项。
-- `--format json`：机器可读；包含每个文件的 `issues`、`issue_count`、`diff`、`wrote`；`issue_count` 是总数，不受 `--max-issues` 截断影响。
-- `--ext`：目录扫描时追加后缀；默认 `.md .markdown .mdx .txt .rst .csv .tsv`。所有输入都没匹配到文件时报错并返回 `2`，不会输出 `clean`。
-- `--text` 与 stdin：默认按 Markdown 处理，同样保护代码围栏、行内代码和 frontmatter。
-- `--no-skip-code`：关闭上述保护，连 frontmatter、代码围栏、行内代码一起处理；只有用户明确要求时才用。
-- `--fix-entities`：在非 HTML/XML 文件中解码实体；默认只报告。
-- `--max-issues`：限制每个文件展示的条数，不影响实际修复与退出码。
+完整参数、退出码与已知坑见 [references/script-contract.md](references/script-contract.md)。
 
-退出码：
-
-- `0`：没有发现问题，或所有 fix 已写回且没有 review/跳过项。
-- `1`：dry-run 发现问题；或 apply 后仍有 review/跳过项。
-- `2`：参数、I/O 或编码错误，或目录里没有匹配的文件。
-
-`--fixed` 只按剩余 `review` 项计：无 review 为 `0`，有 review 为 `1`；已经输出的 fix 项不改变退出码。
+注意：`--fixed` 在存在可修项时也返回 `0`，不要用它判断“是否有待修”，那种场景用默认 dry-run。
 
 ## 安全边界
 
-- 只处理 UTF-8。UTF-16、二进制、含 NUL 的文件一律跳过并报告，不自动转码。
-- 默认保护 Markdown frontmatter、代码围栏、行内代码和 URL；`--text` 与 stdin 同样按 Markdown 处理。宁可不改，也不误改代码。
-- 不补全未闭合引号，不移动括号，不猜测乱码原文；这些只报告。
+- 只处理 UTF-8。UTF-16、二进制、含 NUL 的文件跳过并报告，不自动转码。
+- 默认保护 Markdown frontmatter、代码围栏、行内代码和 URL；`--text` 与 stdin 同样按 Markdown 处理。
+- 不补全未闭合引号，不移动括号，不猜测乱码原文。
 - 不因修复标点而改变语义、语序或措辞；不删除疑似正文的内容。
-- 没有用户确认，不写回任何文件。
-- 报告结论只写实际修复与剩余问题，不把 `review` 未处理说成通过。
+- 没有用户明确授权，不写回任何文件。`--apply` 对目录是整批写入，无备份、不可撤销。
+- 报告只写实际修复与剩余问题，不把 `review` 未处理说成通过。
