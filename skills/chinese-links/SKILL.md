@@ -1,43 +1,38 @@
 ---
 name: chinese-links
-description: >-
-  OpenWorker 文件卡片链接里的中文文件名无法打开时使用。卡片链接是百分号编码的相对路径或文件名，本 skill 把它解码并定位到本机的真实文件，必要时用默认程序打开。当用户反馈 OpenWorker 文件卡片点不开、下载失败、中文名文件打不开时使用。
+description: Resolve OpenWorker file-card links whose Chinese file names fail to open, by decoding percent-encoded paths and locating the real file on disk. Use when an OpenWorker file card does not open, fails to download, or a file with a Chinese name will not open (中文名文件打不开, 点不开, 下载失败).
 metadata:
   version: "1.2"
 ---
 
-# OpenWorker 中文链接
+# OpenWorker Chinese Links
 
-## 现象与判断
+## Symptoms and diagnosis
 
-卡片里的链接是 URL 编码，例如 `%E5%8D%8E%E6%9E%97...`。解码后对应本机上的真实文件。
+Card links are URL-encoded, for example `%E5%8D%8E%E6%9E%97...`. Decoding them gives the path of the real file on this machine.
 
-已知：服务端能正常读取中文文件名，相关请求的响应均为 200，故障出在卡片的客户端打开环节。具体是解码问题还是渲染问题，尚未验证。验证方法：在 App 里点一次「打开」，再查看服务端日志的增量。
+Known: the server reads Chinese file names correctly, and the related requests return 200. The failure is in the client's card-opening step. Whether the cause is decoding or rendering is not yet verified. To check, click "Open" once in the App, then inspect the new entries in the server log.
 
-## 定位文件
+## Locating a file
 
 ```bash
-python3 <skill-dir>/scripts/ow-open.py '<编码后的相对路径或文件名>'
-python3 <skill-dir>/scripts/ow-open.py '<文件名>' --open
+python3 <skill-dir>/scripts/ow-open.py '<encoded relative path or file name>'
+python3 <skill-dir>/scripts/ow-open.py '<file name>' --open
 python3 <skill-dir>/scripts/ow-open.py --list
 ```
 
-- 接受编码路径（可含子目录）、纯文件名、绝对路径、`file://` URL。
-- 默认搜索 `~/OpenWorker` 和当前目录（在家目录或 `/` 下运行时不搜当前目录），`--root` 可指定搜索根。
-- 解码最多两次，容忍双重编码。
-- 匹配按路径后缀进行。命中多个时全部列出，不自动选择。
-- 默认只打印路径，加 `--open` 才用默认程序打开。
+- Accepts encoded paths (which may include subdirectories), bare file names, absolute paths, and `file://` URLs.
+- By default searches `~/OpenWorker` and the current directory. The current directory is skipped when the command runs from the home directory or `/`. `--root` sets the search roots explicitly.
+- Decodes up to twice to handle double encoding.
+- Matches by path suffix. When several files match, lists all of them and selects none.
+- Prints the path by default. `--open` opens the file with the default app, but only for document types on the allowlist (`.pdf`, `.md`, `.txt`, Office formats, `.csv`, `.json`, common image formats, and similar). Other types are refused with exit code 1, and the user must open them by hand. The allowlist is `SAFE_OPEN_EXT` in `scripts/ow-open.py`.
+- Refuses `.` and `..` in the target, so a lookup cannot leave a search root.
+- macOS only: `--open` calls the `open` command.
 
-`<skill-dir>` 替换为本 skill 的安装路径。
+Replace `<skill-dir>` with this skill's install path.
 
-## 命名建议（未验证）
+## Boundaries
 
-临时产物可以改用 ASCII 文件名，中文标题写在文件内容首行，这样卡片链接或许能直接打开。这一条尚未验证，按上面的方法确认后再采用。
-
-交付物的文件名不要为了链接而改。打不开时用 `ow-open.py` 定位即可。
-
-## 边界
-
-- 不修改 OpenWorker 的配置、数据库或接口，不推断其链接生成逻辑。
-- 不擅自重命名用户已有文件。需要改名时，给出 `mv` 命令请用户确认。
-- 服务端接口需要鉴权，不作为排查手段。
+- Do not modify OpenWorker's configuration, database, or APIs, and do not infer how it generates links.
+- Do not rename a user's existing files without permission. When a rename is needed, give the `mv` command and ask the user to confirm.
+- Server endpoints require authentication and are not a troubleshooting method.
