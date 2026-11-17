@@ -98,10 +98,6 @@ if git -C "$root" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   pending=$(git -C "$root" status --porcelain -- .gitignore)
 fi
 
-if [ "$dry_run" -eq 0 ] && [ ! -f "$gi" ]; then
-  touch "$gi"
-fi
-
 is_ignored() {
   if [ "$in_repo" -eq 1 ]; then
     git -C "$root" check-ignore --no-index -q -- "$1"
@@ -194,7 +190,7 @@ while IFS='|' read -r agent kind rel; do
       if [ -s "$gi" ] && [ -n "$(tail -c 1 "$gi")" ]; then
         printf '\n' >>"$gi"
       fi
-      grep -qxF "$MARKER" "$gi" || printf '%s\n' "$MARKER" >>"$gi"
+      grep -qxF "$MARKER" "$gi" 2>/dev/null || printf '%s\n' "$MARKER" >>"$gi"
       header_written=1
     fi
     printf '%s\n' "$entry" >>"$gi"
