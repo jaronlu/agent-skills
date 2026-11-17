@@ -7,6 +7,10 @@
 
 ## [未发布]
 
+### 变更
+
+- `chinese-text-fixer` 收窄为两类修复：中文双引号闭合方向写反，以及句末中文标点误放在 Markdown 加粗范围内；移除通用标点扫描脚本及其专属规则参考和测试
+
 ### 新增
 
 - `agent-gitignore` 技能：扫描 AI Agent 在项目内生成的一次性运行时产物（ZCode 插件的 `.mimosa/`、`.v2c/`，以及 `.workbuddy/`、`.claude/settings.local.json`、Aider 缓存），只追加缺失且未被跟踪的条目，并原子提交 `.gitignore`；用户编写的 Agent 配置不忽略。附 `scripts/add-entries.sh`（`--dry-run` / `--no-commit` / `--only`）、产物取证参考与流程图，登记四个分发目标

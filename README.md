@@ -12,7 +12,7 @@ Verified locally: `Validated 13 skill package(s).`
 
 ![How packages reach an agent](assets/repository-overview.svg)
 
-**Verifiable**: `ls skills | wc -l` -> 13 packages; `python3 -m unittest discover -s tests` -> 112 tests passing; `python3 scripts/validate_skills.py` -> `Validated 13 skill package(s).`. The same three checks run in CI on every push.
+**Verifiable**: `ls skills | wc -l` -> 13 packages; `python3 -m unittest discover -s tests` -> 81 tests passing; `python3 scripts/validate_skills.py` -> `Validated 13 skill package(s).`. The same three checks run in CI on every push.
 
 **What this is not**: this repository maintains skill packages and link rules only; it does not ship an agent runtime.
 
@@ -72,7 +72,7 @@ registered in the configuration are left alone.
 | [communication-formulas](skills/communication-formulas/SKILL.md) | Picks one of five speaking formulas (SCQA, FAB, BACC, 3W, PREP) by communication goal and assembles ready-to-say wording. |
 | [prompt-optimizer](skills/prompt-optimizer/SKILL.md) | Diagnoses and improves prompts with minimal edits, separating quick rewrites from evidence-backed evaluation. |
 | [human-readable-codebook](skills/human-readable-codebook/SKILL.md) | Turns a repository into a tutorial that reads without the source, gated on OpenWiki and tracked by claim evidence. |
-| [chinese-text-fixer](skills/chinese-text-fixer/SKILL.md) | Fixes Chinese punctuation and typography, including reversed quotes, width, spacing, zero-width characters, and entities; reports mojibake without repairing it. |
+| [chinese-text-fixer](skills/chinese-text-fixer/SKILL.md) | Fixes reversed Chinese closing quotes and moves sentence-final punctuation outside Markdown bold markers. |
 | [agent-gitignore](skills/agent-gitignore/SKILL.md) | Adds only disposable agent runtime artifacts (ZCode plugin dirs .mimosa and .v2c, .workbuddy, Claude local settings, Aider caches) to .gitignore, skipping tracked files and user-authored config. |
 
 User guides are optional and live outside the runtime packages, in `docs/skills/`. That directory is
@@ -152,9 +152,9 @@ OpenWiki gate, eight phases, evidence-tracked pages.
 
 ### chinese-text-fixer
 
-Scan, classify, review, and write back only after confirmation.
+Fixes reversed Chinese closing quotes and sentence punctuation placed inside Markdown bold markers.
 
-[![chinese-text-fixer: scan, review, and confirmed write-back](assets/chinese-text-fixer-flow.svg)](assets/chinese-text-fixer-flow.svg)
+[![chinese-text-fixer: two deterministic text fixes](assets/chinese-text-fixer-flow.svg)](assets/chinese-text-fixer-flow.svg)
 
 ### agent-gitignore
 

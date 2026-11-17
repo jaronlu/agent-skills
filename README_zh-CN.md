@@ -51,7 +51,7 @@
 | [communication-formulas](skills/communication-formulas/SKILL.md) | 按沟通目的选用 SCQA / FAB / BACC / 3W / PREP 五套表达顺序，装配成可直接开口的话术。 |
 | [prompt-optimizer](skills/prompt-optimizer/SKILL.md) | 以最小改动诊断和优化提示词，并区分快速改写与有证据支持的评估。 |
 | [human-readable-codebook](skills/human-readable-codebook/SKILL.md) | 把仓库讲成不翻源码也能读懂的书：OpenWiki 硬闸门、按 Phase 挂载参考、证据分级维护。 |
-| [chinese-text-fixer](skills/chinese-text-fixer/SKILL.md) | 修复中文标点与排版：引号方向、全角半角、标点旁空格、零宽字符与实体；乱码只识别不还原。 |
+| [chinese-text-fixer](skills/chinese-text-fixer/SKILL.md) | 修复中文双引号闭合方向写反，以及句末标点误放在 Markdown 加粗范围内。 |
 | [agent-gitignore](skills/agent-gitignore/SKILL.md) | 把 Agent 的一次性运行时产物写入 .gitignore（ZCode 插件的 .mimosa、.v2c，WorkBuddy、Claude 本地设置、Aider 缓存），跳过已跟踪文件与用户配置。 |
 
 用户指南是可选的，位于运行时包之外的 `docs/skills/`。该目录是指向 llm-wiki workshop 的软链接，
@@ -131,9 +131,9 @@ OpenWiki 闸门、八个阶段、证据分级的页面。
 
 ### chinese-text-fixer
 
-扫描、分级复核，确认后才写回。
+只修复中文双引号闭合方向写反，以及句末标点误放在 Markdown 加粗范围内。
 
-[![chinese-text-fixer：扫描、复核与确认写回](assets/chinese-text-fixer-flow.svg)](assets/chinese-text-fixer-flow.svg)
+[![chinese-text-fixer：两类确定性文本修复](assets/chinese-text-fixer-flow.svg)](assets/chinese-text-fixer-flow.svg)
 
 ### agent-gitignore
 
