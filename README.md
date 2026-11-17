@@ -70,7 +70,7 @@ registered in the configuration are left alone.
 | [paper-learning](skills/paper-learning/SKILL.md) | Distills any research paper into reusable notes in the user's papers directory, with an optional language-agnostic demo. |
 | [five-dimension-analysis](skills/five-dimension-analysis/SKILL.md) | Splits a messy situation across time, interests, power, bargaining, and essence, then outputs falsifiable judgments and actionable moves. |
 | [communication-formulas](skills/communication-formulas/SKILL.md) | Picks one of five speaking formulas (SCQA, FAB, BACC, 3W, PREP) by communication goal and assembles ready-to-say wording. |
-| [prompt-optimizer](skills/prompt-optimizer/SKILL.md) | Diagnoses and improves prompts with minimal edits, separating quick rewrites from evidence-backed evaluation. |
+| [prompt-optimizer](skills/prompt-optimizer/SKILL.md) | Improves, diagnoses, or expands a prompt with the smallest edit that clarifies the intent; not for prompt evaluation. |
 | [human-readable-codebook](skills/human-readable-codebook/SKILL.md) | Turns a repository into a tutorial that reads without the source, gated on OpenWiki and tracked by claim evidence. |
 | [chinese-text-fixer](skills/chinese-text-fixer/SKILL.md) | Fixes reversed Chinese closing quotes and moves sentence-final punctuation outside Markdown bold markers. |
 | [agent-gitignore](skills/agent-gitignore/SKILL.md) | Adds only disposable agent runtime artifacts (ZCode plugin dirs .mimosa and .v2c, .workbuddy, Claude local settings, Aider caches) to .gitignore, skipping tracked files and user-authored config. |
@@ -140,9 +140,9 @@ Choosing a formula.
 
 ### prompt-optimizer
 
-From mode selection to an evidence-backed prompt decision.
+Three modes, one smallest edit: rewrite, diagnose, or expand a prompt.
 
-[![prompt-optimizer: from mode selection to evidence-backed prompt decision](assets/prompt-optimizer-flow.svg)](assets/prompt-optimizer-flow.svg)
+[![prompt-optimizer: rewrite, diagnose, or expand a prompt with the smallest edit](assets/prompt-optimizer-flow.svg)](assets/prompt-optimizer-flow.svg)
 
 ### human-readable-codebook
 

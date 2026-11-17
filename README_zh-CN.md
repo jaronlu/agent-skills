@@ -49,7 +49,7 @@
 | [paper-learning](skills/paper-learning/SKILL.md) | 通用论文学习：把论文蒸馏成可复用笔记（存到工作区 papers/ 目录），demo 可选、语言随论文。 |
 | [five-dimension-analysis](skills/five-dimension-analysis/SKILL.md) | 把复杂局面拆成时间、利益、权力、博弈、本质五个维度，产出可证伪的判断与可执行动作。 |
 | [communication-formulas](skills/communication-formulas/SKILL.md) | 按沟通目的选用 SCQA / FAB / BACC / 3W / PREP 五套表达顺序，装配成可直接开口的话术。 |
-| [prompt-optimizer](skills/prompt-optimizer/SKILL.md) | 以最小改动诊断和优化提示词，并区分快速改写与有证据支持的评估。 |
+| [prompt-optimizer](skills/prompt-optimizer/SKILL.md) | 以最小改动改写、诊断或扩写提示词；不做提示词评估。 |
 | [human-readable-codebook](skills/human-readable-codebook/SKILL.md) | 把仓库讲成不翻源码也能读懂的书：OpenWiki 硬闸门、按 Phase 挂载参考、证据分级维护。 |
 | [chinese-text-fixer](skills/chinese-text-fixer/SKILL.md) | 修复中文双引号闭合方向写反，以及句末标点误放在 Markdown 加粗范围内。 |
 | [agent-gitignore](skills/agent-gitignore/SKILL.md) | 把 Agent 的一次性运行时产物写入 .gitignore（ZCode 插件的 .mimosa、.v2c，WorkBuddy、Claude 本地设置、Aider 缓存），跳过已跟踪文件与用户配置。 |
@@ -119,9 +119,9 @@ Chrome 开着也可整理；完全退出后才写回。
 
 ### prompt-optimizer
 
-从模式选择到有证据支持的提示词决策。
+三种模式、一处最小改动：改写、诊断或扩写提示词。
 
-[![prompt-optimizer：从模式选择到有证据支持的提示词决策](assets/prompt-optimizer-flow.svg)](assets/prompt-optimizer-flow.svg)
+[![prompt-optimizer：用最小改动改写、诊断或扩写提示词](assets/prompt-optimizer-flow.svg)](assets/prompt-optimizer-flow.svg)
 
 ### human-readable-codebook
 
