@@ -26,6 +26,10 @@ The wrapper aborts `wiki_lint.py` after 30 seconds by default. On a large wiki i
 wiki is broken; if it still times out, run `python3 scripts/wiki_lint.py` from the wiki root
 directly.
 
+The wrapper covers `wiki_lint.py` only. Also run any additional health checks the wiki's
+`AGENTS.md` documents, such as pipeline, backlog, or test commands; the wrapper cannot discover
+them.
+
 For deeper read-only checks, run from the resolved wiki root:
 
 ```bash
@@ -37,7 +41,15 @@ python3 scripts/wiki_lint.py --strict
 
 `generate_source_map.py` writes `_meta/source-map.json`; it is not a read-only check. Run it only after the user authorizes applying the maintenance change or approves a candidate that includes the generated metadata update.
 
-When regeneration is authorized, you must read and follow the full source-map closure procedure in `create-or-update.md`. Use `--accept-reviewed` only after reviewing source changes that may affect compiled pages.
+When regeneration is authorized, close the source map from the resolved wiki root in this order:
+
+1. Run `python3 scripts/wiki_lint.py`.
+2. Review every formal page affected by a changed source digest.
+3. Update affected formal pages when the evidence change makes them stale.
+4. Run `python3 scripts/generate_source_map.py`; use `--accept-reviewed` only after that review.
+5. Run `python3 scripts/wiki_lint.py --strict` as the terminal validation.
+
+`create-or-update.md` states the same closure for write tasks; this reference is sufficient on its own.
 
 ## Maintenance Priorities
 

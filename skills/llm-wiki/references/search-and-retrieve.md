@@ -4,6 +4,8 @@ Use this reference for read-only lookup and wiki-backed answers.
 
 ## Workflow
 
+If the wiki's `AGENTS.md` or `README.md` documents an entry route (for example index-first), follow it; use the script to search within or after that route.
+
 1. Search with the script before opening files:
 
    ```bash
@@ -43,8 +45,16 @@ Search JSON reports the number of excluded files in `skipped_unsupported`.
 - Do not read the wiki schema file for simple retrieval; scripts expose enough metadata for lookup.
 - When formal evidence should take priority, search `--scope formal` first and fall back to `--scope raw`; do not depend on `--scope all` ordering.
 - Keep result limits small, then rerun with a narrower query if needed.
+- `count` is the number of results returned after `--limit`; `total` is the number of matches. When `truncated` is true, rerun with a larger limit or a narrower query.
+- If `wiki_page.py` reports `truncated: true`, continue the page with `--offset` set to the previous `offset + returned_chars`.
+- `--with-backlinks` reports `backlinks_total`; `backlinks` is capped by `--backlink-limit`, and `backlinks_truncated` marks the cap.
+- Chinese text has no whitespace word boundaries, so a query matches the exact contiguous phrase.
+  Pages sharing only two-character bigrams with the query surface with `match_reasons: ["partial"]`
+  and a low score; treat those as leads, not matches.
 - If script results are ambiguous, use titles, tags, type, confidence, and snippets to choose the next page.
 
 ## Answer Shape
 
 Answer from the retrieved pages first. Preserve important terms and `[[wikilinks]]` when they carry relationship meaning. Mention source page slugs when useful for traceability.
+
+Search snippets come from the page body; frontmatter metadata is returned separately in the result object.

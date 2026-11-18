@@ -90,6 +90,75 @@ Backlink target.
         self.assertEqual(result["confidence"], "high")
         self.assertIn("Runtime", result["snippet"])
 
+    def test_search_snippet_comes_from_page_body(self) -> None:
+        payload = self.run_json(SEARCH, "--query", "runtime", "--limit", "1")
+        snippet = payload["results"][0]["snippet"]
+        self.assertIn("Runtime content", snippet)
+        self.assertNotIn("title:", snippet)
+        self.assertNotIn("sources:", snippet)
+
+    def test_search_gives_partial_credit_for_chinese_phrasing_variants(self) -> None:
+        self.write_page(
+            "domains/agent/concepts/cjk-runtime.md",
+            "# 运行时上下文\n\n智能体的运行时上下文负责注入依赖。\n",
+        )
+        payload = self.run_json(SEARCH, "--query", "智能体运行时", "--limit", "10")
+        result = next(
+            item
+            for item in payload["results"]
+            if item["slug"] == "domains/agent/concepts/cjk-runtime"
+        )
+        self.assertIn("partial", result["match_reasons"])
+        self.assertIn("运行时", result["snippet"])
+
+    def test_backlinks_include_wikilinks_that_use_page_titles(self) -> None:
+        self.write_page(
+            "entities/runtime-fan.md",
+            "# Runtime fan\n\nSee [[Agent Runtime]].\n",
+        )
+        payload = self.run_json(
+            PAGE,
+            "domains/agent/concepts/agent-runtime",
+            "--max-chars",
+            "10",
+            "--with-backlinks",
+        )
+        slugs = [item["slug"] for item in payload["backlinks"]]
+        self.assertIn("entities/runtime-fan", slugs)
+
+    def test_search_reports_total_and_truncation(self) -> None:
+        payload = self.run_json(SEARCH, "--query", "runtime", "--limit", "1")
+        self.assertEqual(payload["count"], 1)
+        self.assertGreater(payload["total"], 1)
+        self.assertTrue(payload["truncated"])
+
+    def test_page_deduplicates_wikilinks(self) -> None:
+        self.write_page(
+            "domains/agent/concepts/dupes.md",
+            "# Dupes\n\n[[Tool Calling]] and [[Tool Calling]] and [[Tool Calling|alias]].\n",
+        )
+        payload = self.run_json(PAGE, "domains/agent/concepts/dupes", "--json")
+        self.assertEqual(payload["wikilinks"], ["Tool Calling"])
+
+    def test_backlinks_report_total_when_limited(self) -> None:
+        for index in range(2):
+            self.write_page(
+                f"entities/runtime-fan-{index}.md",
+                f"# Runtime fan {index}\n\nSee [[Agent Runtime]].\n",
+            )
+        payload = self.run_json(
+            PAGE,
+            "domains/agent/concepts/agent-runtime",
+            "--max-chars",
+            "10",
+            "--with-backlinks",
+            "--backlink-limit",
+            "1",
+        )
+        self.assertEqual(len(payload["backlinks"]), 1)
+        self.assertGreaterEqual(payload["backlinks_total"], 2)
+        self.assertTrue(payload["backlinks_truncated"])
+
     def test_page_reads_slug_and_backlinks(self) -> None:
         payload = self.run_json(
             PAGE,

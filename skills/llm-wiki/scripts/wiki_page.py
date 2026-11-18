@@ -58,21 +58,23 @@ def resolve_page(
 
 
 def backlinks(
-    root: Path, path: Path, *, limit: int, layout: WikiLayout | None = None
+    root: Path, path: Path, text: str, *, layout: WikiLayout | None = None
 ) -> list[dict[str, Any]]:
+    page = compact_page(root, path, text)
     names = {page_slug(root, path), rel(root, path), path.stem}
+    title = page.get("title")
+    if isinstance(title, str) and title:
+        names.add(title)
     found: list[dict[str, Any]] = []
     for candidate in iter_scope(root, "formal", layout):
         if candidate == path:
             continue
         try:
-            text = read_text(candidate)
+            candidate_text = read_text(candidate)
         except (UnsupportedContentError, OSError):
             continue
-        if names.intersection(wikilinks(text)):
-            found.append(compact_page(root, candidate, text))
-        if len(found) >= limit:
-            break
+        if names.intersection(wikilinks(candidate_text)):
+            found.append(compact_page(root, candidate, candidate_text))
     return found
 
 
@@ -95,6 +97,8 @@ def main() -> int:
     parser.add_argument("--backlink-limit", type=int, default=20)
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
+    if args.backlink_limit < 0:
+        parser.error("--backlink-limit must be >= 0")
 
     root = resolve_root(args.root)
     if not root.is_dir():
@@ -159,9 +163,10 @@ def main() -> int:
         "content": content,
     })
     if args.with_backlinks:
-        payload["backlinks"] = backlinks(
-            root, path, limit=args.backlink_limit, layout=layout
-        )
+        all_backlinks = backlinks(root, path, text, layout=layout)
+        payload["backlinks"] = all_backlinks[: args.backlink_limit]
+        payload["backlinks_total"] = len(all_backlinks)
+        payload["backlinks_truncated"] = len(all_backlinks) > args.backlink_limit
 
     if args.json:
         dump_json(payload)

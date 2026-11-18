@@ -324,10 +324,15 @@ def iter_scope(root: Path, scope: str, layout: WikiLayout | None = None) -> list
 
 
 def wikilinks(text: str) -> list[str]:
+    """Return unique wikilink targets in first-seen order.
+
+    Repeated links to the same target are relationship noise in page output
+    and backlink matching, so keep only the first occurrence.
+    """
     targets: list[str] = []
     for raw in re.findall(r"\[\[([^\]]+)\]\]", text):
         target = raw.split("|", 1)[0].split("#", 1)[0].strip()
-        if target:
+        if target and target not in targets:
             targets.append(target)
     return targets
 
@@ -369,6 +374,11 @@ def snippet(text: str, query: str, *, width: int = 220) -> str:
             if location >= 0:
                 break
     if location < 0:
+        for bigram in cjk_bigrams(query):
+            location = collapsed.lower().find(bigram)
+            if location >= 0:
+                break
+    if location < 0:
         return collapsed[:width]
     start = max(0, location - width // 3)
     end = min(len(collapsed), start + width)
@@ -379,6 +389,17 @@ def snippet(text: str, query: str, *, width: int = 220) -> str:
 
 def tokens(value: str) -> list[str]:
     return [token for token in re.split(r"[^\w\u4e00-\u9fff]+", value.lower()) if token]
+
+
+def cjk_bigrams(value: str) -> list[str]:
+    """Return two-character bigrams for each CJK run.
+
+    Chinese has no whitespace word boundaries, so `tokens` keeps a whole
+    phrase as one token. Bigrams let callers award partial credit when a
+    query is only a phrasing variant of the page text.
+    """
+    runs = re.findall(r"[\u4e00-\u9fff]+", value)
+    return [run[index:index + 2] for run in runs for index in range(len(run) - 1)]
 
 
 def dump_json(data: Any) -> None:

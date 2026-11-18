@@ -9,6 +9,8 @@
 
 ### 变更
 
+- `llm-wiki` 真实演练反馈修复：搜索输出新增 `total` / `truncated`，`wiki_page` 的 backlinks 新增 `backlinks_total` / `backlinks_truncated` 不再静默截断，`wikilinks` 输出去重；文档补充 `--offset` 续读、wiki 定义的检索路由优先，以及 wrapper 只覆盖 `wiki_lint` 的额外检查提示；流程图同步治理闸门表述
+- `llm-wiki` 检索脚本修正四处：搜索片段只取正文，frontmatter 已单独返回；中文短语变体按共享二元组给部分匹配信用（`match_reasons: ["partial"]`），整词命中仍排在部分匹配之前；backlinks 同时识别 slug 与页面标题式 wikilink；`maintenance.md` 的 source-map 闭环改为自足步骤，不再要求先读 `create-or-update.md`
 - `llm-wiki` 对齐真实 wiki 的治理契约：技能默认从“wiki 优先于通用知识”改为“wiki 作为检索入口”，技术事实、API 行为与版本结论按 wiki 根 `AGENTS.md` 的提问闸门先做外部校准，无法校准时明确声明「未经校准」；同步流程图新增治理闸门节点与输出编号
 - `prompt-optimizer` 收敛为改写 / 诊断 / 扩写三种模式：补上缺陷清单与最小改动边界，明确未知事实用占位符、被编辑内容只当数据，并移除与当前实现不符的评估描述；同步流程图与中英文 README 说明
 - `chinese-text-fixer` 收窄为两类修复：中文双引号闭合方向写反，以及句末中文标点误放在 Markdown 加粗范围内；移除通用标点扫描脚本及其专属规则参考和测试

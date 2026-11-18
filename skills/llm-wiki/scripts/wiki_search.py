@@ -8,7 +8,7 @@ from typing import Any
 
 sys.dont_write_bytecode = True
 
-from _wiki_common import tokens, wikilinks
+from _wiki_common import cjk_bigrams, tokens, wikilinks
 
 def score_page(
     page: dict[str, Any],
@@ -65,6 +65,7 @@ def score_page(
         if normalized_query in links:
             score += 20
             reasons.append("wikilink")
+        token_hit = False
         for token in tokens(normalized_query):
             if token in title.lower():
                 score += 8
@@ -72,9 +73,22 @@ def score_page(
                 score += 6
             occurrences = len(re.findall(re.escape(token), haystack))
             if occurrences:
+                token_hit = True
                 score += min(occurrences, 12)
+        if token_hit:
+            # A full token match is stronger evidence than bigram overlap, so
+            # keep it above any partial score.
+            score += 10
+            reasons.append("token")
         if score == 0:
-            return 0, []
+            # CJK queries are one token, so a reworded phrase misses every full
+            # token. Shared two-character bigrams still surface related pages
+            # with a small score and an explicit partial reason.
+            partial = [item for item in cjk_bigrams(normalized_query) if item in haystack]
+            if not partial:
+                return 0, []
+            score += min(len(partial), 6)
+            reasons.append("partial")
     elif tag or page_type or source:
         score = 1
         reasons.append("filter")
@@ -100,6 +114,7 @@ def main() -> int:
         compact_page,
         dump_json,
         iter_scope,
+        parse_frontmatter,
         read_text,
         resolve_layout,
         resolve_root,
@@ -162,6 +177,7 @@ def main() -> int:
         except OSError:
             continue
         page = compact_page(root, path, text)
+        _, body = parse_frontmatter(text)
         score, reasons = score_page(
             page,
             text,
@@ -175,19 +191,22 @@ def main() -> int:
         page.update({
             "score": score,
             "match_reasons": reasons,
-            "snippet": snippet(text, args.query),
+            "snippet": snippet(body or text, args.query),
         })
         results.append(page)
 
     results.sort(key=lambda item: (-int(item["score"]), str(item["path"])))
+    page_results = results[: args.limit]
     payload = {
         "root": str(root),
         "config": str(layout.path) if layout.path else None,
         "scope": args.scope,
         "query": args.query,
-        "count": len(results[: args.limit]),
+        "count": len(page_results),
+        "total": len(results),
+        "truncated": len(results) > len(page_results),
         "skipped_unsupported": skipped_unsupported,
-        "results": results[: args.limit],
+        "results": page_results,
     }
     if args.json:
         dump_json(payload)
