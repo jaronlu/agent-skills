@@ -1,76 +1,70 @@
 version = 1
 
-# Skills are authored in this repository and linked into the shared user skills
-# directory. Only skills listed in `skills` are installed.
-# Skills listed in `excluded` are uninstalled when this manager owns the entry
-# (a link into this repository, or a copy matching it). Anything else in the
-# directory is left untouched.
+# Skills are authored in this repository and linked into shared user skill
+# directories. Targets reference a profile instead of repeating skill lists.
+#
+# A root profile declares both sets:
+# - `skills`   installed by the manager
+# - `excluded` deliberately not installed; manager-owned entries are removed
+#
+# A profile with `extends` inherits both sets from its parent:
+# - `skills`   promotes inherited excluded entries to installed
+# - `excluded` demotes inherited installed entries to excluded
+#
+# Every target's resolved `skills` + `excluded` must cover all repository skills
+# so no skill can go silently missing. Entries the manager does not own, including
+# third-party skills, are left untouched.
 #
 # `source` is omitted on purpose: it defaults to this repository, so moving the
 # checkout can no longer leave a stale path behind.
 
 [distribution]
 
-[targets.agents]
-path = "~/.agents/skills"
+[profiles.core]
 skills = [
   "agent-gitignore",
   "chinese-text-fixer",
-  "communication-formulas",
-  "design-convergence-review",
   "first-principles",
   "git-commit",
   "human-readable-codebook",
-  "llm-wiki",
   "prompt-optimizer",
 ]
-# Repo skills deliberately not installed for now. Listed here so a skill is
-# never silently missing; entries this manager owns are uninstalled.
-# Third-party skills in the directory that are not in this repo are never touched.
 excluded = [
   "chrome-bookmarks",
+  "communication-formulas",
+  "design-convergence-review",
   "five-dimension-analysis",
   "hermes-context-review",
-  "paper-learning",
+  "llm-wiki",
 ]
+
+[profiles.full]
+extends = "core"
+# Promote the three skills that `full` installs but `core` does not.
+skills = [
+  "communication-formulas",
+  "design-convergence-review",
+  "llm-wiki",
+]
+
+[targets.agents]
+path = "~/.agents/skills"
+profile = "full"
 
 [targets.workbuddy]
 # WorkBuddy user-level skills, symlinked like every other target.
 path = "~/.workbuddy/skills"
-skills = [
-  "agent-gitignore",
-  "chinese-text-fixer",
-  "human-readable-codebook",
-  "git-commit",
-  "prompt-optimizer",
-  "first-principles",
-]
+profile = "core"
 
 [targets.zcode]
 # Symlink target; the pre-existing link chained through ~/.agents/skills and is
 # rewritten to point at this repository directly so `check` can detect drift.
 path = "~/.zcode/skills"
-skills = [
-  "agent-gitignore",
-  "chinese-text-fixer",
-  "human-readable-codebook",
-  "git-commit",
-  "prompt-optimizer",
-  "first-principles",
-]
+profile = "core"
 
 [targets.claude]
 # Claude Code only reads ~/.claude/skills (plus project/plugin dirs); it has no
 # native support for ~/.agents/skills. Managed here like zcode: repo skills are
-# symlinked directly so `check` can detect drift. The dangling legacy
-# paper-learning link (pointing into ~/.agents/skills) was removed by hand.
+# symlinked directly so `check` can detect drift.
 path = "~/.claude/skills"
-skills = [
-  "agent-gitignore",
-  "chinese-text-fixer",
-  "first-principles",
-  "git-commit",
-  "human-readable-codebook",
-  "llm-wiki",
-  "prompt-optimizer",
-]
+profile = "full"

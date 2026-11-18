@@ -1,6 +1,7 @@
 # Agent Skills
 
-自研 Agent Skill 的统一仓库。技能直接链接到 `~/.agents/skills`，供兼容的 Agent 工具发现。
+自研 Agent Skill 的统一仓库。技能按 `config/skill-links.toml` 登记，同步到 `~/.agents/skills`
+等共享技能目录，供兼容的 Agent 工具发现。
 
 [English](README.md)
 
@@ -10,13 +11,15 @@
 
 ## 为什么
 
-在本仓库维护技能，并将登记的技能直接同步到 `~/.agents/skills`。目标路径可在
-`config/skill-links.toml` 中显式配置；如果本机使用其他共享技能目录，可在该处调整。
+在本仓库维护技能，并把登记的技能同步到 `config/skill-links.toml` 中配置的共享技能目录
+（默认 `~/.agents/skills`）。目标引用共享 profile，且每个目标解析后的安装/排除集合必须覆盖
+全部技能，避免技能被静默遗漏。
 
 ## 怎么做
 
 1. 在 `skills/` 中新增或更新 Skill。
-2. 在 `config/skill-links.toml` 的 `[targets.agents]` 中登记该 Skill。
+2. 在 `config/skill-links.toml` 的相关 `[profiles.*]` 中登记该 Skill（可选用 `extends` 继承），
+   目标只引用 profile，不再重复技能清单。
 3. 先预览变更：
 
    ```bash
@@ -29,12 +32,13 @@
    python3 scripts/manage_skill_links.py sync
    ```
 
-`sync` 会把配置中的每个 Skill 链接到 `~/.agents/skills`。用 `status` 查看配置的目标位置，用
-`check` 校验受管理的链接是否指向本仓库（缺失或错误时返回非零）。执行同步前先用
-`sync --dry-run` 检查变更；未登记的条目不会被处理。
+`sync` 会把配置中的每个 Skill 链接到对应目标目录（至少包括 `~/.agents/skills`）。用 `status`
+查看配置的目标位置，用 `check` 校验受管理的链接是否指向本仓库（缺失或错误时返回非零）。
+执行同步前先用 `sync --dry-run` 检查变更；未登记的条目不会被处理。
 
-`manage_skill_links.py` 需要 TOML 解析，因此请用 Python 3.11+（标准库 `tomllib`）运行，或在旧解释器
-上安装 `tomli`。旧版 `python3` 会直接给出该提示并以非零退出，而不是抛出 `ModuleNotFoundError`。
+`validate_skills.py` 与 `manage_skill_links.py` 都需要 TOML 解析，因此请用 Python 3.11+（标准库
+`tomllib`）运行，或在旧解释器上安装 `tomli`。旧版 `python3` 会直接给出明确提示并以非零退出，
+而不是抛出 `ModuleNotFoundError`。
 
 ## Skills
 
@@ -46,7 +50,6 @@
 | [git-commit](skills/git-commit/SKILL.md) | 生成符合仓库规则的 Conventional Commit 信息，或把选定的改动拆成原子提交。 |
 | [hermes-context-review](skills/hermes-context-review/SKILL.md) | 审查 Hermes 上下文中的冲突、过期、不安全或冗余指令。 |
 | [llm-wiki](skills/llm-wiki/SKILL.md) | 在显式调用时搜索、验证和维护本地 Markdown Wiki。 |
-| [paper-learning](skills/paper-learning/SKILL.md) | 通用论文学习：把论文蒸馏成可复用笔记（存到工作区 papers/ 目录），demo 可选、语言随论文。 |
 | [five-dimension-analysis](skills/five-dimension-analysis/SKILL.md) | 把复杂局面拆成时间、利益、权力、博弈、本质五个维度，产出可证伪的判断与可执行动作。 |
 | [communication-formulas](skills/communication-formulas/SKILL.md) | 按沟通目的选用 SCQA / FAB / BACC / 3W / PREP 五套表达顺序，装配成可直接开口的话术。 |
 | [prompt-optimizer](skills/prompt-optimizer/SKILL.md) | 以最小改动改写、诊断或扩写提示词；不做提示词评估。 |
@@ -60,8 +63,11 @@
 
 ## 流程图
 
-每个 Skill 都有一张 SVG 流程图。均放在 `assets/`。内容与配色约定见 [RULES.md](RULES.md)。
+每个 Skill 都有一张主流程图 `assets/<skill>-flow.svg`；确需多张时用
+`assets/<skill>-<topic>-flow.svg`。均放在 `assets/`。内容与配色约定见 [RULES.md](RULES.md)。
 下图的顺序与上方技能表一致。
+
+![技能包如何到达 Agent](assets/repository-overview.svg)
 
 ### chrome-bookmarks
 
@@ -99,12 +105,6 @@ Chrome 开着也可整理；完全退出后才写回。
 
 [![llm-wiki：意图路由与脚本优先](assets/llm-wiki-flow.svg)](assets/llm-wiki-flow.svg)
 
-### paper-learning
-
-从论文入口到蒸馏笔记与回答路由的通用流程。
-
-[![paper-learning：从论文入口到蒸馏笔记与回答路由](assets/paper-learning-flow.svg)](assets/paper-learning-flow.svg)
-
 ### five-dimension-analysis
 
 六步执行流程。
@@ -115,7 +115,7 @@ Chrome 开着也可整理；完全退出后才写回。
 
 如何选择公式。
 
-[![communication-formulas：如何选择公式](assets/communication-formulas-routing.svg)](assets/communication-formulas-routing.svg)
+[![communication-formulas：如何选择公式](assets/communication-formulas-flow.svg)](assets/communication-formulas-flow.svg)
 
 ### prompt-optimizer
 

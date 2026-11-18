@@ -33,7 +33,8 @@ skills/<skill-name>/
 - 正文专注于另一个代理执行任务所需的指令。
 - 优先使用祈使句和渐进式披露。
 - 将详细的领域知识放入 `references/`，避免重复。
-- 将 `SKILL.md` 控制在 500 行以内；参考文件从 `SKILL.md` 只链接一层。
+- 将 `SKILL.md` 控制在 500 行以内。`SKILL.md` 必须直接链接每个 reference；references 之间可以交叉链接用于导航，但不得要求先读另一个 reference 才能执行任务。
+- `SKILL.md` 中出现的 `references/...`、`scripts/...`、`assets/...` 路径必须存在；不要写模板占位符之外的失效路径。
 
 ### `agents/openai.yaml`（可选）
 
@@ -59,7 +60,7 @@ interface:
 - 详细检查清单
 - 可复用的响应结构
 
-从 `SKILL.md` 直接链接每个引用。避免嵌套引用链。
+从 `SKILL.md` 直接链接每个引用。references 之间可以交叉链接用于导航，但不得要求先读另一个 reference 才能执行任务。
 
 ### `scripts/`
 
@@ -72,7 +73,7 @@ interface:
 
 ### `assets/`
 
-存储用于输出而非代理上下文的内容，例如文档模板、起始文件或媒体。如果代理必须读取 Markdown 文件来做决策，则该文件属于 `references/`，而非 `assets/`。
+存储用于输出而非代理上下文的内容，例如文档模板、起始文件或媒体。如果代理必须读取 Markdown 文件来做决策，则该文件属于 `references/`，而非 `assets/`。技能流程图**不放在这里**；按 [RULES.md](RULES.md) 放在仓库根目录 `assets/`。
 
 ## 用户文档
 
@@ -88,7 +89,7 @@ docs/skills/<skill-name>.md
 
 ## 添加技能
 
-1. 使用官方技能创建器初始化包：
+1. 如本机装有官方技能创建器，可用它初始化包；没有时直接手动创建下面的目录结构：
 
    ```bash
    python3 "$CODEX_HOME/skills/.system/skill-creator/scripts/init_skill.py" \
@@ -100,20 +101,22 @@ docs/skills/<skill-name>.md
    ```
 
 2. 替换 `SKILL.md` 中的每个占位符。
-3. 仅创建技能实际需要的资源目录。
+3. 仅创建技能实际需要的资源目录；`references/`、`scripts/`、`assets/` 中的每个文件都要在 `SKILL.md` 中被引用。
 4. 在 `docs/skills/` 下（而非技能内部）添加可选的用户指南。
-5. 绘制流程图 `assets/<skill-name>-flow.svg`，规范见 [RULES.md](RULES.md)。
-6. 将技能添加到两个根目录目录文件的技能表和流程图清单中。
-7. 在 `config/skill-links.toml` 的 `[targets.agents]` 中登记该技能，并执行 `sync`
-   链接到共享技能目录（默认 `~/.agents/skills`）。
-8. 在 `CHANGELOG.md` → `Unreleased` 下添加条目。
-9. 运行验证。
+5. 绘制主流程图 `assets/<skill-name>-flow.svg`；确需多张时用 `assets/<skill-name>-<topic>-flow.svg`。规范见 [RULES.md](RULES.md)。
+6. 将技能添加到 `README.md` 与 `README_zh-CN.md` 的技能表和流程图清单中。
+7. 在 `config/skill-links.toml` 的相关 `[profiles.*]` 中把该技能列入 `skills` 或 `excluded`（必要时用 `extends` 从父 profile 继承），并让目标引用该 profile；至少保留 `[targets.agents]` 的分发。
+8. 在 `CHANGELOG.md` → `[未发布]` 下添加条目。
+9. 运行验证；改动分发配置时先 `sync --dry-run`，确认后再 `sync`。
 
 ## 验证
 
 ```bash
 python3 scripts/validate_skills.py
 ```
+
+该校验需要 Python 3.11+（标准库 `tomllib`）或安装 `tomli`，会检查 frontmatter、`SKILL.md` 行数、
+资源路径与引用、技能主流程图与命名、两个 README 的目录、SVG 尺寸与无障碍、分发配置覆盖。
 
 当官方验证器在本地可用时，还应运行：
 

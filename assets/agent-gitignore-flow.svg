@@ -1,4 +1,4 @@
-<svg viewBox="0 0 680 700" width="680" height="700" xmlns="http://www.w3.org/2000/svg" role="img">
+<svg viewBox="0 0 680 700" width="680" height="700" xmlns="http://www.w3.org/2000/svg" role="img" font-family="system-ui, -apple-system, sans-serif">
 <title>agent-gitignore 的检测与提交流程</title>
 <desc>扫描白名单，按存在性、git 跟踪状态和现有忽略规则分流，只追加缺失条目并原子提交 .gitignore。</desc>
 <defs>

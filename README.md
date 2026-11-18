@@ -1,6 +1,6 @@
 # Agent Skills
 
-**One line**: 13 self-contained agent skill packages, maintained in one repository and linked to `~/.agents/skills` so compatible agents can discover them.
+**One line**: 12 self-contained agent skill packages, maintained in one repository and linked into the shared skill directories configured in `config/skill-links.toml` (`~/.agents/skills` by default).
 
 **Run in 30 seconds**
 
@@ -8,18 +8,18 @@
 python3 scripts/validate_skills.py
 ```
 
-Verified locally: `Validated 13 skill package(s).`
+Verified locally: `Validated 12 skill package(s).`
 
 ![How packages reach an agent](assets/repository-overview.svg)
 
-**Verifiable**: `ls skills | wc -l` -> 13 packages; `python3 -m unittest discover -s tests` -> 81 tests passing; `python3 scripts/validate_skills.py` -> `Validated 13 skill package(s).`. The same three checks run in CI on every push.
+**Verifiable**: `ls skills | wc -l` -> 12 packages; `python3 -m unittest discover -s tests` -> all tests passing; `python3 scripts/validate_skills.py` -> `Validated 12 skill package(s).`. The validation and test commands also run in CI on every push.
 
 **What this is not**: this repository maintains skill packages and link rules only; it does not ship an agent runtime.
 
 ---
 
-One repository for the agent skills you maintain. Skills are linked into `~/.agents/skills`
-for compatible agents to discover.
+One repository for the agent skills you maintain. Registered packages are linked into the shared
+skill directories configured in `config/skill-links.toml` (`~/.agents/skills` by default).
 
 [简体中文](README_zh-CN.md)
 
@@ -29,14 +29,16 @@ for compatible agents to discover.
 
 ## Why
 
-Maintain skills in this repository and sync the registered packages directly to `~/.agents/skills`.
-The distribution target is explicit and can be changed in `config/skill-links.toml` if your local
-agent setup uses another shared skills directory.
+Maintain skills in this repository and sync the registered packages directly to the shared skill
+directories in `config/skill-links.toml` (`~/.agents/skills` by default). Targets reference shared
+profiles, and each target's resolved installed/excluded sets cover every repository skill, so a
+package cannot go silently missing.
 
 ## How
 
 1. Add or update a skill in `skills/`.
-2. Register it in `config/skill-links.toml` under `[targets.agents]`.
+2. Register it in the relevant `[profiles.*]` in `config/skill-links.toml` as installed or excluded;
+   targets reference profiles instead of repeating lists.
 3. Review the proposed changes:
 
    ```bash
@@ -49,13 +51,14 @@ agent setup uses another shared skills directory.
    python3 scripts/manage_skill_links.py sync
    ```
 
-`sync` links each configured skill into `~/.agents/skills`. Use `status` to inspect the configured
-destination and `check` to verify that managed links point at this repository; `check` exits non-zero
-when a link is missing or wrong. Review `sync --dry-run` before applying changes. Entries not
-registered in the configuration are left alone.
+`sync` links each configured skill into its target directories, at minimum `~/.agents/skills`.
+Use `status` to inspect the configured destinations and `check` to verify that managed links point
+at this repository; `check` exits non-zero when a link is missing or wrong. Review `sync --dry-run`
+before applying changes. Entries not registered in the configuration are left alone.
 
-`manage_skill_links.py` needs TOML parsing, so run it with Python 3.11+ (stdlib `tomllib`) or install
-`tomli` on older interpreters. Older `python3` fails fast with that message instead of a `ModuleNotFoundError`.
+`validate_skills.py` and `manage_skill_links.py` both read TOML, so run them with Python 3.11+
+(stdlib `tomllib`) or install `tomli` on older interpreters. An older `python3` fails fast with
+a clear message instead of a `ModuleNotFoundError`.
 
 ## Skills
 
@@ -67,7 +70,6 @@ registered in the configuration are left alone.
 | [git-commit](skills/git-commit/SKILL.md) | Drafts repository-aware Conventional Commit messages, or turns the selected changes into atomic commits. |
 | [hermes-context-review](skills/hermes-context-review/SKILL.md) | Audits Hermes context for conflicting, stale, unsafe, or wasteful instructions. |
 | [llm-wiki](skills/llm-wiki/SKILL.md) | Searches, verifies, and maintains a local Markdown wiki when explicitly invoked. |
-| [paper-learning](skills/paper-learning/SKILL.md) | Distills any research paper into reusable notes in the user's papers directory, with an optional language-agnostic demo. |
 | [five-dimension-analysis](skills/five-dimension-analysis/SKILL.md) | Splits a messy situation across time, interests, power, bargaining, and essence, then outputs falsifiable judgments and actionable moves. |
 | [communication-formulas](skills/communication-formulas/SKILL.md) | Picks one of five speaking formulas (SCQA, FAB, BACC, 3W, PREP) by communication goal and assembles ready-to-say wording. |
 | [prompt-optimizer](skills/prompt-optimizer/SKILL.md) | Improves, diagnoses, or expands a prompt with the smallest edit that clarifies the intent; not for prompt evaluation. |
@@ -81,7 +83,8 @@ a symlink into the llm-wiki workshop, so it is not version-controlled here. Only
 
 ## Diagrams
 
-Every skill ships one SVG flow diagram. All live in `assets/`. [RULES.md](RULES.md) defines the
+Every skill ships a primary SVG flow diagram named `assets/<skill>-flow.svg`; extra topic diagrams
+use `assets/<skill>-<topic>-flow.svg`. All live in `assets/`. [RULES.md](RULES.md) defines the
 required content and styling. Each diagram below follows the order of the skill table above.
 
 ### chrome-bookmarks
@@ -120,12 +123,6 @@ Intent routing and script-first retrieval.
 
 [![llm-wiki: intent routing and script-first retrieval](assets/llm-wiki-flow.svg)](assets/llm-wiki-flow.svg)
 
-### paper-learning
-
-From paper intake to distilled notes and routed answers.
-
-[![paper-learning: from paper intake to distilled notes and routed answers](assets/paper-learning-flow.svg)](assets/paper-learning-flow.svg)
-
 ### five-dimension-analysis
 
 Six-step workflow.
@@ -136,7 +133,7 @@ Six-step workflow.
 
 Choosing a formula.
 
-[![communication-formulas: choosing a formula](assets/communication-formulas-routing.svg)](assets/communication-formulas-routing.svg)
+[![communication-formulas: choosing a formula](assets/communication-formulas-flow.svg)](assets/communication-formulas-flow.svg)
 
 ### prompt-optimizer
 

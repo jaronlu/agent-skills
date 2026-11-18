@@ -1,4 +1,4 @@
-<svg viewBox="0 0 680 900" width="680" height="900" xmlns="http://www.w3.org/2000/svg" role="img">
+<svg viewBox="0 0 680 900" width="680" height="900" xmlns="http://www.w3.org/2000/svg" role="img" font-family="system-ui, -apple-system, sans-serif">
 <title>git-commit 的提交决策流程</title>
 <desc>判定范围后产出 type(scope): subject。仅同一意图跨模块用 feat(common&amp;share&amp;tool)，独立变化拆分提交。连接线箭头画在格子间隙里，避免被下一框盖住。</desc>
 <defs>

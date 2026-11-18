@@ -1,4 +1,4 @@
-<svg viewBox="0 0 680 670" width="680" height="670" xmlns="http://www.w3.org/2000/svg" role="img">
+<svg viewBox="0 0 680 670" width="680" height="670" xmlns="http://www.w3.org/2000/svg" role="img" font-family="system-ui, -apple-system, sans-serif">
 <title>prompt-optimizer 的改写、诊断与扩写流程</title>
 <desc>先按请求选择改写、诊断或扩写模式；改写先定位缺陷再做最小改动，诊断只给问题与修法，扩写用占位符补齐未知事实；出口是可直接使用的 prompt 与调整说明。</desc>
 <defs>

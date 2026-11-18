@@ -21,6 +21,8 @@ except ModuleNotFoundError:  # Python 3.10 and older
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+PROFILE_FIELDS = {"skills", "excluded", "extends"}
+TARGET_FIELDS = {"path", "skills", "excluded", "mode", "profile"}
 
 
 class ConfigError(ValueError):
@@ -76,6 +78,14 @@ def expand_path(value: str) -> Path:
     return Path(os.path.expanduser(value)).absolute()
 
 
+def parse_name_list(value: object, field: str) -> tuple[str, ...]:
+    if not isinstance(value, list) or not all(isinstance(item, str) for item in value):
+        raise ConfigError(f"{field} must be a list of names")
+    if len(value) != len(set(value)):
+        raise ConfigError(f"{field} contains duplicates")
+    return tuple(value)
+
+
 def load_config(path: Path) -> Config:
     if tomllib is None:
         raise ConfigError(
@@ -108,6 +118,75 @@ def load_config(path: Path) -> Config:
     skills_root = source / "skills"
     if not skills_root.is_dir():
         raise ConfigError(f"source skills directory not found: {skills_root}")
+    available_skills = {
+        entry.name
+        for entry in skills_root.iterdir()
+        if entry.is_dir() and (entry / "SKILL.md").is_file()
+    }
+
+    raw_profiles = data.get("profiles", {})
+    if not isinstance(raw_profiles, dict):
+        raise ConfigError("profiles must be a table of [profiles.<name>] tables")
+
+    profile_specs: dict[str, tuple[tuple[str, ...], tuple[str, ...], str | None]] = {}
+    for profile_name in sorted(raw_profiles):
+        raw = raw_profiles[profile_name]
+        field = f"profiles.{profile_name}"
+        if not isinstance(raw, dict):
+            raise ConfigError(f"{field} must be a table")
+        unexpected = set(raw) - PROFILE_FIELDS
+        if unexpected:
+            raise ConfigError(f"{field} has unsupported fields: {sorted(unexpected)}")
+        skills = parse_name_list(raw.get("skills", []), f"{field}.skills")
+        excluded = parse_name_list(raw.get("excluded", []), f"{field}.excluded")
+        overlap = set(skills) & set(excluded)
+        if overlap:
+            raise ConfigError(
+                f"{field} lists skills as both installed and excluded: {sorted(overlap)}"
+            )
+        unknown = (set(skills) | set(excluded)) - available_skills
+        if unknown:
+            raise ConfigError(f"{field} references unknown skills: {sorted(unknown)}")
+        extends_raw = raw.get("extends")
+        if extends_raw is not None and (
+            not isinstance(extends_raw, str) or not extends_raw
+        ):
+            raise ConfigError(f"{field}.extends must be a non-empty profile name")
+        profile_specs[profile_name] = (skills, excluded, extends_raw)
+
+    resolved_profiles: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {}
+
+    def resolve_profile(
+        profile_name: str, stack: tuple[str, ...]
+    ) -> tuple[tuple[str, ...], tuple[str, ...]]:
+        if profile_name in resolved_profiles:
+            return resolved_profiles[profile_name]
+        if profile_name in stack:
+            chain = " -> ".join((*stack, profile_name))
+            raise ConfigError(f"profile cycle detected: {chain}")
+        if profile_name not in profile_specs:
+            raise ConfigError(f"unknown profile: {profile_name}")
+        skills, excluded, extends = profile_specs[profile_name]
+        installed: set[str] = set()
+        removed: set[str] = set()
+        if extends is not None:
+            parent_installed, parent_removed = resolve_profile(
+                extends, (*stack, profile_name)
+            )
+            installed.update(parent_installed)
+            removed.update(parent_removed)
+        for skill in skills:
+            installed.add(skill)
+            removed.discard(skill)
+        for skill in excluded:
+            removed.add(skill)
+            installed.discard(skill)
+        resolved = (tuple(sorted(installed)), tuple(sorted(removed)))
+        resolved_profiles[profile_name] = resolved
+        return resolved
+
+    for profile_name in profile_specs:
+        resolve_profile(profile_name, ())
 
     raw_targets = data.get("targets")
     if not isinstance(raw_targets, dict) or not raw_targets:
@@ -118,27 +197,42 @@ def load_config(path: Path) -> Config:
         raw = raw_targets[name]
         if not isinstance(raw, dict):
             raise ConfigError(f"targets.{name} must be a table")
+        field = f"targets.{name}"
+        unexpected = set(raw) - TARGET_FIELDS
+        if unexpected:
+            raise ConfigError(f"{field} has unsupported fields: {sorted(unexpected)}")
         path_raw = raw.get("path")
-        skills_raw = raw.get("skills")
         if not isinstance(path_raw, str) or not path_raw:
-            raise ConfigError(f"targets.{name}.path must be a non-empty path")
-        if not isinstance(skills_raw, list) or not all(isinstance(item, str) for item in skills_raw):
-            raise ConfigError(f"targets.{name}.skills must be a list of names")
-        if len(skills_raw) != len(set(skills_raw)):
-            raise ConfigError(f"targets.{name}.skills contains duplicates")
+            raise ConfigError(f"{field}.path must be a non-empty path")
         mode_raw = raw.get("mode", "symlink")
         if mode_raw not in {"symlink", "copy"}:
-            raise ConfigError(f"targets.{name}.mode must be 'symlink' or 'copy'")
-        excluded_raw = raw.get("excluded", [])
-        if not isinstance(excluded_raw, list) or not all(isinstance(item, str) for item in excluded_raw):
-            raise ConfigError(f"targets.{name}.excluded must be a list of names")
-        if len(excluded_raw) != len(set(excluded_raw)):
-            raise ConfigError(f"targets.{name}.excluded contains duplicates")
-        overlap = set(excluded_raw) & set(skills_raw)
-        if overlap:
-            raise ConfigError(f"targets.{name} lists skills as both installed and excluded: {sorted(overlap)}")
+            raise ConfigError(f"{field}.mode must be 'symlink' or 'copy'")
+
+        profile_raw = raw.get("profile")
+        if profile_raw is not None:
+            if not isinstance(profile_raw, str) or not profile_raw:
+                raise ConfigError(f"{field}.profile must be a non-empty profile name")
+            if "skills" in raw or "excluded" in raw:
+                raise ConfigError(
+                    f"{field} cannot combine .profile with inline .skills or .excluded"
+                )
+            if profile_raw not in resolved_profiles:
+                raise ConfigError(f"{field} references unknown profile: {profile_raw}")
+            skills_raw, excluded_raw = resolved_profiles[profile_raw]
+        else:
+            skills_raw = parse_name_list(raw.get("skills"), f"{field}.skills")
+            excluded_raw = parse_name_list(raw.get("excluded", []), f"{field}.excluded")
+            overlap = set(skills_raw) & set(excluded_raw)
+            if overlap:
+                raise ConfigError(
+                    f"{field} lists skills as both installed and excluded: {sorted(overlap)}"
+                )
+
+        for skill in skills_raw:
+            if skill not in available_skills:
+                raise ConfigError(f"unknown or invalid skill for {name}: {skill}")
         for skill in excluded_raw:
-            if not (skills_root / skill / "SKILL.md").is_file():
+            if skill not in available_skills:
                 raise ConfigError(f"unknown excluded skill for {name}: {skill}")
 
         target_path = expand_path(path_raw)
@@ -149,10 +243,6 @@ def load_config(path: Path) -> Config:
         else:
             raise ConfigError(f"target path cannot be inside source skills: {target_path}")
 
-        for skill in skills_raw:
-            skill_dir = skills_root / skill
-            if not skill_dir.is_dir() or not (skill_dir / "SKILL.md").is_file():
-                raise ConfigError(f"unknown or invalid skill for {name}: {skill}")
         targets.append(
             Target(
                 name=name,

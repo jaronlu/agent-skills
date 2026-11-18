@@ -20,7 +20,7 @@
 
   <rect x="910" y="88" width="250" height="104" rx="12" fill="#4a3212" stroke="#d9a84e" stroke-width="1"/>
   <text x="930" y="118" fill="#e6eefa" font-size="15" font-weight="500">被发现</text>
-  <text x="930" y="146" fill="#eddcb8" font-size="12">~/.agents/skills</text>
+  <text x="930" y="146" fill="#eddcb8" font-size="12">共享技能目录 ~/.agents/skills</text>
   <text x="930" y="166" fill="#eddcb8" font-size="12">兼容的 Agent 自动读取</text>
 
   <path d="M296 140 H322 M316 135 L322 140 L316 145" stroke="#8ea3ba" stroke-width="1.5" fill="none"/>

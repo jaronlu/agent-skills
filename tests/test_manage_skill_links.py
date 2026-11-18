@@ -260,5 +260,133 @@ class SkillLinkManagerTests(unittest.TestCase):
             load_config(self.config_path)
 
 
+    def write_profile_config(self, profiles: str, profile: str = "full") -> None:
+        self.config_path.write_text(
+            "\n".join(
+                [
+                    "version = 1",
+                    "",
+                    "[distribution]",
+                    f"source = {json.dumps(str(self.source))}",
+                    "",
+                    profiles.strip(),
+                    "",
+                    "[targets.test]",
+                    f"path = {json.dumps(str(self.target))}",
+                    f"profile = {json.dumps(profile)}",
+                    "",
+                ]
+            ),
+            encoding="utf-8",
+        )
+
+    def test_profile_inheritance_resolves_sets(self) -> None:
+        self.create_skill("gamma")
+        self.write_profile_config(
+            """\
+[profiles.core]
+skills = ["alpha"]
+excluded = ["beta", "gamma"]
+
+[profiles.full]
+extends = "core"
+skills = ["beta"]
+"""
+        )
+        target = load_config(self.config_path).targets[0]
+        self.assertEqual(target.skills, ("alpha", "beta"))
+        self.assertEqual(target.excluded, ("gamma",))
+
+        self.sync()
+        self.assertTrue((self.target / "alpha").is_symlink())
+        self.assertTrue((self.target / "beta").is_symlink())
+        self.assertFalse(os.path.lexists(self.target / "gamma"))
+
+    def test_profile_exclusion_removes_owned_link(self) -> None:
+        self.write_profile_config(
+            """\
+[profiles.core]
+skills = ["alpha", "beta"]
+""",
+            profile="core",
+        )
+        self.sync()
+        self.assertTrue((self.target / "beta").is_symlink())
+
+        self.write_profile_config(
+            """\
+[profiles.core]
+skills = ["alpha", "beta"]
+
+[profiles.full]
+extends = "core"
+excluded = ["beta"]
+"""
+        )
+        config = load_config(self.config_path)
+        plan = build_plan(config)
+        self.assertEqual(
+            [(op.action, op.skill) for op in plan.operations if op.action == "remove"],
+            [("remove", "beta")],
+        )
+        apply_plan(plan)
+        verify(config)
+        self.assertTrue((self.target / "alpha").is_symlink())
+        self.assertFalse(os.path.lexists(self.target / "beta"))
+
+    def test_rejects_unknown_profile(self) -> None:
+        self.write_profile_config("", profile="missing")
+        with self.assertRaisesRegex(ConfigError, "unknown profile"):
+            load_config(self.config_path)
+
+    def test_rejects_profile_cycle(self) -> None:
+        self.write_profile_config(
+            """\
+[profiles.first]
+extends = "second"
+
+[profiles.second]
+extends = "first"
+""",
+            profile="first",
+        )
+        with self.assertRaisesRegex(ConfigError, "profile cycle"):
+            load_config(self.config_path)
+
+    def test_rejects_profile_names_that_do_not_exist(self) -> None:
+        self.write_profile_config(
+            """\
+[profiles.core]
+skills = ["missing-skill"]
+"""
+        )
+        with self.assertRaisesRegex(ConfigError, "references unknown skills"):
+            load_config(self.config_path)
+
+    def test_target_cannot_mix_profile_with_inline_lists(self) -> None:
+        self.config_path.write_text(
+            "\n".join(
+                [
+                    "version = 1",
+                    "",
+                    "[distribution]",
+                    f"source = {json.dumps(str(self.source))}",
+                    "",
+                    "[profiles.core]",
+                    'skills = ["alpha"]',
+                    "",
+                    "[targets.test]",
+                    f"path = {json.dumps(str(self.target))}",
+                    'profile = "core"',
+                    'skills = ["alpha"]',
+                    "",
+                ]
+            ),
+            encoding="utf-8",
+        )
+        with self.assertRaisesRegex(ConfigError, "cannot combine"):
+            load_config(self.config_path)
+
+
 if __name__ == "__main__":
     unittest.main()
