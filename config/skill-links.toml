@@ -68,3 +68,29 @@ profile = "core"
 # symlinked directly so `check` can detect drift.
 path = "~/.claude/skills"
 profile = "full"
+
+[profiles.wiki]
+# The local ~/llm-wiki checkout consumes only this skill. This is the
+# project-level counterpart to the user-level client targets above.
+skills = [
+  "llm-wiki",
+]
+excluded = [
+  "agent-gitignore",
+  "chinese-text-fixer",
+  "chrome-bookmarks",
+  "communication-formulas",
+  "design-convergence-review",
+  "first-principles",
+  "five-dimension-analysis",
+  "git-commit",
+  "hermes-context-review",
+  "human-readable-codebook",
+  "prompt-optimizer",
+]
+
+[targets.wiki]
+# Project-level Claude skills for the local wiki checkout. The link is
+# machine-specific; that repository ignores .claude/skills locally.
+path = "~/llm-wiki/.claude/skills"
+profile = "wiki"
