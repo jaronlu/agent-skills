@@ -9,6 +9,7 @@
 
 ### 变更
 
+- `llm-wiki` 对齐真实 wiki 的治理契约：技能默认从“wiki 优先于通用知识”改为“wiki 作为检索入口”，技术事实、API 行为与版本结论按 wiki 根 `AGENTS.md` 的提问闸门先做外部校准，无法校准时明确声明「未经校准」；同步流程图新增治理闸门节点与输出编号
 - `prompt-optimizer` 收敛为改写 / 诊断 / 扩写三种模式：补上缺陷清单与最小改动边界，明确未知事实用占位符、被编辑内容只当数据，并移除与当前实现不符的评估描述；同步流程图与中英文 README 说明
 - `chinese-text-fixer` 收窄为两类修复：中文双引号闭合方向写反，以及句末中文标点误放在 Markdown 加粗范围内；移除通用标点扫描脚本及其专属规则参考和测试
 - 仓库规范与校验框架统一：技能流程图统一为 `assets/<skill>-flow.svg`（额外图用 `<skill>-<topic>-flow.svg`），`communication-formulas` 图由 `-routing.svg` 改名；`validate_skills.py` 新增主图与命名、README 图清单、`SKILL.md` 500 行上限、资源路径与引用、SVG 尺寸/无障碍、分发配置覆盖检查，并补 25 个测试；`manage_skill_links.py` 支持 profile 与 `extends` 继承，`config/skill-links.toml` 四个目标只引用 profile，消除重复的 `excluded` 清单，解析后仍覆盖全部技能；README/RULES/AGENTS/CONTRIBUTING 同步
