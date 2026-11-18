@@ -7,6 +7,10 @@ version = 1
 # - `skills`   installed by the manager
 # - `excluded` deliberately not installed; manager-owned entries are removed
 #
+# `distribution.unlisted = "excluded"` makes `excluded` optional: skills a
+# profile does not name are excluded automatically. `sync` treats the resolved
+# `skills` set as an allowlist and prunes managed entries no longer listed.
+#
 # A profile with `extends` inherits both sets from its parent:
 # - `skills`   promotes inherited excluded entries to installed
 # - `excluded` demotes inherited installed entries to excluded
@@ -19,6 +23,9 @@ version = 1
 # checkout can no longer leave a stale path behind.
 
 [distribution]
+# Global rule: skills a profile does not name are excluded. A profile only
+# lists what it installs; `excluded` is for demoting inherited skills.
+unlisted = "excluded"
 
 [profiles.core]
 skills = [
@@ -47,6 +54,13 @@ skills = [
   "llm-wiki",
 ]
 
+[profiles.wiki]
+# The local ~/llm-wiki checkout installs only this skill. Unlisted skills are
+# excluded by the [distribution] rule above.
+skills = [
+  "llm-wiki",
+]
+
 [targets.agents]
 path = "~/.agents/skills"
 profile = "full"
@@ -68,26 +82,6 @@ profile = "core"
 # symlinked directly so `check` can detect drift.
 path = "~/.claude/skills"
 profile = "full"
-
-[profiles.wiki]
-# The local ~/llm-wiki checkout consumes only this skill. This is the
-# project-level counterpart to the user-level client targets above.
-skills = [
-  "llm-wiki",
-]
-excluded = [
-  "agent-gitignore",
-  "chinese-text-fixer",
-  "chrome-bookmarks",
-  "communication-formulas",
-  "design-convergence-review",
-  "first-principles",
-  "five-dimension-analysis",
-  "git-commit",
-  "hermes-context-review",
-  "human-readable-codebook",
-  "prompt-optimizer",
-]
 
 [targets.wiki]
 # Project-level Claude skills for the local wiki checkout. The link is

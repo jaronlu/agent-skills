@@ -23,6 +23,7 @@ except ModuleNotFoundError:  # Python 3.10 and older
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PROFILE_FIELDS = {"skills", "excluded", "extends"}
 TARGET_FIELDS = {"path", "skills", "excluded", "mode", "profile"}
+UNLISTED_POLICIES = {"explicit", "excluded"}
 
 
 class ConfigError(ValueError):
@@ -42,6 +43,7 @@ class Target:
 class Config:
     source: Path
     targets: tuple[Target, ...]
+    unlisted: str = "explicit"
 
 
 @dataclass(frozen=True)
@@ -112,6 +114,12 @@ def load_config(path: Path) -> Config:
         source = expand_path(source_raw)
     else:
         raise ConfigError("distribution.source must be a non-empty path")
+
+    unlisted = distribution.get("unlisted", "explicit")
+    if unlisted not in UNLISTED_POLICIES:
+        raise ConfigError(
+            "distribution.unlisted must be 'explicit' or 'excluded'"
+        )
 
     if not source.is_absolute():
         raise ConfigError("distribution.source must resolve to an absolute path")
@@ -235,6 +243,13 @@ def load_config(path: Path) -> Config:
             if skill not in available_skills:
                 raise ConfigError(f"unknown excluded skill for {name}: {skill}")
 
+        if unlisted == "excluded":
+            # Global allowlist rule: every skill this target does not install is
+            # excluded, so profiles do not have to repeat the full exclusion list.
+            excluded_raw = tuple(
+                sorted(set(excluded_raw) | (available_skills - set(skills_raw)))
+            )
+
         target_path = expand_path(path_raw)
         try:
             target_path.relative_to(skills_root)
@@ -253,7 +268,7 @@ def load_config(path: Path) -> Config:
             )
         )
 
-    return Config(source=source, targets=tuple(targets))
+    return Config(source=source, targets=tuple(targets), unlisted=unlisted)
 
 
 def link_target(path: Path) -> Path | None:
@@ -370,51 +385,58 @@ def build_plan(config: Config, *, unlink_all: bool = False) -> Plan:
         operations.append(sync_operation(target_name, skill, link, source, mode))
 
     if not unlink_all:
-        # Uninstall only the skills named in `excluded`. Nothing else in the
-        # target directory is ever considered, including third-party skills.
+        # The target is an allowlist. Prune every managed entry that is not in
+        # `skills`, including links whose source skill was deleted: ownership is
+        # proven by the link target, not by the skill still existing. Entries
+        # that do not provably point into this repository are never touched.
         for target in config.targets:
             if not target.path.is_dir():
                 continue
-            for skill in target.excluded:
-                link = target.path / skill
-                if not os.path.lexists(link):
+            source_skills = config.source / "skills"
+            installed = set(target.skills)
+            by_source: dict[str, list[str]] = {}
+            for entry in target.path.iterdir():
+                actual = link_target(entry)
+                if actual is not None:
+                    try:
+                        relative = actual.relative_to(source_skills)
+                    except ValueError:
+                        continue
+                    if len(relative.parts) != 1:
+                        continue
+                    by_source.setdefault(relative.name, []).append(entry.name)
                     continue
-                source = config.source / "skills" / skill
-                op = removal_operation(target.name, skill, link, source, target.mode)
-                # Entries the manager does not own are left alone rather than
-                # blocking every sync with a conflict.
+                if (
+                    target.mode == "copy"
+                    and entry.is_dir()
+                    and not entry.is_symlink()
+                ):
+                    source = source_skills / entry.name
+                    if source.is_dir() and is_managed_copy(entry, source):
+                        by_source.setdefault(entry.name, []).append(entry.name)
+
+            for skill, names in by_source.items():
+                canonical = target.path / skill
+                for extra in sorted(name for name in names if name != skill):
+                    operations.append(
+                        Operation(
+                            "conflict",
+                            target.name,
+                            skill,
+                            target.path / extra,
+                            canonical,
+                            "duplicate alias resolves to the same source skill",
+                        )
+                    )
+                if skill in installed:
+                    continue
+                if not os.path.lexists(canonical):
+                    continue
+                op = removal_operation(
+                    target.name, skill, canonical, source_skills / skill, target.mode
+                )
                 if op.action == "remove":
                     operations.append(op)
-
-    for target in config.targets:
-        if not target.path.is_dir():
-            continue
-        source_to_names: dict[str, list[str]] = {}
-        for entry in target.path.iterdir():
-            actual = link_target(entry)
-            if actual is None:
-                continue
-            try:
-                relative = actual.relative_to(config.source / "skills")
-            except ValueError:
-                continue
-            if len(relative.parts) != 1:
-                continue
-            source_to_names.setdefault(relative.name, []).append(entry.name)
-        for skill, names in source_to_names.items():
-            canonical = target.path / skill
-            extras = sorted(name for name in names if name != skill)
-            for extra in extras:
-                operations.append(
-                    Operation(
-                        "conflict",
-                        target.name,
-                        skill,
-                        target.path / extra,
-                        canonical,
-                        "duplicate alias resolves to the same source skill",
-                    )
-                )
 
     order = {"conflict": 0, "remove": 1, "replace": 2, "create": 3, "keep": 4}
     operations.sort(key=lambda op: (order[op.action], op.target, op.skill, str(op.link)))

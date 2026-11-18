@@ -9,6 +9,7 @@
 
 ### 变更
 
+- `config/skill-links.toml` 与 `manage_skill_links.py`：新增 `[distribution].unlisted = "excluded"` 全局规则，target 只需声明安装集合；`sync` 按该 allowlist 清理目标目录中指向本仓库的多余 managed 链接，包括已删除技能的残留，copy 模式仅在可验证时清理
 - `config/skill-links.toml` 新增 `wiki` profile 与 `[targets.wiki]`，把 `~/llm-wiki/.claude/skills/llm-wiki` 项目级链接纳入分发脚本管理；该目录仍由 wiki 仓库本地忽略
 - `llm-wiki` 真实演练反馈修复：搜索输出新增 `total` / `truncated`，`wiki_page` 的 backlinks 新增 `backlinks_total` / `backlinks_truncated` 不再静默截断，`wikilinks` 输出去重；文档补充 `--offset` 续读、wiki 定义的检索路由优先，以及 wrapper 只覆盖 `wiki_lint` 的额外检查提示；流程图同步治理闸门表述
 - `llm-wiki` 检索脚本修正四处：搜索片段只取正文，frontmatter 已单独返回；中文短语变体按共享二元组给部分匹配信用（`match_reasons: ["partial"]`），整词命中仍排在部分匹配之前；backlinks 同时识别 slug 与页面标题式 wikilink；`maintenance.md` 的 source-map 闭环改为自足步骤，不再要求先读 `create-or-update.md`

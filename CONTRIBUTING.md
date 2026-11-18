@@ -105,7 +105,7 @@ docs/skills/<skill-name>.md
 4. 在 `docs/skills/` 下（而非技能内部）添加可选的用户指南。
 5. 绘制主流程图 `assets/<skill-name>-flow.svg`；确需多张时用 `assets/<skill-name>-<topic>-flow.svg`。规范见 [RULES.md](RULES.md)。
 6. 将技能添加到 `README.md` 与 `README_zh-CN.md` 的技能表和流程图清单中。
-7. 在 `config/skill-links.toml` 的相关 `[profiles.*]` 中把该技能列入 `skills` 或 `excluded`（必要时用 `extends` 从父 profile 继承），并让目标引用该 profile；至少保留 `[targets.agents]` 的分发。
+7. 在 `config/skill-links.toml` 的相关 `[profiles.*]` 中决定该技能是否安装：列入 `skills` 即安装（必要时用 `extends` 从父 profile 继承），未列入则按 `[distribution].unlisted` 全局规则排除；并让目标引用该 profile，至少保留 `[targets.agents]` 的分发。`sync` 会按该 profile 的 `skills` 清理目标目录中指向本仓库的多余 managed 链接，包括已删除技能的残留，不需要手工维护排除清单。
 8. 在 `CHANGELOG.md` → `[未发布]` 下添加条目。
 9. 运行验证；改动分发配置时先 `sync --dry-run`，确认后再 `sync`。
 

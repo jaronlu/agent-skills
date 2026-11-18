@@ -385,6 +385,19 @@ profile = "full"
             [],
         )
 
+    def test_global_unlisted_policy_allows_subset_profile(self) -> None:
+        config = """\
+version = 1
+[distribution]
+unlisted = "excluded"
+[profiles.wiki]
+skills = ["alpha"]
+[targets.agents]
+path = "~/.agents/skills"
+profile = "wiki"
+"""
+        self.assertEqual(self.check(config, {"alpha", "beta", "gamma"}), [])
+
     def test_profile_target_must_cover_every_skill(self) -> None:
         config = """\
 version = 1

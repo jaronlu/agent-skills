@@ -111,9 +111,15 @@ python3 scripts/validate_skills.py
 ## 规则二：skill 必须显式登记到每个分发目标
 
 技能不会自动同步。`config/skill-links.toml` 用 `[profiles.*]` 描述分发集合，`[targets.*]`
-只引用 profile。每个目标解析后的 `skills` 与 `excluded` 必须覆盖 `skills/` 下的全部技能；
-profile 可用 `extends` 继承父 profile，子 profile 的 `skills` 把父级的排除项提升为安装，
-`excluded` 把父级的安装项降为排除。新增技能时，必须在相关 profile 中明确决定安装或排除。
+只引用 profile。`[distribution].unlisted = "excluded"` 是全局规则：profile 未列出的技能默认排除，
+因此新增只需要少量技能的 profile 或 target 时只写 `skills`，不用重复整份排除清单；
+子 profile 仍可用 `excluded` 把继承的安装项降为排除。每个目标解析后的 `skills` 与 `excluded`
+仍覆盖 `skills/` 下的全部技能（未列出部分由全局规则补齐）。新增技能时，在相关 profile 中决定
+是否安装；未列入即按全局规则排除。
+
+`sync` 以目标解析后的 `skills` 为 allowlist：创建这些链接，并删除目标目录中指向本仓库、
+但不在该集合的 managed 条目，包括已从 `skills/` 删除的技能的残留链接；第三方条目、真实文件
+和未指向本仓库的链接一律不动。copy 模式只能在 `is_managed_copy` 可验证时删除。
 
 - 至少保留 `[targets.agents]`，它是默认共享目录（默认 `~/.agents/skills`）。
 - 共享目录是本仓库的分发终点；不要登记已不再使用的中间分发服务。

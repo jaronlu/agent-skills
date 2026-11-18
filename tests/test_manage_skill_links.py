@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -39,11 +40,13 @@ class SkillLinkManagerTests(unittest.TestCase):
         source: Path | None = None,
         mode: str | None = None,
         excluded: list[str] | None = None,
+        unlisted: str | None = None,
     ) -> None:
         source = source or self.source
         quoted = ", ".join(json.dumps(skill) for skill in skills)
         excluded_quoted = ", ".join(json.dumps(skill) for skill in excluded or [])
         mode_line = [f"mode = {json.dumps(mode)}"] if mode else []
+        unlisted_line = [f"unlisted = {json.dumps(unlisted)}"] if unlisted else []
         self.config_path.write_text(
             "\n".join(
                 [
@@ -51,6 +54,7 @@ class SkillLinkManagerTests(unittest.TestCase):
                     "",
                     "[distribution]",
                     f"source = {json.dumps(str(source))}",
+                    *unlisted_line,
                     "",
                     "[targets.test]",
                     f"path = {json.dumps(str(self.target))}",
@@ -79,6 +83,19 @@ class SkillLinkManagerTests(unittest.TestCase):
         plan = build_plan(config)
         self.assertFalse(plan.changes)
         self.assertEqual([op.action for op in plan.operations], ["keep"])
+
+    def test_global_unlisted_policy_expands_target_exclusions(self) -> None:
+        self.write_config(["alpha"], unlisted="excluded")
+        config = load_config(self.config_path)
+        target = config.targets[0]
+        self.assertEqual(target.skills, ("alpha",))
+        self.assertEqual(target.excluded, ("beta",))
+        self.assertEqual(config.unlisted, "excluded")
+
+    def test_rejects_unknown_unlisted_policy(self) -> None:
+        self.write_config(["alpha"], unlisted="installed")
+        with self.assertRaisesRegex(ConfigError, "unlisted"):
+            load_config(self.config_path)
 
     def test_rejects_duplicate_config_entries(self) -> None:
         self.write_config(["alpha", "alpha"])
@@ -120,12 +137,46 @@ class SkillLinkManagerTests(unittest.TestCase):
         apply_plan(plan)
         self.assertFalse(os.path.lexists(self.target / "alpha"))
 
-    def test_leaves_unlisted_link_untouched(self) -> None:
+    def test_prunes_unlisted_owned_link(self) -> None:
         self.sync()
         self.write_config([])
         plan = build_plan(load_config(self.config_path))
-        self.assertFalse(plan.operations)
-        self.assertTrue((self.target / "alpha").is_symlink())
+        self.assertEqual([(op.action, op.skill) for op in plan.operations], [("remove", "alpha")])
+        apply_plan(plan)
+        self.assertFalse(os.path.lexists(self.target / "alpha"))
+
+    def test_verify_rejects_stale_owned_link(self) -> None:
+        self.sync()
+        self.write_config([])
+        config = load_config(self.config_path)
+        with self.assertRaisesRegex(ConfigError, "verification failed"):
+            verify(config)
+
+    def test_prunes_link_to_deleted_skill(self) -> None:
+        self.sync()
+        shutil.rmtree(self.source / "skills" / "alpha")
+        self.write_config([])
+        config = load_config(self.config_path)
+        plan = build_plan(config)
+        self.assertEqual([(op.action, op.skill) for op in plan.operations], [("remove", "alpha")])
+        apply_plan(plan)
+        verify(config)
+        self.assertFalse(os.path.lexists(self.target / "alpha"))
+
+    def test_copy_mode_keeps_unverifiable_copy_after_source_deletion(self) -> None:
+        self.create_skill("gamma")
+        self.write_config(["alpha", "gamma"], mode="copy")
+        self.sync()
+        shutil.rmtree(self.source / "skills" / "gamma")
+        self.write_config(["alpha"], mode="copy")
+        config = load_config(self.config_path)
+        plan = build_plan(config)
+        self.assertFalse(
+            any(op.action == "remove" and op.skill == "gamma" for op in plan.operations)
+        )
+        apply_plan(plan)
+        verify(config)
+        self.assertTrue((self.target / "gamma").is_dir())
 
     def test_source_move_replaces_existing_link(self) -> None:
         self.sync()
