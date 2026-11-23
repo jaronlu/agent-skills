@@ -35,6 +35,7 @@ skills = [
   "git-commit",
   "human-readable-codebook",
   "prompt-optimizer",
+  "what-why-how",
 ]
 excluded = [
   "chrome-bookmarks",

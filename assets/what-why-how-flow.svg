@@ -1,0 +1,48 @@
+<svg viewBox="0 0 680 670" width="680" height="670" xmlns="http://www.w3.org/2000/svg" role="img" font-family="system-ui, -apple-system, sans-serif">
+<title>what-why-how 知识讲解流程</title>
+<desc>识别用户的知识问题，先给一句话结论，再选择相关解释维度；按需补充背景、比较或表达，核对依据与不确定性，最后给出适合问题深度的回答。</desc>
+<defs>
+<style>text{font-family:system-ui,-apple-system,sans-serif}</style>
+<marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto" markerUnits="strokeWidth">
+<path d="M0 1 L10 5 L0 9 z" fill="#888780"/>
+</marker>
+</defs>
+<rect width="680" height="670" fill="#FFFFFF"/>
+
+<rect x="140" y="20" width="400" height="48" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="340" y="44" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">用户提出概念、技术、方法或工具问题</text>
+<path d="M340 68 L340 84" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="40" y="84" width="600" height="72" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text x="60" y="104" dominant-baseline="central" font-size="14" font-weight="500" fill="#0C447C">① 判断问题目标与复杂度</text>
+<text x="60" y="128" dominant-baseline="central" font-size="12" fill="#185FA5">识别用户要定义、理解原理、了解用法、比较方案或准备表达</text>
+<path d="M340 156 L340 172" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="40" y="172" width="600" height="82" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text x="60" y="193" dominant-baseline="central" font-size="14" font-weight="500" fill="#0C447C">② 先给一句话结论，再解释相关维度</text>
+<text x="60" y="217" dominant-baseline="central" font-size="12" fill="#185FA5">是什么、为什么、怎么用、适用边界，按问题需要选取</text>
+<text x="60" y="239" dominant-baseline="central" font-size="12" fill="#185FA5">简单问题简洁回答；复杂问题再补充机制、例子或层次</text>
+<path d="M340 254 L340 270" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<polygon points="340,270 450,316 340,362 230,316" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+<text x="340" y="308" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="500" fill="#633806">背景、比较或表达</text>
+<text x="340" y="328" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="500" fill="#633806">是否有助于回答？</text>
+
+<path d="M340 362 L340 382" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="352" y="376" font-size="12" fill="#5F5E5A">是</text>
+<path d="M450 316 L628 316 L628 515 L640 515" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="468" y="304" font-size="12" fill="#5F5E5A">否</text>
+<rect x="60" y="382" width="560" height="76" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="80" y="403" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">③ 按需补充</text>
+<text x="80" y="427" dominant-baseline="central" font-size="12" fill="#5F5E5A">说明技术背景、关键差异、记忆线索或面试表达；不相关则略过</text>
+<path d="M340 458 L340 478" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="40" y="478" width="600" height="74" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+<text x="60" y="499" dominant-baseline="central" font-size="14" font-weight="500" fill="#633806">④ 核对依据、事实与不确定性</text>
+<text x="60" y="523" dominant-baseline="central" font-size="12" fill="#854F0B">不编造；对时效性或精确事实查可靠来源，无法核实时说明边界</text>
+<path d="M340 552 L340 568" fill="none" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect x="40" y="568" width="600" height="76" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
+<text x="60" y="589" dominant-baseline="central" font-size="14" font-weight="500" fill="#173404">⑤ 输出清晰且匹配问题深度的解释</text>
+<text x="60" y="613" dominant-baseline="central" font-size="12" fill="#3B6D11">有助于记忆时收束核心差异；面试场景再给自然的口头表达</text>
+</svg>

@@ -1,6 +1,6 @@
 # Agent Skills
 
-**One line**: 12 self-contained agent skill packages, maintained in one repository and linked into the shared skill directories configured in `config/skill-links.toml` (`~/.agents/skills` by default).
+**One line**: 13 self-contained agent skill packages, maintained in one repository and linked into the shared skill directories configured in `config/skill-links.toml` (`~/.agents/skills` by default).
 
 **Run in 30 seconds**
 
@@ -8,11 +8,11 @@
 python3 scripts/validate_skills.py
 ```
 
-Verified locally: `Validated 12 skill package(s).`
+Verified locally: `Validated 13 skill package(s).`
 
 ![How packages reach an agent](assets/repository-overview.svg)
 
-**Verifiable**: `ls skills | wc -l` -> 12 packages; `python3 -m unittest discover -s tests` -> all tests passing; `python3 scripts/validate_skills.py` -> `Validated 12 skill package(s).`. The validation and test commands also run in CI on every push.
+**Verifiable**: `ls skills | wc -l` -> 13 packages; `python3 -m unittest discover -s tests` -> all tests passing; `python3 scripts/validate_skills.py` -> `Validated 13 skill package(s).`. The validation and test commands also run in CI on every push.
 
 **What this is not**: this repository maintains skill packages and link rules only; it does not ship an agent runtime.
 
@@ -76,6 +76,7 @@ a clear message instead of a `ModuleNotFoundError`.
 | [human-readable-codebook](skills/human-readable-codebook/SKILL.md) | Turns a repository into a tutorial that reads without the source, gated on OpenWiki and tracked by claim evidence. |
 | [chinese-text-fixer](skills/chinese-text-fixer/SKILL.md) | Fixes reversed Chinese closing quotes and moves sentence-final punctuation outside Markdown bold markers. |
 | [agent-gitignore](skills/agent-gitignore/SKILL.md) | Adds only disposable agent runtime artifacts (ZCode plugin dirs .mimosa and .v2c, .workbuddy, Claude local settings, Aider caches) to .gitignore, skipping tracked files and user-authored config. |
+| [what-why-how](skills/what-why-how/SKILL.md) | Explains concepts, technologies, methods, and tools with relevant context, usage, boundaries, comparisons, and memory cues. |
 
 User guides are optional and live outside the runtime packages, in `docs/skills/`. That directory is
 a symlink into the llm-wiki workshop, so it is not version-controlled here. Only
@@ -158,6 +159,12 @@ Fixes reversed Chinese closing quotes and sentence punctuation placed inside Mar
 Detect runtime artifacts, skip tracked or covered paths, and commit .gitignore atomically.
 
 [![agent-gitignore: detect, append, and commit runtime artifacts](assets/agent-gitignore-flow.svg)](assets/agent-gitignore-flow.svg)
+
+### what-why-how
+
+Direct answer first, with explanation depth and optional context selected for the question.
+
+[![what-why-how: explain concepts and add relevant context](assets/what-why-how-flow.svg)](assets/what-why-how-flow.svg)
 
 ## Verify
 

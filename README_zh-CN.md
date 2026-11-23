@@ -56,6 +56,7 @@
 | [human-readable-codebook](skills/human-readable-codebook/SKILL.md) | 把仓库讲成不翻源码也能读懂的书：OpenWiki 硬闸门、按 Phase 挂载参考、证据分级维护。 |
 | [chinese-text-fixer](skills/chinese-text-fixer/SKILL.md) | 修复中文双引号闭合方向写反，以及句末标点误放在 Markdown 加粗范围内。 |
 | [agent-gitignore](skills/agent-gitignore/SKILL.md) | 把 Agent 的一次性运行时产物写入 .gitignore（ZCode 插件的 .mimosa、.v2c，WorkBuddy、Claude 本地设置、Aider 缓存），跳过已跟踪文件与用户配置。 |
+| [what-why-how](skills/what-why-how/SKILL.md) | 先给结论，再按需解释概念、动机、用法、适用边界，并补充比较、记忆要点或面试表达。 |
 
 用户指南是可选的，位于运行时包之外的 `docs/skills/`。该目录是指向 llm-wiki workshop 的软链接，
 不受本仓库版本控制。目前只有 [design-convergence-review](docs/skills/design-convergence-review.md)
@@ -140,6 +141,12 @@ OpenWiki 闸门、八个阶段、证据分级的页面。
 按存在性、跟踪状态和现有规则分流，只追加缺失条目并原子提交 .gitignore。
 
 [![agent-gitignore：检测、追加与原子提交](assets/agent-gitignore-flow.svg)](assets/agent-gitignore-flow.svg)
+
+### what-why-how
+
+先直接回答，再按问题需要选择解释深度和补充内容。
+
+[![what-why-how：解释概念并按需补充背景](assets/what-why-how-flow.svg)](assets/what-why-how-flow.svg)
 
 ## 验证
 

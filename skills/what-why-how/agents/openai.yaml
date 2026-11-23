@@ -1,0 +1,4 @@
+interface:
+  display_name: "What · Why · How"
+  short_description: "Explain concepts, reasons, usage, limits, and key differences"
+  default_prompt: "Use $what-why-how to explain a concept, technology, method, or tool."
