@@ -42,7 +42,6 @@ excluded = [
   "communication-formulas",
   "design-convergence-review",
   "five-dimension-analysis",
-  "hermes-context-review",
   "llm-wiki",
 ]
 

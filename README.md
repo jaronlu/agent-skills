@@ -68,7 +68,6 @@ a clear message instead of a `ModuleNotFoundError`.
 | [design-convergence-review](skills/design-convergence-review/SKILL.md) | Checks whether a design is ready for implementation and identifies unresolved blockers. |
 | [first-principles](skills/first-principles/SKILL.md) | Challenges conventional claims, derives cost or performance bounds, and identifies what still needs validation. |
 | [git-commit](skills/git-commit/SKILL.md) | Drafts repository-aware Conventional Commit messages, or turns the selected changes into atomic commits. |
-| [hermes-context-review](skills/hermes-context-review/SKILL.md) | Audits Hermes context for conflicting, stale, unsafe, or wasteful instructions. |
 | [llm-wiki](skills/llm-wiki/SKILL.md) | Searches, verifies, and maintains a local Markdown wiki when explicitly invoked. |
 | [five-dimension-analysis](skills/five-dimension-analysis/SKILL.md) | Splits a messy situation across time, interests, power, bargaining, and essence, then outputs falsifiable judgments and actionable moves. |
 | [communication-formulas](skills/communication-formulas/SKILL.md) | Picks one of five speaking formulas (SCQA, FAB, BACC, 3W, PREP) by communication goal and assembles ready-to-say wording. |
@@ -111,12 +110,6 @@ Four-step analysis with an evidence gate and reality checks.
 From mode selection to atomic commits.
 
 [![git-commit: from mode selection to atomic commits](assets/git-commit-flow.svg)](assets/git-commit-flow.svg)
-
-### hermes-context-review
-
-Context audit and severity.
-
-[![hermes-context-review: context audit and severity](assets/hermes-context-review-flow.svg)](assets/hermes-context-review-flow.svg)
 
 ### llm-wiki
 

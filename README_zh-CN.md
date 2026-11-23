@@ -48,7 +48,6 @@
 | [design-convergence-review](skills/design-convergence-review/SKILL.md) | 检查设计是否可以进入开发，并指出未收敛的阻塞问题。 |
 | [first-principles](skills/first-principles/SKILL.md) | 质疑惯例命题，推导成本或性能边界，明确仍需验证的部分。 |
 | [git-commit](skills/git-commit/SKILL.md) | 生成符合仓库规则的 Conventional Commit 信息，或把选定的改动拆成原子提交。 |
-| [hermes-context-review](skills/hermes-context-review/SKILL.md) | 审查 Hermes 上下文中的冲突、过期、不安全或冗余指令。 |
 | [llm-wiki](skills/llm-wiki/SKILL.md) | 在显式调用时搜索、验证和维护本地 Markdown Wiki。 |
 | [five-dimension-analysis](skills/five-dimension-analysis/SKILL.md) | 把复杂局面拆成时间、利益、权力、博弈、本质五个维度，产出可证伪的判断与可执行动作。 |
 | [communication-formulas](skills/communication-formulas/SKILL.md) | 按沟通目的选用 SCQA / FAB / BACC / 3W / PREP 五套表达顺序，装配成可直接开口的话术。 |
@@ -93,12 +92,6 @@ Chrome 开着也可整理；完全退出后才写回。
 从模式判定到原子提交。
 
 [![git-commit：从模式判定到原子提交](assets/git-commit-flow.svg)](assets/git-commit-flow.svg)
-
-### hermes-context-review
-
-上下文审查与分级。
-
-[![hermes-context-review：上下文审查与分级](assets/hermes-context-review-flow.svg)](assets/hermes-context-review-flow.svg)
 
 ### llm-wiki
 
