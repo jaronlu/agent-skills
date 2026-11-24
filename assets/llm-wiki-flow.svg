@@ -1,6 +1,6 @@
 <svg viewBox="0 0 680 860" width="680" height="860" xmlns="http://www.w3.org/2000/svg" role="img" font-family="system-ui, -apple-system, sans-serif">
 <title>llm-wiki 的意图路由与执行流程</title>
-<desc>仅在显式调用 /llm-wiki 时触发，先解析 wiki 根目录，再按意图路由到检索、验证、增删改、维护或布局配置；wiki 的 AGENTS.md 定义检索路由时优先遵循，其余默认脚本优先，写入前走治理文件与 candidate-first。</desc>
+<desc>仅在显式调用 /llm-wiki 时触发，先解析 wiki 根目录，再按意图路由到检索、验证、增删改与答案回填、维护或布局配置；wiki 的 AGENTS.md 定义检索路由时优先遵循，其余默认脚本优先，写入前走治理文件与 candidate-first，过时知识按 SCHEMA.md 标为历史，上游仓库只读。</desc>
 <defs>
 <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
 <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -34,7 +34,7 @@
 <text x="366" y="298" dominant-baseline="central" font-size="12" fill="#185FA5">references/verify-and-answer.md</text>
 
 <rect x="52" y="320" width="284" height="52" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
-<text x="72" y="338" dominant-baseline="central" font-size="14" font-weight="500" fill="#0C447C">新建 / 更新 / 重命名 / 删除</text>
+<text x="72" y="338" dominant-baseline="central" font-size="14" font-weight="500" fill="#0C447C">新建 / 更新 / 删除 / 答案回填</text>
 <text x="72" y="356" dominant-baseline="central" font-size="12" fill="#185FA5">references/create-or-update.md</text>
 
 <rect x="346" y="320" width="284" height="52" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>

@@ -24,6 +24,21 @@ Default to producing candidates for review instead of writing immediately:
 
 Apply changes only when the user asks for real edits or the task clearly authorizes maintenance.
 
+## Answer Backfill
+
+After answering from wiki content, consider backfill only when the answer produced a reusable synthesis, comparison, or workflow with sufficient sources:
+
+1. Follow the wiki's `AGENTS.md` backfill policy when it defines one.
+2. Prefer updating an existing canonical page that can carry the content.
+3. Propose the target page, the content to persist, and its sources; do not write without user confirmation unless the user already asked to archive or write.
+4. Skip one-off answers and any conclusion whose evidence is too weak for formal knowledge.
+
+## Timeliness
+
+- Do not write knowledge that is already outdated and has no continuing reference value into formal pages.
+- Version evolution or deprecation that still has historical value must be marked as historical or as a counter-example following the wiki's `SCHEMA.md`, with the official replacement and the basis for that replacement.
+- Verify time-sensitive claims against current sources before writing; when the wiki's `SCHEMA.md` or `AGENTS.md` defines stricter handling, follow it.
+
 ## Page Decision
 
 Before creating a page:

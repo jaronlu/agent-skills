@@ -32,7 +32,7 @@ When a wiki claim depends on a source that may change over time (API behavior, v
 
 - Do not silently overwrite conflicting wiki content.
 - If two wiki pages or source documents conflict, preserve both positions and mark the unresolved state in any proposed update.
-- If verified current evidence contradicts the wiki, answer with the verified evidence and flag the wiki mismatch.
+- If verified current evidence contradicts the wiki, answer with the verified evidence and flag the wiki mismatch; when the answer is reusable, propose a backfill or historical-marking update through [create-or-update.md](create-or-update.md).
 - Use `contested: true` and `contradictions: [...]` for unresolved wiki updates.
 
 ## Validation Labels

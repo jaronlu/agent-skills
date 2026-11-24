@@ -60,9 +60,10 @@ Check in this order:
 3. Invalid frontmatter, tags, sources, page types, confidence, or contested metadata.
 4. Source-map drift for raw sources.
 5. `confidence: low` pages that need evidence.
-6. `contested: true` pages that may now be resolvable.
-7. Orphan pages and duplicate concepts.
-8. Oversized `concept` or `comparison` pages that may contain multiple independently recalled topics.
+6. Outdated or deprecated claims that need historical marking, replacement links, or retirement.
+7. `contested: true` pages that may now be resolvable.
+8. Orphan pages and duplicate concepts.
+9. Oversized `concept` or `comparison` pages that may contain multiple independently recalled topics.
 
 ## Reporting
 
