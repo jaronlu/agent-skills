@@ -16,6 +16,7 @@ import uuid
 from collections.abc import Callable
 from datetime import date
 from pathlib import Path
+from typing import Any, TypedDict
 
 ROOT_ORDER = ("bookmark_bar", "other", "synced")
 ROOT_LABELS = {"bookmark_bar": "书签栏", "other": "其他书签", "synced": "移动设备书签"}
@@ -35,6 +36,21 @@ BROWSER_COMMS = {
     "google chrome helper (plugin)",
     "chromium helper",
 }
+
+JsonObject = dict[str, Any]
+
+
+class LeafStats(TypedDict):
+    old_urls: int
+    new_urls: int
+    kept: int
+    added: int
+    removed: int
+    moved: int
+    renamed: int
+    added_urls: list[str]
+    removed_urls: list[str]
+    moved_rows: list[tuple[str, str, str]]
 
 
 def default_user_data() -> Path:
@@ -126,13 +142,13 @@ def last_used_profile(user_data: Path) -> str:
     return str(name)
 
 
-def count_urls(node: dict) -> int:
+def count_urls(node: JsonObject) -> int:
     if node.get("type") == "url":
         return 1
     return sum(count_urls(child) for child in node.get("children") or [])
 
 
-def load_bookmarks(path: Path) -> dict:
+def load_bookmarks(path: Path) -> JsonObject:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
@@ -142,12 +158,12 @@ def load_bookmarks(path: Path) -> dict:
     return data
 
 
-def root_nodes(data: dict) -> dict:
+def root_nodes(data: JsonObject) -> JsonObject:
     roots = data.get("roots")
     return roots if isinstance(roots, dict) else {}
 
 
-def top_level_folders(node: dict) -> list[str]:
+def top_level_folders(node: JsonObject) -> list[str]:
     return [
         str(child.get("name", ""))
         for child in node.get("children") or []
@@ -169,7 +185,7 @@ def atomic_write(path: Path, data: bytes) -> None:
         raise
 
 
-def folder_lines(node: dict, prefix: str, lines: list[str]) -> None:
+def folder_lines(node: JsonObject, prefix: str, lines: list[str]) -> None:
     for child in node.get("children") or []:
         if child.get("type") != "folder":
             continue
@@ -293,7 +309,9 @@ def cmd_write(args: argparse.Namespace) -> int:
     return 0
 
 
-def collect_leaves(node: dict, path: list[str], found: list[tuple[str, str, str]]) -> None:
+def collect_leaves(
+    node: JsonObject, path: list[str], found: list[tuple[str, str, str]]
+) -> None:
     for child in node.get("children") or []:
         if child.get("type") == "folder":
             collect_leaves(child, path + [str(child.get("name", ""))], found)
@@ -301,7 +319,7 @@ def collect_leaves(node: dict, path: list[str], found: list[tuple[str, str, str]
             found.append(("/".join(path), str(child.get("name", "")), str(child.get("url", ""))))
 
 
-def root_leaf_stats(old_roots: dict, new_roots: dict, key: str) -> dict:
+def root_leaf_stats(old_roots: JsonObject, new_roots: JsonObject, key: str) -> LeafStats:
     old_leaves: list[tuple[str, str, str]] = []
     new_leaves: list[tuple[str, str, str]] = []
     old_node = old_roots.get(key)
@@ -360,7 +378,7 @@ def cmd_diff(args: argparse.Namespace) -> int:
 
 def leaf_stats(
     old_leaves: list[tuple[str, str, str]], new_leaves: list[tuple[str, str, str]]
-) -> dict:
+) -> LeafStats:
     old_by_url = {url: (path, name) for path, name, url in old_leaves}
     new_by_url = {url: (path, name) for path, name, url in new_leaves}
     added_urls = sorted(set(new_by_url) - set(old_by_url))
@@ -394,7 +412,7 @@ def chrome_now() -> str:
     return str(int((time.time() + CHROME_EPOCH_DELTA) * 1_000_000))
 
 
-def max_id_in(node: dict) -> int:
+def max_id_in(node: JsonObject) -> int:
     best = 0
     try:
         best = int(str(node.get("id") or "0"))
@@ -406,7 +424,7 @@ def max_id_in(node: dict) -> int:
     return best
 
 
-def index_urls(node: dict, found: dict[str, dict]) -> None:
+def index_urls(node: JsonObject, found: dict[str, JsonObject]) -> None:
     if node.get("type") == "url":
         url = str(node.get("url") or "")
         if url and url not in found:
@@ -417,7 +435,9 @@ def index_urls(node: dict, found: dict[str, dict]) -> None:
             index_urls(child, found)
 
 
-def index_folders(node: dict, path: tuple[str, ...], found: dict[tuple[str, ...], dict]) -> None:
+def index_folders(
+    node: JsonObject, path: tuple[str, ...], found: dict[tuple[str, ...], JsonObject]
+) -> None:
     if node.get("type") == "folder":
         found[path] = node
     for child in node.get("children") or []:
@@ -433,7 +453,9 @@ def parse_folder_path(raw: object) -> list[str]:
     return [part for part in str(raw).split("/") if part.strip()]
 
 
-def copy_url_node(source: dict | None, name: str, url: str, next_id: Callable[[], str], now: str) -> dict:
+def copy_url_node(
+    source: JsonObject | None, name: str, url: str, next_id: Callable[[], str], now: str
+) -> JsonObject:
     if source:
         node = {key: value for key, value in source.items() if key != "children"}
         node["type"] = "url"
@@ -457,16 +479,16 @@ def copy_url_node(source: dict | None, name: str, url: str, next_id: Callable[[]
 
 
 def ensure_folder(
-    children: list[dict],
+    children: list[JsonObject],
     name: str,
     next_id: Callable[[], str],
     now: str,
-    original: dict | None,
-) -> dict:
+    original: JsonObject | None,
+) -> JsonObject:
     for child in children:
         if child.get("type") == "folder" and child.get("name") == name:
             return child
-    folder = {
+    folder: JsonObject = {
         "children": [],
         "date_added": (original or {}).get("date_added") or now,
         "date_modified": now,
@@ -479,7 +501,7 @@ def ensure_folder(
     return folder
 
 
-def empty_root(node: dict, now: str) -> dict:
+def empty_root(node: JsonObject, now: str) -> JsonObject:
     emptied = dict(node)
     emptied["children"] = []
     emptied["date_modified"] = now
@@ -487,7 +509,7 @@ def empty_root(node: dict, now: str) -> dict:
     return emptied
 
 
-def load_plan(path: Path) -> dict:
+def load_plan(path: Path) -> JsonObject:
     try:
         plan = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
@@ -528,17 +550,17 @@ def cmd_emit(args: argparse.Namespace) -> int:
         next_number += 1
         return str(next_number)
 
-    originals: dict[str, dict] = {}
+    originals: dict[str, JsonObject] = {}
     for node in roots.values():
         if isinstance(node, dict):
             index_urls(node, originals)
-    original_folders: dict[tuple[str, ...], dict] = {}
+    original_folders: dict[tuple[str, ...], JsonObject] = {}
     index_folders(bar, (), original_folders)
 
     items = plan.get("items") or []
     seen: set[str] = set()
     new_bar = dict(bar)
-    new_children: list[dict] = []
+    new_children: list[JsonObject] = []
     new_bar["children"] = new_children
     new_bar["date_modified"] = now
     warnings: list[str] = []
@@ -722,7 +744,8 @@ def main() -> int:
     write.set_defaults(func=cmd_write)
 
     args = parser.parse_args()
-    return args.func(args)
+    command: Callable[[argparse.Namespace], int] = args.func
+    return command(args)
 
 
 if __name__ == "__main__":
