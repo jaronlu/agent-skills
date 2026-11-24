@@ -8,7 +8,7 @@ from typing import Any
 
 sys.dont_write_bytecode = True
 
-from _wiki_common import cjk_bigrams, tokens, wikilinks
+from _wiki_common import cjk_bigrams, tokens, wikilinks  # noqa: E402
 
 def score_page(
     page: dict[str, Any],

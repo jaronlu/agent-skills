@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import subprocess
 import sys
+from typing import Any
 
 sys.dont_write_bytecode = True
 
@@ -24,15 +25,21 @@ def main() -> int:
     parser.add_argument("--timeout", type=int, default=30)
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
+    if args.timeout <= 0:
+        parser.error("--timeout must be > 0")
 
     root = resolve_root(args.root)
     lint = root / "scripts" / "wiki_lint.py"
     if not lint.is_file():
-        payload = {"ok": False, "error": "wiki_lint.py not found", "root": str(root)}
+        missing_payload = {
+            "ok": False,
+            "error": "wiki_lint.py not found",
+            "root": str(root),
+        }
         if args.json:
-            dump_json(payload)
+            dump_json(missing_payload)
         else:
-            print(payload["error"], file=sys.stderr)
+            print(missing_payload["error"], file=sys.stderr)
         return 2
 
     command = [sys.executable, str(lint)]
@@ -49,7 +56,7 @@ def main() -> int:
             timeout=args.timeout,
             check=False,
         )
-        payload = {
+        payload: dict[str, Any] = {
             "ok": completed.returncode == 0,
             "returncode": completed.returncode,
             "root": str(root),
@@ -65,6 +72,13 @@ def main() -> int:
             "stdout": (exc.stdout or "").strip() if isinstance(exc.stdout, str) else "",
             "stderr": (exc.stderr or "").strip() if isinstance(exc.stderr, str) else "",
         }
+    except OSError as exc:
+        payload = {
+            "ok": False,
+            "error": "unable to run wiki_lint.py",
+            "details": str(exc),
+            "root": str(root),
+        }
 
     if not payload["ok"] and args.config and payload.get("stderr"):
         hint = (
@@ -72,7 +86,11 @@ def main() -> int:
             " upgrade wiki scripts or remove the layout configuration"
         )
         if args.json:
-            payload.setdefault("hints", []).append(hint)
+            hints = payload.get("hints")
+            if not isinstance(hints, list):
+                hints = []
+            hints.append(hint)
+            payload["hints"] = hints
         else:
             print(hint, file=sys.stderr)
     if args.json:

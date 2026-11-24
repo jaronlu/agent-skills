@@ -363,6 +363,16 @@ Backlink target.
         self.assertFalse(payload["ok"])
         self.assertEqual(len(payload["hints"]), 1)
 
+    def test_validate_rejects_non_positive_timeout(self) -> None:
+        completed = subprocess.run(
+            [sys.executable, str(VALIDATE), "--root", str(self.root), "--timeout", "0"],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        self.assertEqual(completed.returncode, 2)
+        self.assertIn("--timeout must be > 0", completed.stderr)
+
     def test_installed_script_does_not_create_bytecode_in_skill(self) -> None:
         installed_scripts = self.root / "installed-skill" / "scripts"
         shutil.copytree(

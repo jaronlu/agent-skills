@@ -8,7 +8,8 @@ from typing import Any
 
 sys.dont_write_bytecode = True
 
-from _wiki_common import (
+# Keep bytecode disabled before importing the shared helper module.  # noqa: E402
+from _wiki_common import (  # noqa: E402
     UnsupportedContentError,
     WikiLayout,
     compact_page,
@@ -44,7 +45,7 @@ def resolve_page(
     for path in iter_scope(root, scope, layout):
         try:
             text = read_text(path)
-        except UnsupportedContentError:
+        except (UnsupportedContentError, OSError):
             continue
         page = compact_page(root, path, text)
         if normalized in {
@@ -117,7 +118,7 @@ def main() -> int:
         print(str(exc), file=sys.stderr)
         return 2
     if path is None:
-        payload = {
+        not_found_payload = {
             "error": "page not found",
             "target": args.target,
             "scope": args.scope,
@@ -125,15 +126,15 @@ def main() -> int:
             "config": str(layout.path) if layout.path else None,
         }
         if args.json:
-            dump_json(payload)
+            dump_json(not_found_payload)
         else:
-            print(payload["error"], file=sys.stderr)
+            print(not_found_payload["error"], file=sys.stderr)
         return 2
 
     try:
         text = read_text(path)
     except UnsupportedContentError as exc:
-        payload = {
+        unsupported_payload = {
             "error": "unsupported content",
             "details": str(exc),
             "path": rel(root, path),
@@ -142,9 +143,23 @@ def main() -> int:
             "config": str(layout.path) if layout.path else None,
         }
         if args.json:
-            dump_json(payload)
+            dump_json(unsupported_payload)
         else:
-            print(payload["error"], file=sys.stderr)
+            print(unsupported_payload["error"], file=sys.stderr)
+        return 2
+    except OSError as exc:
+        message = f"unable to read page: {exc}"
+        if args.json:
+            dump_json({
+                "error": "read failed",
+                "details": message,
+                "path": rel(root, path),
+                "scope": args.scope,
+                "root": str(root),
+                "config": str(layout.path) if layout.path else None,
+            })
+        else:
+            print(message, file=sys.stderr)
         return 2
     frontmatter, body = parse_frontmatter(text)
     offset = max(0, args.offset)
