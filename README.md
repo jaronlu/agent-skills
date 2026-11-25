@@ -1,6 +1,6 @@
 # Agent Skills
 
-**One line**: 13 self-contained agent skill packages, maintained in one repository and linked into the shared skill directories configured in `config/skill-links.toml` (`~/.agents/skills` by default).
+**One line**: 12 self-contained agent skill packages, maintained in one repository and linked into the shared skill directories configured in `config/skill-links.toml` (`~/.agents/skills` by default).
 
 **Run in 30 seconds**
 
@@ -8,11 +8,11 @@
 python3 scripts/validate_skills.py
 ```
 
-Verified locally: `Validated 13 skill package(s).`
+Verified locally: `Validated 12 skill package(s).`
 
 ![How packages reach an agent](assets/repository-overview.svg)
 
-**Verifiable**: `ls skills | wc -l` -> 13 packages; `python3 -m unittest discover -s tests` -> all tests passing; `python3 scripts/validate_skills.py` -> `Validated 13 skill package(s).`. The validation and test commands also run in CI on every push.
+**Verifiable**: `ls skills | wc -l` -> 12 packages; `python3 -m unittest discover -s tests` -> all tests passing; `python3 scripts/validate_skills.py` -> `Validated 12 skill package(s).`. The validation and test commands also run in CI on every push.
 
 **What this is not**: this repository maintains skill packages and link rules only; it does not ship an agent runtime.
 
